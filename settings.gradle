@@ -1,1 +1,4 @@
-rootProject.name = 'backend'
+rootProject.name = 'capstone-server'
+include 'capstone-api'
+include 'capstone-domain'
+include 'capstone-common'
