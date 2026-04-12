@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.ErrorCode;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
