@@ -72,6 +72,39 @@ public class Spot {
 	private LocalDateTime updatedAt;
 
 	/**
+	 * 스팟 상태를 MATCHED로 변경 (OPEN → MATCHED)
+	 * 참여자가 확정되어 스팟이 진행 중으로 전환될 때 호출
+	 */
+	public void match() {
+		if (this.status != FeedItemStatus.OPEN) {
+			throw new IllegalStateException("모집 중인 스팟만 매칭할 수 있습니다. 현재 상태: " + this.status);
+		}
+		this.status = FeedItemStatus.MATCHED;
+	}
+
+	/**
+	 * 스팟 상태를 CLOSED로 변경 (OPEN → CLOSED)
+	 * 모집 중 취소될 때 호출
+	 */
+	public void cancel() {
+		if (this.status != FeedItemStatus.OPEN) {
+			throw new IllegalStateException("모집 중인 스팟만 취소할 수 있습니다. 현재 상태: " + this.status);
+		}
+		this.status = FeedItemStatus.CLOSED;
+	}
+
+	/**
+	 * 스팟 상태를 CLOSED로 변경 (MATCHED → CLOSED)
+	 * 스팟 활동이 모두 완료될 때 호출
+	 */
+	public void complete() {
+		if (this.status != FeedItemStatus.MATCHED) {
+			throw new IllegalStateException("진행 중인 스팟만 완료할 수 있습니다. 현재 상태: " + this.status);
+		}
+		this.status = FeedItemStatus.CLOSED;
+	}
+
+	/**
 	 * Post 데이터를 기반으로 Spot을 생성하는 정적 팩토리 메서드
 	 */
 	public static Spot fromPost(Post post, String title, String description, Integer pointCost) {

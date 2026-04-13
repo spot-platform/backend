@@ -21,7 +21,8 @@ public class SecurityConfig {
 					"/swagger-ui/**",
 					"/swagger-ui.html",
 					"/swagger-resources/**",
-					"/webjars/**"
+					"/webjars/**",
+					"/api/**"  // TODO: 개발 완료 후 제거하고 인증 적용
 				).permitAll()
 				.anyRequest().authenticated()
 			);

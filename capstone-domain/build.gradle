@@ -8,4 +8,7 @@ jar {
 
 dependencies {
 	implementation project(':capstone-common')
+
+	// Repository 단위 테스트용 인메모리 DB
+	testRuntimeOnly 'com.h2database:h2'
 }
