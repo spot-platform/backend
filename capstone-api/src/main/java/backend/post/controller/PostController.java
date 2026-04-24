@@ -15,10 +15,8 @@ import backend.post.dto.CreateRequestPostRequest;
 import backend.post.dto.PostCompletionResponse;
 import backend.post.dto.PostResponse;
 import backend.post.service.PostService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Post API", description = "게시글 관련 API")
@@ -55,4 +53,3 @@ public class PostController {
 		return ApiResponse.success(response);
 	}
 }
-

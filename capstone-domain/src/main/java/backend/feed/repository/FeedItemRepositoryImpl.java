@@ -17,7 +17,6 @@ import backend.feed.entity.QFeedItem;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
-
 import lombok.RequiredArgsConstructor;
 
 /**

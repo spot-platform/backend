@@ -4,9 +4,7 @@ import java.util.List;
 
 import backend.global.enums.PostSpotCategory;
 import backend.global.enums.PostType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
