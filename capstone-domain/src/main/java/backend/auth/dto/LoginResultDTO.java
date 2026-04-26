@@ -8,9 +8,6 @@ public record LoginResultDTO(
 	@Schema(description = "Access Token (1시간 유효)", example = "eyJhbGci...")
 	String accessToken,
 
-	@Schema(description = "Refresh Token (7일 유효)", example = "eyJhbGci...")
-	String refreshToken,
-
 	@Schema(description = "유저 ID", example = "uuid-string")
 	String userId,
 

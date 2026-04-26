@@ -89,11 +89,11 @@ public class UserService implements UserDetailsService {
 		if (user.getIsSocial()) {
 			throw new BusinessException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_PASSWORD);
 		}
-		if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-			throw new BusinessException(ErrorCode.INVALID_PASSWORD);
-		}
 		if (!request.newPassword().equals(request.confirmPassword())) {
 			throw new BusinessException(ErrorCode.PASSWORD_CONFIRM_MISMATCH);
+		}
+		if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+			throw new BusinessException(ErrorCode.INVALID_PASSWORD);
 		}
 
 		user.changePassword(passwordEncoder.encode(request.newPassword()));

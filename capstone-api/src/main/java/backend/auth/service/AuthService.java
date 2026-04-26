@@ -22,19 +22,7 @@ public class AuthService {
 	@Transactional
 	public JWTResponseDTO refresh(RefreshRequestDTO request) {
 		String refreshToken = request.refreshToken();
-
-		if (!jwtUtil.isValid(refreshToken)) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
-		if (jwtUtil.isExpired(refreshToken)) {
-			throw new BusinessException(ErrorCode.EXPIRED_TOKEN);
-		}
-		if (!"refresh".equals(jwtUtil.getType(refreshToken))) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
-		if (!refreshRepository.existsByRefresh(refreshToken)) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
+		validateRefreshToken(refreshToken);
 
 		String email = jwtUtil.getEmail(refreshToken);
 		String role = jwtUtil.getRole(refreshToken);
@@ -59,6 +47,20 @@ public class AuthService {
 
 	@Transactional
 	public JWTResponseDTO exchangeSocialToken(String refreshToken) {
+		validateRefreshToken(refreshToken);
+
+		String email = jwtUtil.getEmail(refreshToken);
+		String role = jwtUtil.getRole(refreshToken);
+
+		String newAccessToken = jwtUtil.createAccessToken(email, role);
+
+		return JWTResponseDTO.builder()
+			.accessToken(newAccessToken)
+			.refreshToken(refreshToken)
+			.build();
+	}
+
+	private void validateRefreshToken(String refreshToken) {
 		if (!jwtUtil.isValid(refreshToken)) {
 			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 		}
@@ -71,15 +73,5 @@ public class AuthService {
 		if (!refreshRepository.existsByRefresh(refreshToken)) {
 			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 		}
-
-		String email = jwtUtil.getEmail(refreshToken);
-		String role = jwtUtil.getRole(refreshToken);
-
-		String newAccessToken = jwtUtil.createAccessToken(email, role);
-
-		return JWTResponseDTO.builder()
-			.accessToken(newAccessToken)
-			.refreshToken(refreshToken)
-			.build();
 	}
 }

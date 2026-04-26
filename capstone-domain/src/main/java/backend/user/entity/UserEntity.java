@@ -2,7 +2,6 @@ package backend.user.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,6 +12,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -31,8 +31,7 @@ import lombok.NoArgsConstructor;
 public class UserEntity {
 
 	@Id
-	@GeneratedValue(generator = "uuid2")
-	@GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(columnDefinition = "VARCHAR(36)")
 	private String id;
 
@@ -116,10 +115,19 @@ public class UserEntity {
 	}
 
 	public void chargePoint(long amount) {
+		if (amount <= 0) {
+			throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다");
+		}
 		this.pointBalance += amount;
 	}
 
 	public void usePoint(long amount) {
+		if (amount <= 0) {
+			throw new IllegalArgumentException("사용 금액은 0보다 커야 합니다");
+		}
+		if (this.pointBalance < amount) {
+			throw new IllegalStateException("포인트 잔액이 부족합니다");
+		}
 		this.pointBalance -= amount;
 	}
 }

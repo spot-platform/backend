@@ -7,6 +7,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import backend.auth.repository.RefreshRepository;
 import backend.global.filter.LoginFilter;
 import backend.global.util.JWTUtil;
@@ -17,21 +19,24 @@ public class AuthFilterConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JWTUtil jwtUtil;
 	private final RefreshRepository refreshRepository;
+	private final ObjectMapper objectMapper;
 
 	public AuthFilterConfig(
 		@Lazy AuthenticationConfiguration authenticationConfiguration,
 		JWTUtil jwtUtil,
-		RefreshRepository refreshRepository
+		RefreshRepository refreshRepository,
+		ObjectMapper objectMapper
 	) {
 		this.authenticationConfiguration = authenticationConfiguration;
 		this.jwtUtil = jwtUtil;
 		this.refreshRepository = refreshRepository;
+		this.objectMapper = objectMapper;
 	}
 
 	@Bean
 	public UsernamePasswordAuthenticationFilter loginFilter() throws Exception {
 		AuthenticationManager authenticationManager =
 			authenticationConfiguration.getAuthenticationManager();
-		return new LoginFilter(authenticationManager, jwtUtil, refreshRepository);
+		return new LoginFilter(authenticationManager, jwtUtil, refreshRepository, objectMapper);
 	}
 }

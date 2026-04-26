@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -63,6 +64,10 @@ public class JWTUtil {
 		}
 	}
 
+	public Claims parseClaims(String token) {
+		return getClaims(token);
+	}
+
 	public boolean isValid(String token) {
 		try {
 			getClaims(token);
@@ -72,10 +77,18 @@ public class JWTUtil {
 		}
 	}
 
+	public long getRefreshExpiry() {
+		return refreshExpiry;
+	}
+
 	private Claims getClaims(String token) {
-		return Jwts.parser()
-			.setSigningKey(secretKey)
-			.parseClaimsJws(token)
-			.getBody();
+		try {
+			return Jwts.parser()
+				.setSigningKey(secretKey)
+				.parseClaimsJws(token)
+				.getBody();
+		} catch (ExpiredJwtException e) {
+			return e.getClaims();
+		}
 	}
 }

@@ -2,6 +2,7 @@ package backend.global.filter;
 
 import java.io.IOException;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,9 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import backend.auth.dto.LoginResultDTO;
 import backend.auth.entity.RefreshEntity;
 import backend.auth.repository.RefreshRepository;
+import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
 import backend.global.util.JWTUtil;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -28,16 +31,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final JWTUtil jwtUtil;
 	private final RefreshRepository refreshRepository;
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper;
 
 	public LoginFilter(
 		AuthenticationManager authenticationManager,
 		JWTUtil jwtUtil,
-		RefreshRepository refreshRepository
+		RefreshRepository refreshRepository,
+		ObjectMapper objectMapper
 	) {
 		super.setAuthenticationManager(authenticationManager);
 		this.jwtUtil = jwtUtil;
 		this.refreshRepository = refreshRepository;
+		this.objectMapper = objectMapper;
 		setRequiresAuthenticationRequestMatcher(
 			new AntPathRequestMatcher(LOGIN_PATH, "POST")
 		);
@@ -90,14 +95,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 				.build()
 		);
 
+		// 리프레시 토큰은 HttpOnly 쿠키로 전달 (SocialSuccessHandler와 동일한 방식)
+		int maxAge = (int)(jwtUtil.getRefreshExpiry() / 1000);
+		Cookie refreshCookie = new Cookie("refresh", refreshToken);
+		refreshCookie.setHttpOnly(true);
+		refreshCookie.setPath("/");
+		refreshCookie.setMaxAge(maxAge);
+		response.addCookie(refreshCookie);
+
 		LoginResultDTO result = LoginResultDTO.builder()
 			.accessToken(accessToken)
-			.refreshToken(refreshToken)
 			.userId(userId)
 			.redirectTo(redirectTo)
 			.build();
 
-		response.setContentType("application/json;charset=UTF-8");
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.getWriter().write(objectMapper.writeValueAsString(result));
 	}
@@ -109,11 +121,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		AuthenticationException failed
 	) throws IOException {
 		log.warn("Login failed: {}", failed.getMessage());
-		response.setContentType("application/json;charset=UTF-8");
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.getWriter().write(
-			"{\"status\":401,\"message\":\"이메일 또는 비밀번호가 올바르지 않습니다.\",\"data\":null}"
+		ApiResponse<Void> body = ApiResponse.error(
+			HttpServletResponse.SC_UNAUTHORIZED,
+			"이메일 또는 비밀번호가 올바르지 않습니다."
 		);
+		response.getWriter().write(objectMapper.writeValueAsString(body));
 	}
 
 	private record LoginRequest(String email, String password) {

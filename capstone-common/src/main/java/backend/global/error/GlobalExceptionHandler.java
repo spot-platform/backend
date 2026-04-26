@@ -4,8 +4,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,24 +36,6 @@ public class GlobalExceptionHandler {
 			message
 		);
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(UsernameNotFoundException.class)
-	protected ResponseEntity<ApiResponse<Void>> handleUsernameNotFoundException(UsernameNotFoundException exception) {
-		log.warn("handleUsernameNotFoundException: {}", exception.getMessage());
-		ErrorCode errorCode = ErrorCode.USER_NOT_FOUND;
-		ApiResponse<Void> response = ApiResponse.error(errorCode.getStatus().value(), errorCode.getMessage());
-		return new ResponseEntity<>(response, errorCode.getStatus());
-	}
-
-	@ExceptionHandler(AccessDeniedException.class)
-	protected ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException exception) {
-		log.warn("handleAccessDeniedException: {}", exception.getMessage());
-		ApiResponse<Void> response = ApiResponse.error(
-			HttpStatus.FORBIDDEN.value(),
-			"Access denied"
-		);
-		return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
 	}
 
 	@ExceptionHandler(Exception.class)

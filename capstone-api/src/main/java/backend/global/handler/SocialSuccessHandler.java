@@ -43,10 +43,11 @@ public class SocialSuccessHandler implements AuthenticationSuccessHandler {
 				.build()
 		);
 
+		int maxAge = (int)(jwtUtil.getRefreshExpiry() / 1000);
 		Cookie refreshCookie = new Cookie("refresh", refreshToken);
 		refreshCookie.setHttpOnly(true);
 		refreshCookie.setPath("/");
-		refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+		refreshCookie.setMaxAge(maxAge);
 		response.addCookie(refreshCookie);
 
 		String next = request.getParameter("next");

@@ -1,6 +1,8 @@
 package backend.user.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,9 +10,12 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.global.common.response.ApiResponse;
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import backend.user.dto.request.DeleteUserRequest;
 import backend.user.dto.request.EmailExistRequest;
 import backend.user.dto.request.JoinRequest;
@@ -18,6 +23,7 @@ import backend.user.dto.request.PasswordChangeRequest;
 import backend.user.dto.request.UpdateProfileRequest;
 import backend.user.dto.response.UserResponseDTO;
 import backend.user.service.UserService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,6 +79,12 @@ public class UserController {
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "401", description = "인증 필요"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404", description = "유저 없음"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "410", description = "탈퇴한 유저"
 		)
 	})
 	@GetMapping("/me")
@@ -91,6 +103,12 @@ public class UserController {
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "401", description = "인증 필요"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "409", description = "이미 존재하는 이메일"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "410", description = "탈퇴한 유저"
 		)
 	})
 	@PatchMapping("/me")
@@ -117,12 +135,13 @@ public class UserController {
 		)
 	})
 	@PatchMapping("/me/password")
-	public ResponseEntity<Void> changePassword(
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public ApiResponse<Void> changePassword(
 		@Valid @RequestBody PasswordChangeRequest request
 	) {
 		String email = getCurrentEmail();
 		userService.changePassword(email, request);
-		return ResponseEntity.noContent().build();
+		return ApiResponse.success();
 	}
 
 	@Operation(
@@ -138,6 +157,9 @@ public class UserController {
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "401", description = "인증 필요"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "410", description = "이미 탈퇴한 유저"
 		)
 	})
 	@DeleteMapping("/me")
@@ -148,6 +170,11 @@ public class UserController {
 	}
 
 	private String getCurrentEmail() {
-		return SecurityContextHolder.getContext().getAuthentication().getName();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+			|| authentication instanceof AnonymousAuthenticationToken) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		return authentication.getName();
 	}
 }

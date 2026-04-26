@@ -17,28 +17,43 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
+import backend.global.error.JwtAccessDeniedHandler;
+import backend.global.error.JwtAuthenticationEntryPoint;
 import backend.global.filter.JWTFilter;
 import backend.global.util.JWTUtil;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
 	private final JWTUtil jwtUtil;
+	private final ObjectMapper objectMapper;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
 	private final AuthenticationSuccessHandler socialSuccessHandler;
 	private final LogoutHandler refreshTokenLogoutHandler;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
 	public SecurityConfig(
 		JWTUtil jwtUtil,
+		ObjectMapper objectMapper,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
 		AuthenticationSuccessHandler socialSuccessHandler,
-		LogoutHandler refreshTokenLogoutHandler
+		LogoutHandler refreshTokenLogoutHandler,
+		JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+		JwtAccessDeniedHandler jwtAccessDeniedHandler
 	) {
 		this.jwtUtil = jwtUtil;
+		this.objectMapper = objectMapper;
 		this.oAuth2UserService = oAuth2UserService;
 		this.socialSuccessHandler = socialSuccessHandler;
 		this.refreshTokenLogoutHandler = refreshTokenLogoutHandler;
+		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+		this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
 	}
 
 	@Bean
@@ -54,9 +69,15 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	public JWTFilter jwtFilter() {
+		return new JWTFilter(jwtUtil, objectMapper);
+	}
+
+	@Bean
 	public SecurityFilterChain securityFilterChain(
 		HttpSecurity http,
-		UsernamePasswordAuthenticationFilter loginFilter
+		UsernamePasswordAuthenticationFilter loginFilter,
+		JWTFilter jwtFilter
 	) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)
@@ -96,10 +117,14 @@ public class SecurityConfig {
 				.logoutUrl("/api/auth/logout")
 				.addLogoutHandler(refreshTokenLogoutHandler)
 				.logoutSuccessHandler((request, response, authentication) ->
-					response.setStatus(200)
+					response.setStatus(HttpServletResponse.SC_OK)
 				)
 			)
-			.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling(exceptions -> exceptions
+				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+				.accessDeniedHandler(jwtAccessDeniedHandler)
+			)
+			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
