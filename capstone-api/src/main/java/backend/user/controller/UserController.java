@@ -1,6 +1,5 @@
 package backend.user.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.global.common.response.ApiResponse;
@@ -121,11 +119,11 @@ public class UserController {
 
 	@Operation(
 		summary = "비밀번호 변경",
-		description = "자체 로그인 유저만 사용 가능. 소셜 로그인 유저는 403 반환. 성공 시 204 No Content."
+		description = "자체 로그인 유저만 사용 가능. 소셜 로그인 유저는 403 반환."
 	)
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "204", description = "변경 성공"
+			responseCode = "200", description = "변경 성공"
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "400", description = "비밀번호 불일치"
@@ -135,7 +133,6 @@ public class UserController {
 		)
 	})
 	@PatchMapping("/me/password")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ApiResponse<Void> changePassword(
 		@Valid @RequestBody PasswordChangeRequest request
 	) {

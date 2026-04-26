@@ -2,8 +2,11 @@ package backend.global.filter;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,7 +22,6 @@ import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
 import backend.global.util.JWTUtil;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +68,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			return getAuthenticationManager().authenticate(authToken);
 		} catch (IOException e) {
 			log.error("Login request parsing failed", e);
-			throw new RuntimeException(e);
+			throw new AuthenticationServiceException("Login request parsing failed", e);
 		}
 	}
 
@@ -88,6 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		String accessToken = jwtUtil.createAccessToken(email, role);
 		String refreshToken = jwtUtil.createRefreshToken(email, role);
 
+		refreshRepository.deleteByEmail(email);
 		refreshRepository.save(
 			RefreshEntity.builder()
 				.email(email)
@@ -95,13 +98,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 				.build()
 		);
 
-		// 리프레시 토큰은 HttpOnly 쿠키로 전달 (SocialSuccessHandler와 동일한 방식)
 		int maxAge = (int)(jwtUtil.getRefreshExpiry() / 1000);
-		Cookie refreshCookie = new Cookie("refresh", refreshToken);
-		refreshCookie.setHttpOnly(true);
-		refreshCookie.setPath("/");
-		refreshCookie.setMaxAge(maxAge);
-		response.addCookie(refreshCookie);
+		ResponseCookie refreshCookie = ResponseCookie.from("refresh", refreshToken)
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(maxAge)
+			.sameSite("Strict")
+			.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 		LoginResultDTO result = LoginResultDTO.builder()
 			.accessToken(accessToken)

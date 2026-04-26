@@ -97,6 +97,7 @@ public class UserService implements UserDetailsService {
 		}
 
 		user.changePassword(passwordEncoder.encode(request.newPassword()));
+		refreshRepository.deleteByEmail(email);
 	}
 
 	@Transactional

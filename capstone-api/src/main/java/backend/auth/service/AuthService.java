@@ -22,12 +22,16 @@ public class AuthService {
 	@Transactional
 	public JWTResponseDTO refresh(RefreshRequestDTO request) {
 		String refreshToken = request.refreshToken();
-		validateRefreshToken(refreshToken);
+		validateRefreshTokenStructure(refreshToken);
 
 		String email = jwtUtil.getEmail(refreshToken);
 		String role = jwtUtil.getRole(refreshToken);
 
-		refreshRepository.deleteByRefresh(refreshToken);
+		// DELETE 결과가 0이면 이미 사용된 토큰(replay attack) → 원자적으로 감지
+		int deleted = refreshRepository.deleteAndCountByRefresh(refreshToken);
+		if (deleted == 0) {
+			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+		}
 
 		String newAccessToken = jwtUtil.createAccessToken(email, role);
 		String newRefreshToken = jwtUtil.createRefreshToken(email, role);
@@ -45,9 +49,13 @@ public class AuthService {
 			.build();
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public JWTResponseDTO exchangeSocialToken(String refreshToken) {
-		validateRefreshToken(refreshToken);
+		validateRefreshTokenStructure(refreshToken);
+
+		if (!refreshRepository.existsByRefresh(refreshToken)) {
+			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+		}
 
 		String email = jwtUtil.getEmail(refreshToken);
 		String role = jwtUtil.getRole(refreshToken);
@@ -60,7 +68,7 @@ public class AuthService {
 			.build();
 	}
 
-	private void validateRefreshToken(String refreshToken) {
+	private void validateRefreshTokenStructure(String refreshToken) {
 		if (!jwtUtil.isValid(refreshToken)) {
 			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 		}
@@ -68,9 +76,6 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.EXPIRED_TOKEN);
 		}
 		if (!"refresh".equals(jwtUtil.getType(refreshToken))) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
-		if (!refreshRepository.existsByRefresh(refreshToken)) {
 			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 		}
 	}

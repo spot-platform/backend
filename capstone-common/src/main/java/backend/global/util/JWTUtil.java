@@ -58,20 +58,29 @@ public class JWTUtil {
 
 	public boolean isExpired(String token) {
 		try {
-			return getClaims(token).getExpiration().before(new Date());
+			Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+			return false;
+		} catch (ExpiredJwtException e) {
+			return true;
 		} catch (Exception e) {
 			return true;
 		}
 	}
 
+	// Throws ExpiredJwtException so callers can distinguish expired vs structurally invalid
 	public Claims parseClaims(String token) {
-		return getClaims(token);
+		return Jwts.parser()
+			.setSigningKey(secretKey)
+			.parseClaimsJws(token)
+			.getBody();
 	}
 
 	public boolean isValid(String token) {
 		try {
-			getClaims(token);
+			Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
 			return true;
+		} catch (ExpiredJwtException e) {
+			return true; // expired but structurally valid
 		} catch (Exception e) {
 			return false;
 		}
