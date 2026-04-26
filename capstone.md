@@ -51,6 +51,8 @@
 - 황호찬 2026-04-10 20:10에 `FeedListQuery` 위치 조정으로 빌드 오류를 해결함. 현재 전체 빌드 및 컴파일 성공 상태임.
 - 김동현 2026-04-13 10:00에 Spot/Chat 도메인 엔티티 8개(`SpotParticipant`, `SpotSchedule`, `SpotVote`, `SpotVoteOption`, `SpotVoteAnswer`, `SpotChecklist`, `SpotFile`, `SpotNote`) 및 Chat 엔티티 2개(`ChatRoom`, `ChatMessage`), Repository 10개, `SpotController`(21개 엔드포인트 뼈대), `ChatController`(9개 엔드포인트 뼈대)를 작성함. `SpotService` 나머지 기능(참여자/일정/투표/체크리스트/파일/노트/리뷰) 및 `ChatService`(SSE 포함) 구현을 해야 됨.
 - 김동현 2026-04-13 14:30에 `SpotService` 기본 CRUD 및 상태 변경(`match`, `cancel`, `complete`) 구현, DTO 3개(`CreateSpotRequest`, `SpotResponse`, `SpotListResponse`) 작성, 논리적 FK 원칙 적용(엔티티 `@ManyToOne` → ID 필드로 전환), 네이버 핵데이 컨벤션 및 `@Valid` 검증 적용, `ParticipantRole` 명세서 기준(`AUTHOR`/`PARTICIPANT`)으로 수정, `ChatController` 패키지 경로 수정을 완료함. `SpotService` 나머지 기능 및 `ChatService` 구현을 해야 됨.
+- 김동현 2026-04-27 10:00에 `SpotService` 나머지 기능(참여자 조회, 일정 추가/조회, 투표 생성/조회/참여, 체크리스트 조회/추가/토글, 파일 업로드/조회/삭제, 노트 작성/조회) 전부 구현 완료, 관련 DTO 11개 추가, 엔티티 비즈니스 메서드(`toggleDone`, `updateContent`, `incrementCount`, `update`) 추가, `SpotController` 전 엔드포인트 실제 서비스 연결 완료함. `ChatService` 구현 및 SSE 실시간 채팅 연결을 해야 됨.
+- 김동현 2026-04-27 10:30에 `ChatService`(채팅방 CRUD, 커서 기반 메시지 페이지네이션, 메시지 전송), `SseEmitterService`(roomId 기반 구독·브로드캐스트, ping·timeout·error 처리), `ChatController`(전 엔드포인트 실제 연결 + SSE `/api/chat/connect?roomId=`) 구현 완료, Chat DTO 5개(`ChatRoomResponse`, `CreateChatRoomRequest`, `ChatMessageResponse`, `SendMessageRequest`, `ChatMessageListResponse`) 추가함. 인증 도입 후 dummy-user-id 교체 및 ChatRoomMember 테이블 추가가 필요함.
 
 ---
 
@@ -73,9 +75,9 @@
 - [x] `SpotController`, `ChatController` 엔드포인트 뼈대 작성
 - [x] `SpotService` 기본 CRUD(`GET /spots`, `POST /spots`, `GET /spots/{id}`) 구현
 - [x] `SpotService` 상태 변경(`/match`, `/cancel`, `/complete`) 구현
-- [ ] `SpotService` 나머지 기능 (참여자 조회, 일정, 투표, 체크리스트, 파일, 노트, 리뷰)
-- [ ] `ChatService` 구현 (채팅방 생성/조회, 메시지 전송/조회)
-- [ ] SSE 실시간 채팅 연결 (`/api/chat/connect`) 구현
+- [x] `SpotService` 나머지 기능 (참여자 조회, 일정, 투표, 체크리스트, 파일, 노트)
+- [x] `ChatService` 구현 (채팅방 생성/조회, 커서 기반 메시지 조회/전송, 읽음 처리 stub)
+- [x] SSE 실시간 채팅 연결 (`/api/chat/connect?roomId=`) 구현 (단일 서버 인메모리)
 
 ---
-*마지막 업데이트: 2026-04-13 (김동현)*
+*마지막 업데이트: 2026-04-27 10:30 (김동현)*

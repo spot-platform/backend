@@ -43,4 +43,12 @@ public class SpotSchedule {
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	/**
+	 * 일정 제목과 날짜를 수정합니다.
+	 */
+	public void update(String title, LocalDateTime scheduledAt) {
+		this.title = title;
+		this.scheduledAt = scheduledAt;
+	}
 }

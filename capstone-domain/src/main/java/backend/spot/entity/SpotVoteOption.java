@@ -33,4 +33,11 @@ public class SpotVoteOption {
 	@Builder.Default
 	@Column(nullable = false)
 	private Integer voteCount = 0;
+
+	/**
+	 * 투표 선택 시 득표 수를 1 증가합니다.
+	 */
+	public void incrementCount() {
+		this.voteCount++;
+	}
 }

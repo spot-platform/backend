@@ -44,4 +44,18 @@ public class SpotChecklist {
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	/**
+	 * 체크리스트 항목의 완료 여부를 토글합니다.
+	 */
+	public void toggleDone() {
+		this.isDone = !this.isDone;
+	}
+
+	/**
+	 * 체크리스트 항목의 내용을 수정합니다.
+	 */
+	public void updateContent(String content) {
+		this.content = content;
+	}
 }
