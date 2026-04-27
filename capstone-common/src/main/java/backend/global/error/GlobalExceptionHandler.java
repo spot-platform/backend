@@ -25,6 +25,20 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(response, errorCode.getStatus());
 	}
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	protected ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException exception) {
+		log.warn("handleIllegalArgumentException: {}", exception.getMessage());
+		ApiResponse<Void> response = ApiResponse.error(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	protected ResponseEntity<ApiResponse<Void>> handleIllegalStateException(IllegalStateException exception) {
+		log.warn("handleIllegalStateException: {}", exception.getMessage());
+		ApiResponse<Void> response = ApiResponse.error(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException exception) {
 		String message = exception.getBindingResult().getFieldErrors().stream()

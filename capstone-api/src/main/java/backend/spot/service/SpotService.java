@@ -263,9 +263,12 @@ public class SpotService {
 		}
 
 		SpotVoteOption option = spotVoteOptionRepository.findById(request.getOptionId())
-			.orElseThrow(() -> new IllegalArgumentException("해당 선택지를 찾을 수 없습니다. optionId=" + request.getOptionId()));
+			.filter(o -> o.getVoteId().equals(voteId))
+			.orElseThrow(() -> new IllegalArgumentException(
+				"해당 선택지가 이 투표에 속하지 않습니다. optionId=" + request.getOptionId()));
 
 		option.incrementCount();
+		spotVoteOptionRepository.save(option);
 
 		SpotVoteAnswer answer = SpotVoteAnswer.builder()
 			.voteId(voteId)
