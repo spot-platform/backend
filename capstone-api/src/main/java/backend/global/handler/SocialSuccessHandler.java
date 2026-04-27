@@ -2,12 +2,11 @@ package backend.global.handler;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 
 import backend.auth.dto.CustomOAuth2User;
 import backend.auth.entity.RefreshEntity;

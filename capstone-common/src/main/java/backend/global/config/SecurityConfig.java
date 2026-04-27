@@ -2,10 +2,10 @@ package backend.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,13 +18,12 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import backend.global.error.JwtAccessDeniedHandler;
 import backend.global.error.JwtAuthenticationEntryPoint;
 import backend.global.filter.JWTFilter;
 import backend.global.util.JWTUtil;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
@@ -96,6 +95,10 @@ public class SecurityConfig {
 				).permitAll()
 				.requestMatchers(
 					"/api/auth/**",
+					"/api/spots/**",   // TODO: 인증 도입 후 제거
+					"/api/chat/**",    // TODO: 인증 도입 후 제거
+					"/api/feeds/**",   // TODO: 인증 도입 후 제거
+					"/api/posts/**",   // TODO: 인증 도입 후 제거
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html",

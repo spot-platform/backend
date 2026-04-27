@@ -21,7 +21,6 @@ import backend.user.dto.request.PasswordChangeRequest;
 import backend.user.dto.request.UpdateProfileRequest;
 import backend.user.dto.response.UserResponseDTO;
 import backend.user.service.UserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;

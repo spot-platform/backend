@@ -25,6 +25,15 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(response, errorCode.getStatus());
 	}
 
+	@ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+	protected ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
+		org.springframework.dao.DataIntegrityViolationException exception
+	) {
+		log.warn("handleDataIntegrityViolation: {}", exception.getMessage());
+		ApiResponse<Void> response = ApiResponse.error(HttpStatus.CONFLICT.value(), "이미 존재하는 데이터입니다.");
+		return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException exception) {
 		String message = exception.getBindingResult().getFieldErrors().stream()
