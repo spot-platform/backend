@@ -14,7 +14,6 @@ import backend.post.entity.Post;
 import backend.post.repository.PostRepository;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

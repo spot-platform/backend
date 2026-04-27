@@ -15,7 +15,6 @@ import backend.feed.dto.FeedListResponse;
 import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

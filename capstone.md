@@ -65,10 +65,26 @@
 - [ ] Neon Serverless Postgres 데이터베이스 연동 (`application.yml` 수정)
 - [ ] 실제 데이터베이스 환경에서의 통합 테스트
 
+- 이성찬 2026-04-12 에 Auth/User 파트 전체(JWT 인증, OAuth2 소셜 로그인, 회원가입/탈퇴, 프로필 관리)를 작성함. Neon Serverless Postgres 데이터베이스 연동(`application.yml` 수정) 및 실제 DB 환경에서의 통합 테스트를 해야 됨.
+
+---
+
+## 📌 현재 진행 상태 (Todo)
+
+### 공통
+- [x] 핵심 엔티티 및 리포지토리 구축 (Logical FK 원칙 적용)
+- [x] QueryDSL 기반 동적 피드 조회 API 구현
+- [x] 게시글 등록 및 자동 매칭/스팟 생성 로직 구현
+- [ ] Neon Serverless Postgres 데이터베이스 연동 (`application.yml` 수정)
+- [ ] 실제 데이터베이스 환경에서의 통합 테스트
+
 ### 황호찬 (Feed / Post 도메인)
 - [ ] 게시글 상세 조회 및 수정/삭제 API (Soft Delete 적용 필요)
 
 ### 이성찬 (Auth / User / MY 도메인)
+- [x] JWT 인증 필터 및 토큰 발급/갱신
+- [x] OAuth2 소셜 로그인
+- [x] 회원가입/탈퇴, 프로필 관리 API
 
 ### 김동현 (Spot / Chat 도메인)
 - [x] Spot/Chat 전체 엔티티 및 Repository 구축
