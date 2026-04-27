@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "spot_participants")
+@Table(
+	name = "spot_participants",
+	uniqueConstraints = @UniqueConstraint(
+		name = "uq_spot_user",
+		columnNames = {"spot_id", "user_id"}
+	)
+)
 public class SpotParticipant {
 
 	@Id

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.global.dto.ApiResponseMeta;
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
@@ -247,28 +249,23 @@ public class SpotService {
 
 	/**
 	 * 투표에 참여(응답)합니다.
-	 * 중복 투표 방지: 동일 유저가 같은 투표에 중복 참여 불가.
+	 * - 중복 투표 방지: DB unique constraint (vote_id, user_id) 로 보장
+	 * - 선택지 소속 검증: optionId 가 해당 voteId 에 속하는지 확인 (IDOR 방지)
+	 * - 원자적 득표 증가: DB UPDATE 쿼리로 race condition 없이 처리
 	 * TODO: 인증 시스템 도입 후 userId 를 실제 로그인 유저 ID로 교체
 	 */
 	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request) {
 		validateSpotExists(spotId);
 
 		SpotVote vote = spotVoteRepository.findById(voteId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 투표를 찾을 수 없습니다. voteId=" + voteId));
+			.filter(v -> v.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
+
+		spotVoteOptionRepository.findById(request.getOptionId())
+			.filter(o -> o.getVoteId().equals(voteId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
 		String userId = "dummy-user-id";
-
-		if (spotVoteAnswerRepository.existsByVoteIdAndUserId(voteId, userId)) {
-			throw new IllegalStateException("이미 해당 투표에 참여하였습니다.");
-		}
-
-		SpotVoteOption option = spotVoteOptionRepository.findById(request.getOptionId())
-			.filter(o -> o.getVoteId().equals(voteId))
-			.orElseThrow(() -> new IllegalArgumentException(
-				"해당 선택지가 이 투표에 속하지 않습니다. optionId=" + request.getOptionId()));
-
-		option.incrementCount();
-		spotVoteOptionRepository.save(option);
 
 		SpotVoteAnswer answer = SpotVoteAnswer.builder()
 			.voteId(voteId)
@@ -276,7 +273,9 @@ public class SpotService {
 			.userId(userId)
 			.build();
 
-		spotVoteAnswerRepository.save(answer);
+		spotVoteAnswerRepository.save(answer); // unique constraint 가 중복 투표를 DB 수준에서 차단
+
+		spotVoteOptionRepository.incrementVoteCount(request.getOptionId()); // 원자적 UPDATE
 
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
 			.stream()
@@ -319,12 +318,12 @@ public class SpotService {
 
 	/**
 	 * 체크리스트 항목의 완료 여부를 토글합니다.
+	 * spotId 소속 검증으로 IDOR 를 방지합니다.
 	 */
 	public SpotChecklistResponse toggleChecklistItem(String spotId, Long itemId) {
-		validateSpotExists(spotId);
-
 		SpotChecklist item = spotChecklistRepository.findById(itemId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 체크리스트 항목을 찾을 수 없습니다. itemId=" + itemId));
+			.filter(i -> i.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
 
 		item.toggleDone();
 		return SpotChecklistResponse.from(item);
@@ -348,7 +347,7 @@ public class SpotService {
 	}
 
 	/**
-	 * 스팟에 파일 정보를 등록합니다. (실제 업로드는 CDN 직접 연동)
+	 * 스팟에 파일 정보를 등록합니다.
 	 * TODO: 인증 시스템 도입 후 uploaderId 를 실제 로그인 유저 ID로 교체
 	 */
 	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request) {
@@ -366,12 +365,12 @@ public class SpotService {
 
 	/**
 	 * 스팟에서 파일을 삭제합니다.
+	 * spotId 소속 검증으로 IDOR 를 방지합니다.
 	 */
 	public void deleteFile(String spotId, Long fileId) {
-		validateSpotExists(spotId);
-
 		SpotFile file = spotFileRepository.findById(fileId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 파일을 찾을 수 없습니다. fileId=" + fileId));
+			.filter(f -> f.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.FILE_NOT_FOUND));
 
 		spotFileRepository.delete(file);
 	}
@@ -415,12 +414,12 @@ public class SpotService {
 
 	private Spot findSpotOrThrow(String spotId) {
 		return spotRepository.findById(spotId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 스팟을 찾을 수 없습니다. id=" + spotId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.SPOT_NOT_FOUND));
 	}
 
 	private void validateSpotExists(String spotId) {
 		if (!spotRepository.existsById(spotId)) {
-			throw new IllegalArgumentException("해당 스팟을 찾을 수 없습니다. id=" + spotId);
+			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}
 	}
 }

@@ -19,6 +19,21 @@ public enum ErrorCode {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A004", "Authentication required"),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "A005", "Access denied"),
 
+	// Spot
+	SPOT_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "Spot not found"),
+	INVALID_SPOT_STATUS(HttpStatus.BAD_REQUEST, "S002", "Invalid spot status transition"),
+	VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "S003", "Vote not found"),
+	OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "S004", "Vote option not found"),
+	OPTION_NOT_IN_VOTE(HttpStatus.BAD_REQUEST, "S005", "Option does not belong to this vote"),
+	ALREADY_VOTED(HttpStatus.CONFLICT, "S006", "Already voted on this vote"),
+	CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "S007", "Checklist item not found"),
+	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
+	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
+
+	// Chat
+	CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CH001", "Chat room not found"),
+	GROUP_CHAT_REQUIRES_SPOT(HttpStatus.BAD_REQUEST, "CH002", "Group chat room requires a spotId"),
+
 	// User
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),
 	EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "U002", "Email already exists"),

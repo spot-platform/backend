@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
@@ -13,8 +15,11 @@ import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
 import backend.chat.entity.ChatRoom;
+import backend.chat.entity.ChatRoomType;
 import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomRepository;
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,10 +49,13 @@ public class ChatService {
 
 	/**
 	 * 채팅방을 생성합니다.
-	 *
-	 * @param request 채팅방 타입 및 스팟 ID (그룹 채팅인 경우)
+	 * GROUP 타입은 반드시 spotId 가 있어야 합니다.
 	 */
 	public ChatRoomResponse createRoom(CreateChatRoomRequest request) {
+		if (request.getType() == ChatRoomType.GROUP && request.getSpotId() == null) {
+			throw new BusinessException(ErrorCode.GROUP_CHAT_REQUIRES_SPOT);
+		}
+
 		ChatRoom room = ChatRoom.builder()
 			.spotId(request.getSpotId())
 			.type(request.getType())
@@ -77,7 +85,7 @@ public class ChatService {
 
 	/**
 	 * 유저 ID로 참여 중인 채팅방 목록을 조회합니다.
-	 * TODO: ChatRoomMember 테이블 도입 후 실제 필터링 구현 (현재는 전체 반환)
+	 * TODO: ChatRoomMember 테이블 도입 후 실제 필터링 구현
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByUser(String userId) {
@@ -94,18 +102,18 @@ public class ChatService {
 	/**
 	 * 채팅방의 메시지를 커서 기반 페이지네이션으로 조회합니다.
 	 *
-	 * <p>cursor 가 null 이면 최신 메시지부터, 있으면 해당 ID 이전 메시지부터 size 개 반환합니다.
-	 * 반환 순서는 ID 내림차순(최신 → 과거)이며 클라이언트에서 뒤집어 렌더링합니다.
+	 * <p>실제 size+1 개를 조회하여 다음 페이지 존재 여부(hasMore)를 정확히 판단합니다.
+	 * 반환 목록은 요청한 size 개로 잘려 반환됩니다.
 	 *
 	 * @param roomId 채팅방 ID
-	 * @param cursor 마지막으로 받은 메시지 ID (없으면 null)
+	 * @param cursor 마지막으로 받은 메시지 ID (없으면 null, 최신부터 조회)
 	 * @param size   한 번에 가져올 메시지 수
 	 */
 	@Transactional(readOnly = true)
 	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size) {
 		findRoomOrThrow(roomId);
 
-		PageRequest pageRequest = PageRequest.of(0, size);
+		PageRequest pageRequest = PageRequest.of(0, size + 1); // +1 로 hasMore 판단
 		List<ChatMessage> messages;
 
 		if (cursor == null) {
@@ -123,27 +131,30 @@ public class ChatService {
 
 	/**
 	 * 메시지를 전송합니다.
-	 * 1. DB에 메시지를 저장합니다.
-	 * 2. 해당 채팅방을 구독 중인 모든 SSE 클라이언트에게 실시간으로 브로드캐스트합니다.
+	 *
+	 * <p>트랜잭션 커밋 완료 후 SSE 브로드캐스트를 실행하여
+	 * DB 미커밋 상태의 메시지가 클라이언트에 전달되는 phantom message 를 방지합니다.
 	 *
 	 * TODO: 인증 도입 후 senderId 를 실제 로그인 유저 ID로 교체
-	 *
-	 * @param roomId  전송할 채팅방 ID
-	 * @param request 메시지 내용
 	 */
 	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request) {
 		findRoomOrThrow(roomId);
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
-			.senderId("dummy-user-id")     // TODO: 실제 인증 유저 ID
+			.senderId("dummy-user-id")
 			.content(request.getContent())
 			.build();
 
 		ChatMessageResponse response = ChatMessageResponse.from(chatMessageRepository.save(message));
 
-		// SSE 브로드캐스트: 해당 채팅방 구독 중인 모든 클라이언트에게 전송
-		sseEmitterService.broadcast(roomId, response);
+		// 트랜잭션 커밋 이후에 SSE 브로드캐스트 (phantom message 방지)
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				sseEmitterService.broadcast(roomId, response);
+			}
+		});
 
 		return response;
 	}
@@ -151,20 +162,17 @@ public class ChatService {
 	/**
 	 * 채팅방의 메시지를 읽음 처리합니다.
 	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현
-	 *
-	 * @param roomId 읽음 처리할 채팅방 ID
 	 */
 	public void markAsRead(Long roomId) {
 		findRoomOrThrow(roomId);
-		// TODO: 읽음 상태 저장 로직 구현
 	}
 
 	// ─────────────────────────────────────────────
 	// 내부 헬퍼
 	// ─────────────────────────────────────────────
 
-	private ChatRoom findRoomOrThrow(Long roomId) {
+	public ChatRoom findRoomOrThrow(Long roomId) {
 		return chatRoomRepository.findById(roomId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 채팅방을 찾을 수 없습니다. roomId=" + roomId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 	}
 }

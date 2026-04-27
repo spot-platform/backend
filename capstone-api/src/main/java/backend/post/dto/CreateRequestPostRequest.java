@@ -39,7 +39,7 @@ public class CreateRequestPostRequest {
 	@Schema(description = "포인트 비용", example = "3000", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Integer pointCost;
 
-	@Schema(description = "상세 설명", example = "어떤 식으로 공간을 꾸미고 싶은지 상세 내용입니다.", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(description = "상세 설명", example = "공간을 꾸미고 싶은 상세 내용입니다.", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String detailDescription;
 
 	@Schema(description = "서비스 스타일 사진 URL")
