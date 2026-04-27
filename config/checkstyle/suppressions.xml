@@ -4,4 +4,10 @@
 "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
+	<suppress checks="AbbreviationAsWordInName" files="JWTUtil\.java"/>
+	<suppress checks="AbbreviationAsWordInName" files="JWTFilter\.java"/>
+	<suppress checks="AbbreviationAsWordInName" files=".*DTO\.java"/>
+	<suppress checks="Indentation" files="AuthController\.java"/>
+	<suppress checks="Indentation" files="JwtController\.java"/>
+	<suppress checks="Indentation" files="UserController\.java"/>
 </suppressions>

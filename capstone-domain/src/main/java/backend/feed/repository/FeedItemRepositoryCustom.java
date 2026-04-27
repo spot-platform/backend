@@ -3,8 +3,8 @@ package backend.feed.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import backend.feed.entity.FeedItem;
 import backend.feed.dto.FeedListQuery;
+import backend.feed.entity.FeedItem;
 
 /**
  * QueryDSL 전용 메서드를 정의하는 인터페이스입니다.

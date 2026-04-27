@@ -1,9 +1,7 @@
 package backend.post.dto;
 
 import backend.global.enums.PostType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
