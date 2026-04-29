@@ -9,6 +9,9 @@ public record JWTResponseDTO(
 	String accessToken,
 
 	@Schema(description = "Refresh Token", example = "eyJhbGci...")
-	String refreshToken
+	String refreshToken,
+
+	@Schema(description = "User ID", example = "a1b2c3d4-...")
+	String userId
 ) {
 }

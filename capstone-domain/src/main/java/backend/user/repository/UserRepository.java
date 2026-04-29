@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import backend.user.entity.SocialProviderType;
 import backend.user.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, String> {
@@ -11,4 +12,6 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 	Optional<UserEntity> findByEmail(String email);
 
 	boolean existsByEmail(String email);
+
+	Optional<UserEntity> findBySocialIdAndSocialProviderType(String socialId, SocialProviderType socialProviderType);
 }

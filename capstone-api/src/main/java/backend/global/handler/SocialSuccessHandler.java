@@ -2,6 +2,7 @@ package backend.global.handler;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,9 @@ public class SocialSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final JWTUtil jwtUtil;
 	private final RefreshRepository refreshRepository;
+
+	@Value("${frontend.base-url}")
+	private String frontendBaseUrl;
 
 	@Override
 	public void onAuthenticationSuccess(
@@ -55,8 +59,13 @@ public class SocialSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-		String next = request.getParameter("next");
-		String redirectUrl = (next != null && !next.isBlank()) ? next : "/feed";
+		String redirectUrl;
+		if (oAuth2User.isNewUser()) {
+			redirectUrl = frontendBaseUrl + "/profile/setup";
+		} else {
+			String next = request.getParameter("next");
+			redirectUrl = (next != null && !next.isBlank()) ? next : frontendBaseUrl + "/feed";
+		}
 		response.sendRedirect(redirectUrl);
 	}
 }

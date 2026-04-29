@@ -45,29 +45,34 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 
+		String socialId;
 		String email;
-		String nickname;
 		SocialProviderType providerType;
 
 		if ("naver".equals(registrationId)) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> naverResponse = (Map<String, Object>) attributes.get("response");
+			socialId = (String) naverResponse.get("id");
 			email = (String) naverResponse.get("email");
-			nickname = (String) naverResponse.get("nickname");
 			providerType = SocialProviderType.NAVER;
 		} else {
+			socialId = (String) attributes.get("sub");
 			email = (String) attributes.get("email");
-			nickname = (String) attributes.get("name");
 			providerType = SocialProviderType.GOOGLE;
 		}
 
 		SocialProviderType finalProviderType = providerType;
-		UserEntity user = userRepository.findByEmail(email)
+		String finalSocialId = socialId;
+		String finalEmail = email;
+		boolean[] isNew = {false};
+		UserEntity user = userRepository.findBySocialIdAndSocialProviderType(socialId, providerType)
 			.orElseGet(() -> {
+				isNew[0] = true;
 				UserEntity newUser = UserEntity.builder()
-					.email(email)
-					.password(passwordEncoder.encode("SOCIAL_" + email))
-					.nickname(nickname != null ? nickname : email.split("@")[0])
+					.socialId(finalSocialId)
+					.email(finalEmail)
+					.password(passwordEncoder.encode("SOCIAL_" + finalSocialId))
+					.nickname(finalEmail.split("@")[0])
 					.isSocial(true)
 					.isVerified(true)
 					.socialProviderType(finalProviderType)
@@ -84,7 +89,8 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 			attributes,
 			Collections.singletonList(
 				new SimpleGrantedAuthority("ROLE_" + user.getRoleType().name())
-			)
+			),
+			isNew[0]
 		);
 	}
 }

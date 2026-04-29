@@ -10,6 +10,8 @@ import backend.auth.repository.RefreshRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.util.JWTUtil;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,6 +20,7 @@ public class AuthService {
 
 	private final JWTUtil jwtUtil;
 	private final RefreshRepository refreshRepository;
+	private final UserRepository userRepository;
 
 	@Transactional
 	public JWTResponseDTO refresh(RefreshRequestDTO request) {
@@ -60,11 +63,15 @@ public class AuthService {
 		String email = jwtUtil.getEmail(refreshToken);
 		String role = jwtUtil.getRole(refreshToken);
 
+		UserEntity user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
 		String newAccessToken = jwtUtil.createAccessToken(email, role);
 
 		return JWTResponseDTO.builder()
 			.accessToken(newAccessToken)
 			.refreshToken(refreshToken)
+			.userId(user.getId())
 			.build();
 	}
 

@@ -49,6 +49,9 @@ public class UserEntity {
 	@Column(nullable = false)
 	private Boolean isSocial = false;
 
+	@Column
+	private String socialId;
+
 	@Enumerated(EnumType.STRING)
 	@Column
 	private SocialProviderType socialProviderType;

@@ -38,3 +38,14 @@ out/
 
 ### Claude Code ###
 .claude/
+
+### Secret configuration ###
+**/application-secret.yml
+
+### macOS ###
+.DS_Store
+**/.DS_Store
+/src/
+
+### Claude Code context ###
+CONTEXT.md

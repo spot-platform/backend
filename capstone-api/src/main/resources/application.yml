@@ -1,4 +1,6 @@
 ﻿spring:
+  profiles:
+    include: secret
   datasource:
     url: jdbc:postgresql://localhost:5432/backend_db
     username: ${DB_USERNAME:postgres}
@@ -25,7 +27,7 @@
             client-secret: ${NAVER_CLIENT_SECRET:your-naver-client-secret}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
-            scope: name, email, profile_image
+            scope: email
             client-name: Naver
           google:
             client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
@@ -44,3 +46,6 @@ jwt:
   secret: ${JWT_SECRET:spot-platform-jwt-secret-key-must-be-at-least-32-characters-long}
   access-expiry: 3600000
   refresh-expiry: 604800000
+
+frontend:
+  base-url: http://localhost:3000
