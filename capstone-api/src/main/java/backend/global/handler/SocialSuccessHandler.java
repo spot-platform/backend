@@ -64,7 +64,9 @@ public class SocialSuccessHandler implements AuthenticationSuccessHandler {
 			redirectUrl = frontendBaseUrl + "/profile/setup";
 		} else {
 			String next = request.getParameter("next");
-			redirectUrl = (next != null && !next.isBlank()) ? next : frontendBaseUrl + "/feed";
+			boolean isSafeRelativePath = next != null && !next.isBlank()
+				&& next.startsWith("/") && !next.startsWith("//");
+			redirectUrl = isSafeRelativePath ? (frontendBaseUrl + next) : (frontendBaseUrl + "/feed");
 		}
 		response.sendRedirect(redirectUrl);
 	}

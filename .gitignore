@@ -45,7 +45,6 @@ out/
 ### macOS ###
 .DS_Store
 **/.DS_Store
-/src/
 
 ### Claude Code context ###
 CONTEXT.md
