@@ -40,7 +40,7 @@ public class SimulationDataInitializer implements CommandLineRunner {
 	private final ObjectMapper objectMapper;
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = IOException.class)
 	public void run(String... args) throws IOException {
 		if (agentRepository.existsByRunId(RUN_ID)) {
 			return;

@@ -93,13 +93,13 @@ public class SecurityConfig {
 					"/api/users",
 					"/api/jwt/exchange"
 				).permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/sim/**").permitAll()
 				.requestMatchers(
 					"/api/auth/**",
 					"/api/spots/**",   // TODO: 인증 도입 후 제거
 					"/api/chat/**",    // TODO: 인증 도입 후 제거
 					"/api/feeds/**",   // TODO: 인증 도입 후 제거
 					"/api/posts/**",   // TODO: 인증 도입 후 제거
-					"/api/sim/**",
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html",

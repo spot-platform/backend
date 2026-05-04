@@ -8,7 +8,7 @@ import backend.simulation.entity.SimulationLifecycleEvent;
 
 public interface SimulationLifecycleEventRepository extends JpaRepository<SimulationLifecycleEvent, Long> {
 
-	List<SimulationLifecycleEvent> findByRunIdAndTickGreaterThanEqualAndTickLessThan(
+	List<SimulationLifecycleEvent> findByRunIdAndTickGreaterThanEqualAndTickLessThanOrderByTickAsc(
 		String runId, int fromTick, int toTick
 	);
 }

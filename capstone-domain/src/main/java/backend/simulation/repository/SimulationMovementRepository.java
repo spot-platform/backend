@@ -8,7 +8,7 @@ import backend.simulation.entity.SimulationMovement;
 
 public interface SimulationMovementRepository extends JpaRepository<SimulationMovement, Long> {
 
-	List<SimulationMovement> findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThan(
+	List<SimulationMovement> findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(
 		String runId, int fromTick, int toTick
 	);
 }

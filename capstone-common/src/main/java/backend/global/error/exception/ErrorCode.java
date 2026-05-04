@@ -32,6 +32,7 @@ public enum ErrorCode {
 
 	// Simulation
 	SIMULATION_RUN_NOT_FOUND(HttpStatus.NOT_FOUND, "SIM001", "Simulation run not found"),
+	INVALID_TICK_WINDOW(HttpStatus.BAD_REQUEST, "SIM002", "Invalid tick window"),
 
 	// Chat
 	CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CH001", "Chat room not found"),

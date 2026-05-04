@@ -33,6 +33,14 @@ public class SimulationService {
 	private final SimulationMovementRepository movementRepository;
 	private final SimulationLifecycleEventRepository lifecycleEventRepository;
 
+	private static final int MAX_TICK_WINDOW = 1000;
+
+	private void validateTickWindow(int fromTick, int toTick) {
+		if (fromTick < 0 || toTick <= fromTick || (toTick - fromTick) > MAX_TICK_WINDOW) {
+			throw new BusinessException(ErrorCode.INVALID_TICK_WINDOW);
+		}
+	}
+
 	public SimManifestResponse getManifest(String runId) {
 		SimulationRun run = runRepository.findById(runId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.SIMULATION_RUN_NOT_FOUND));
@@ -78,12 +86,13 @@ public class SimulationService {
 	}
 
 	public MovementChunkResponse getMovements(String runId, int fromTick, int toTick) {
+		validateTickWindow(fromTick, toTick);
 		if (!runRepository.existsById(runId)) {
 			throw new BusinessException(ErrorCode.SIMULATION_RUN_NOT_FOUND);
 		}
 
 		List<MovementDto> movements = movementRepository
-			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThan(runId, fromTick, toTick)
+			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(runId, fromTick, toTick)
 			.stream()
 			.map(m -> MovementDto.builder()
 				.agentId(m.getAgentId())
@@ -105,12 +114,13 @@ public class SimulationService {
 	}
 
 	public LifecycleChunkResponse getLifecycle(String runId, int fromTick, int toTick) {
+		validateTickWindow(fromTick, toTick);
 		if (!runRepository.existsById(runId)) {
 			throw new BusinessException(ErrorCode.SIMULATION_RUN_NOT_FOUND);
 		}
 
 		List<LifecycleEventDto> events = lifecycleEventRepository
-			.findByRunIdAndTickGreaterThanEqualAndTickLessThan(runId, fromTick, toTick)
+			.findByRunIdAndTickGreaterThanEqualAndTickLessThanOrderByTickAsc(runId, fromTick, toTick)
 			.stream()
 			.map(e -> LifecycleEventDto.builder()
 				.tick(e.getTick())
