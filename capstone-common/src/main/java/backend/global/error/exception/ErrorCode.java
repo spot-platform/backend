@@ -30,6 +30,9 @@ public enum ErrorCode {
 	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
 
+	// Simulation
+	SIMULATION_RUN_NOT_FOUND(HttpStatus.NOT_FOUND, "SIM001", "Simulation run not found"),
+
 	// Chat
 	CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CH001", "Chat room not found"),
 	GROUP_CHAT_REQUIRES_SPOT(HttpStatus.BAD_REQUEST, "CH002", "Group chat room requires a spotId"),
