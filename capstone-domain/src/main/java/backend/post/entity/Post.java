@@ -43,9 +43,12 @@ public class Post {
 	@Column(columnDefinition = "VARCHAR(36)")
 	private String id;
 
+	@Column
+	private String feedItemId;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostType type; // OFFER, REQUEST
+	private PostType type;
 
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
@@ -70,6 +73,18 @@ public class Post {
 	@Column(nullable = false)
 	private Integer pointCost;
 
+	@Column
+	private String location;
+
+	@Column
+	private String deadline;
+
+	@Column
+	private Integer desiredPrice;
+
+	@Column
+	private Integer maxPartnerCount;
+
 	@Column(columnDefinition = "TEXT")
 	private String detailDescription;
 
@@ -86,20 +101,27 @@ public class Post {
 	@Builder.Default
 	private List<String> photoUrls = new ArrayList<>();
 
-	// Offer 전용 필드
 	private String supporterPhotoUrl;
 
-	// Request 전용 필드
 	private String serviceStylePhotoUrl;
+
+	@Builder.Default
+	@Column(name = "is_deleted", nullable = false)
+	private boolean deleted = false;
 
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	/**
-	 * 게시글 상태를 MATCHED로 변경하는 비즈니스 메서드
-	 */
 	public void match() {
 		this.status = FeedItemStatus.MATCHED;
+	}
+
+	public void softDelete() {
+		this.deleted = true;
+	}
+
+	public void linkFeedItem(String feedItemId) {
+		this.feedItemId = feedItemId;
 	}
 }

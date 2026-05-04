@@ -3,8 +3,8 @@
     include: secret
   datasource:
     url: jdbc:postgresql://localhost:5432/backend_db
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD}
+    username: postgres
+    password: local_password
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
