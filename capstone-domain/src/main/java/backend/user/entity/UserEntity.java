@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users")
+@Table(
+	name = "users",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_users_social_provider",
+			columnNames = {"social_id", "social_provider_type"}
+		)
+	}
+)
 public class UserEntity {
 
 	@Id
@@ -48,6 +57,9 @@ public class UserEntity {
 	@Builder.Default
 	@Column(nullable = false)
 	private Boolean isSocial = false;
+
+	@Column
+	private String socialId;
 
 	@Enumerated(EnumType.STRING)
 	@Column
@@ -112,6 +124,12 @@ public class UserEntity {
 
 	public void softDelete() {
 		this.isDeleted = true;
+	}
+
+	public void linkSocialAccount(String socialId, SocialProviderType providerType) {
+		this.socialId = socialId;
+		this.socialProviderType = providerType;
+		this.isSocial = true;
 	}
 
 	public void chargePoint(long amount) {

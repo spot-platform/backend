@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.oauth2.core.OAuth2Error;
+
 import backend.auth.dto.CustomOAuth2User;
 import backend.user.entity.SocialProviderType;
 import backend.user.entity.UserEntity;
@@ -45,35 +47,66 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 
+		String socialId;
 		String email;
-		String nickname;
 		SocialProviderType providerType;
 
 		if ("naver".equals(registrationId)) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> naverResponse = (Map<String, Object>) attributes.get("response");
+			socialId = (String) naverResponse.get("id");
 			email = (String) naverResponse.get("email");
-			nickname = (String) naverResponse.get("nickname");
 			providerType = SocialProviderType.NAVER;
-		} else {
+		} else if ("google".equals(registrationId)) {
+			socialId = (String) attributes.get("sub");
 			email = (String) attributes.get("email");
-			nickname = (String) attributes.get("name");
 			providerType = SocialProviderType.GOOGLE;
+		} else {
+			throw new OAuth2AuthenticationException(
+				new OAuth2Error("unsupported_provider"),
+				"Unsupported OAuth2 provider: " + registrationId
+			);
+		}
+
+		if (socialId == null || socialId.isBlank()) {
+			throw new OAuth2AuthenticationException(
+				new OAuth2Error("missing_social_id"),
+				"Missing social identifier from provider: " + registrationId
+			);
+		}
+		if (email == null || !email.contains("@")) {
+			throw new OAuth2AuthenticationException(
+				new OAuth2Error("missing_email"),
+				"Missing or invalid email from provider: " + registrationId
+			);
 		}
 
 		SocialProviderType finalProviderType = providerType;
-		UserEntity user = userRepository.findByEmail(email)
+		String finalSocialId = socialId;
+		String finalEmail = email;
+		boolean[] isNew = {false};
+		UserEntity user = userRepository.findBySocialIdAndSocialProviderType(socialId, providerType)
 			.orElseGet(() -> {
-				UserEntity newUser = UserEntity.builder()
-					.email(email)
-					.password(passwordEncoder.encode("SOCIAL_" + email))
-					.nickname(nickname != null ? nickname : email.split("@")[0])
-					.isSocial(true)
-					.isVerified(true)
-					.socialProviderType(finalProviderType)
-					.roleType(UserRoleType.USER)
-					.build();
-				return userRepository.save(newUser);
+				// 이메일로 기존 계정 존재 시 socialId 연결 (마이그레이션 대응)
+				return userRepository.findByEmail(finalEmail)
+					.map(existing -> {
+						existing.linkSocialAccount(finalSocialId, finalProviderType);
+						return existing;
+					})
+					.orElseGet(() -> {
+						isNew[0] = true;
+						UserEntity newUser = UserEntity.builder()
+							.socialId(finalSocialId)
+							.email(finalEmail)
+							.password(passwordEncoder.encode("SOCIAL_" + finalSocialId))
+							.nickname(finalEmail.split("@", 2)[0])
+							.isSocial(true)
+							.isVerified(true)
+							.socialProviderType(finalProviderType)
+							.roleType(UserRoleType.USER)
+							.build();
+						return userRepository.save(newUser);
+					});
 			});
 
 		return new CustomOAuth2User(
@@ -84,7 +117,8 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 			attributes,
 			Collections.singletonList(
 				new SimpleGrantedAuthority("ROLE_" + user.getRoleType().name())
-			)
+			),
+			isNew[0]
 		);
 	}
 }

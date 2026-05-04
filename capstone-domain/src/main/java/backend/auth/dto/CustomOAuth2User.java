@@ -17,6 +17,7 @@ public class CustomOAuth2User implements OAuth2User {
 	private final String provider;
 	private final Map<String, Object> attributes;
 	private final Collection<? extends GrantedAuthority> authorities;
+	private final boolean isNewUser;
 
 	@Override
 	public Map<String, Object> getAttributes() {
@@ -47,5 +48,9 @@ public class CustomOAuth2User implements OAuth2User {
 
 	public String getProvider() {
 		return provider;
+	}
+
+	public boolean isNewUser() {
+		return isNewUser;
 	}
 }
