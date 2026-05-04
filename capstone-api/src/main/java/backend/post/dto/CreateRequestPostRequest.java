@@ -36,12 +36,24 @@ public class CreateRequestPostRequest {
 	@Schema(description = "사진 URL 목록", requiredMode = Schema.RequiredMode.REQUIRED)
 	private List<String> photoUrls;
 
-	@Schema(description = "포인트 비용", example = "3000", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(description = "포인트 비용 (1인당)", example = "3000", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Integer pointCost;
+
+	@Schema(description = "위치", example = "서울 마포구 합정동", requiredMode = Schema.RequiredMode.REQUIRED)
+	private String location;
+
+	@Schema(description = "마감일 (ISO date)", example = "2026-05-31", requiredMode = Schema.RequiredMode.REQUIRED)
+	private String deadline;
 
 	@Schema(description = "상세 설명", example = "공간을 꾸미고 싶은 상세 내용입니다.", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String detailDescription;
 
 	@Schema(description = "서비스 스타일 사진 URL")
 	private String serviceStylePhotoUrl;
+
+	@Schema(description = "최대 파트너 수", example = "4")
+	private Integer maxPartnerCount;
+
+	@Schema(description = "1인당 최대 금액", example = "150000")
+	private Integer priceCapPerPerson;
 }

@@ -34,10 +34,36 @@
 
 ---
 
-## ✅ 4. 작업 검증 절차 (Verification)
+## 🚀 4. 효율적인 개발 및 협업 지침 (Development Efficiency)
+1. **설계 우선 (Think Before Coding)**:
+   - 불확실한 요구사항은 추측하지 말고 명시적으로 질문하여 확인한다.
+   - 모호한 경우 여러 해석과 트레이드오프를 제시하고 사용자의 선택을 유도한다.
+   - 혼란이 생기면 즉시 멈추고 명확하지 않은 지점을 명시하여 질문한다.
+2. **단순성 유지 (Simplicity First)**:
+   - 요청받지 않은 기능, 과도한 추상화, 추측성 유연성을 배제한 **최소 구현**을 원칙으로 한다.
+   - 200줄의 코드를 50줄로 줄일 수 있다면 즉시 재작성하여 코드 최적화를 수행한다.
+   - 발생 가능성이 없는 시나리오에 대한 방어적 예외 처리를 지양한다.
+3. **정밀한 수정 (Surgical Changes)**:
+   - 요청과 직접 관련된 코드만 수정하며, 주변 코드의 포맷팅이나 스타일을 임의로 개선하지 않는다.
+   - 개인적 선호보다 프로젝트의 기존 코딩 컨벤션과 스타일을 최우선으로 준수한다.
+   - 본인의 수정으로 인해 발생한 미사용 임포트나 변수만 제거한다.
+4. **목표 중심 실행 (Goal-Driven Execution)**:
+   - "버그 수정" 대신 "재현 테스트 작성 후 통과"와 같이 **검증 가능한 목표**를 설정한다.
+   - 다단계 작업 시 각 단계마다 구체적인 검증 방법(Verify)을 포함한 계획을 수립한다.
+
+---
+
+## ✅ 5. 작업 검증 절차 (Verification)
 1. **빌드 확인**: `./gradlew compileJava` 실행 시 에러가 없어야 함.
 2. **컨벤션 체크**: `./gradlew checkstyleMain` 실행 시 위반 사항이 0건이어야 함.
 3. **테스트 보장**: 핵심 로직 변경 시 단위 테스트를 작성하고 `./gradlew test`를 통과해야 함.
+
+---
+
+## 🔒 6. 환경 설정 및 보안 (Configuration & Security)
+1. **비밀 정보 관리**: `application-secret.yml`, `.env` 등 민감한 정보가 포함된 파일은 **절대 Git에 커밋하지 않는다.** 
+   - 해당 파일들은 반드시 `.gitignore`에 등록되어 있어야 하며, 서버 배포 시에는 수동으로 업로드하거나 환경 변수를 통해 관리한다.
+2. **환경별 설정 분리**: 로컬 개발 환경과 실제 운영 서버 환경의 설정을 분리하여 관리하며, DB 비밀번호나 API 키와 같은 보안 정보는 별도의 Secret 파일로 격리한다.
 
 ---
 
@@ -79,7 +105,10 @@
 - [ ] 실제 데이터베이스 환경에서의 통합 테스트
 
 ### 황호찬 (Feed / Post 도메인)
-- [ ] 게시글 상세 조회 및 수정/삭제 API (Soft Delete 적용 필요)
+- [x] 게시글 상세 조회 및 삭제 API (Soft Delete 적용)
+- [x] 피드 신청·수락·거절·취소 API
+- [x] 펀딩 목표 달성 시 Spot 자동 전환 로직
+- [x] Post 생성 시 FeedItem 자동 연동
 
 ### 이성찬 (Auth / User / MY 도메인)
 - [x] JWT 인증 필터 및 토큰 발급/갱신
@@ -96,4 +125,7 @@
 - [x] SSE 실시간 채팅 연결 (`/api/chat/connect?roomId=`) 구현 (단일 서버 인메모리)
 
 ---
-*마지막 업데이트: 2026-04-27 10:30 (김동현)*
+- 황호찬 2026-05-04 에 `FeedApplication` 엔티티/리포지토리 추가, `FeedItem`·`Post` 엔티티에 펀딩 관련 필드(`fundingGoal`, `fundedAmount`, `isDeleted` 등) 추가, `POST /posts/offer|request` 생성 시 `FeedItem` 자동 연동 구현, `GET /feeds/{feedId}` 피드 상세 조회·`DELETE /feeds/{feedId}` 피드 소프트 딜리트, `POST /feeds/{feedId}/apply` 신청·`DELETE /feeds/{feedId}/apply` 취소·`PATCH /feeds/{feedId}/applications/{id}/accept|reject` 수락/거절 구현, 수락 시 `fundedAmount` 누적 후 목표 달성 시 Spot 자동 전환 로직 완성, `GET /posts/{postId}` 상세 조회·`DELETE /posts/{postId}` 소프트 딜리트 구현 완료함. Neon DB 연동 후 통합 테스트 및 인증 도입 시 dummy-user-id 교체를 해야 됨.
+
+---
+*마지막 업데이트: 2026-05-04 (황호찬)*
