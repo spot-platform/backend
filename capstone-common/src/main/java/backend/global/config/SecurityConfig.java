@@ -93,6 +93,7 @@ public class SecurityConfig {
 					"/api/users",
 					"/api/jwt/exchange"
 				).permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/sim/**").permitAll()
 				.requestMatchers(
 					"/api/auth/**",
 					"/api/spots/**",   // TODO: 인증 도입 후 제거

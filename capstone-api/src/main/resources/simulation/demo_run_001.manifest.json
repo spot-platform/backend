@@ -1,0 +1,1167 @@
+{
+    "run_id": "demo_run_001",
+    "dataset_version": "mock_v1",
+    "approved_spot_count": 18,
+    "filter_kind": "published_only",
+    "total_ticks": 48,
+    "tick_duration_ms_default": 1000,
+    "chunk_size_ticks": 24,
+    "agents": [
+        {
+            "agent_id": "A_p_0001",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "지원",
+            "emoji": "🎵",
+            "home_region_id": "emd_sinchon",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0002",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "서준",
+            "emoji": "🧘",
+            "home_region_id": "emd_jangan",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0003",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "서연",
+            "emoji": "🏃",
+            "home_region_id": "emd_yeonmu",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0004",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "채원",
+            "emoji": "☕",
+            "home_region_id": "emd_yeongtong",
+            "category": "공예",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0005",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "민지",
+            "emoji": "🎵",
+            "home_region_id": "emd_ingye",
+            "category": "공예",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0006",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "준호",
+            "emoji": "📚",
+            "home_region_id": "emd_gwonseon",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0007",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "유진",
+            "emoji": "📚",
+            "home_region_id": "emd_paldal",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0008",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "소연",
+            "emoji": "☕",
+            "home_region_id": "emd_maetan",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0009",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "건우",
+            "emoji": "🧘",
+            "home_region_id": "emd_sinchon",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0010",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "도윤",
+            "emoji": "🍳",
+            "home_region_id": "emd_jangan",
+            "category": "공예",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0011",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "민지",
+            "emoji": "🍳",
+            "home_region_id": "emd_yeonmu",
+            "category": "코딩",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0012",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "서연",
+            "emoji": "💻",
+            "home_region_id": "emd_yeongtong",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0013",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "수빈",
+            "emoji": "🎨",
+            "home_region_id": "emd_ingye",
+            "category": "등산",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0014",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "주원",
+            "emoji": "💻",
+            "home_region_id": "emd_gwonseon",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0015",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "시은",
+            "emoji": "🧗",
+            "home_region_id": "emd_paldal",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0016",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "민지",
+            "emoji": "🧘",
+            "home_region_id": "emd_maetan",
+            "category": "볼더링",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0017",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "주원",
+            "emoji": "🧘",
+            "home_region_id": "emd_sinchon",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0018",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "하린",
+            "emoji": "📚",
+            "home_region_id": "emd_jangan",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0019",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "민지",
+            "emoji": "🥾",
+            "home_region_id": "emd_sinchon",
+            "category": "운동",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0020",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "나윤",
+            "emoji": "🏃",
+            "home_region_id": "emd_jangan",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0021",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "도하",
+            "emoji": "🧗",
+            "home_region_id": "emd_yeonmu",
+            "category": "요리",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0022",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "유진",
+            "emoji": "🏃",
+            "home_region_id": "emd_yeongtong",
+            "category": "볼더링",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0023",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "하연",
+            "emoji": "🧗",
+            "home_region_id": "emd_ingye",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0024",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "채원",
+            "emoji": "☕",
+            "home_region_id": "emd_gwonseon",
+            "category": "등산",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0025",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "서준",
+            "emoji": "🎨",
+            "home_region_id": "emd_paldal",
+            "category": "운동",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0026",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "지원",
+            "emoji": "🍳",
+            "home_region_id": "emd_maetan",
+            "category": "볼더링",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0027",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "유진",
+            "emoji": "📚",
+            "home_region_id": "emd_sinchon",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0028",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "유진",
+            "emoji": "📚",
+            "home_region_id": "emd_jangan",
+            "category": "볼더링",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0029",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "준호",
+            "emoji": "🥾",
+            "home_region_id": "emd_yeonmu",
+            "category": "요가",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0030",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "예원",
+            "emoji": "💻",
+            "home_region_id": "emd_yeongtong",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0031",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "하연",
+            "emoji": "🥾",
+            "home_region_id": "emd_ingye",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0032",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "소연",
+            "emoji": "🎨",
+            "home_region_id": "emd_gwonseon",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0033",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "수빈",
+            "emoji": "🥾",
+            "home_region_id": "emd_paldal",
+            "category": "등산",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0034",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "서연",
+            "emoji": "🎨",
+            "home_region_id": "emd_maetan",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0035",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "주원",
+            "emoji": "🍳",
+            "home_region_id": "emd_sinchon",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0036",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "예원",
+            "emoji": "📚",
+            "home_region_id": "emd_jangan",
+            "category": "운동",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0037",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "예린",
+            "emoji": "🍳",
+            "home_region_id": "emd_yeonmu",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0038",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "수빈",
+            "emoji": "🎨",
+            "home_region_id": "emd_yeongtong",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0039",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "정우",
+            "emoji": "💻",
+            "home_region_id": "emd_ingye",
+            "category": "볼더링",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0040",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "하연",
+            "emoji": "🎵",
+            "home_region_id": "emd_gwonseon",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0041",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "예원",
+            "emoji": "🎨",
+            "home_region_id": "emd_paldal",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0042",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "수빈",
+            "emoji": "💻",
+            "home_region_id": "emd_maetan",
+            "category": "요가",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0043",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "도하",
+            "emoji": "🧘",
+            "home_region_id": "emd_sinchon",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0044",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "정우",
+            "emoji": "🧗",
+            "home_region_id": "emd_jangan",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0045",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "서준",
+            "emoji": "🏃",
+            "home_region_id": "emd_yeonmu",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0046",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "지훈",
+            "emoji": "🧘",
+            "home_region_id": "emd_yeongtong",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0047",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "민지",
+            "emoji": "🏃",
+            "home_region_id": "emd_ingye",
+            "category": "요리",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0048",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "도윤",
+            "emoji": "🥾",
+            "home_region_id": "emd_gwonseon",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0049",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "정우",
+            "emoji": "☕",
+            "home_region_id": "emd_paldal",
+            "category": "미술",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0050",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "지훈",
+            "emoji": "🥾",
+            "home_region_id": "emd_maetan",
+            "category": "코딩",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0051",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "수빈",
+            "emoji": "🎵",
+            "home_region_id": "emd_sinchon",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0052",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "유진",
+            "emoji": "🎵",
+            "home_region_id": "emd_jangan",
+            "category": "공예",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0053",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "소연",
+            "emoji": "🍳",
+            "home_region_id": "emd_yeonmu",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0054",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "승민",
+            "emoji": "🍳",
+            "home_region_id": "emd_yeongtong",
+            "category": "볼더링",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0055",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "하연",
+            "emoji": "🧘",
+            "home_region_id": "emd_ingye",
+            "category": "등산",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0056",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "준호",
+            "emoji": "🧘",
+            "home_region_id": "emd_gwonseon",
+            "category": "요리",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0057",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "수빈",
+            "emoji": "🏃",
+            "home_region_id": "emd_paldal",
+            "category": "볼더링",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0058",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "현우",
+            "emoji": "🎵",
+            "home_region_id": "emd_maetan",
+            "category": "등산",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0059",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "민지",
+            "emoji": "🧗",
+            "home_region_id": "emd_sinchon",
+            "category": "운동",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0060",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "채원",
+            "emoji": "🎨",
+            "home_region_id": "emd_jangan",
+            "category": "음악",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0061",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "건우",
+            "emoji": "🎨",
+            "home_region_id": "emd_yeonmu",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0062",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "하연",
+            "emoji": "💻",
+            "home_region_id": "emd_yeongtong",
+            "category": "운동",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0063",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "준호",
+            "emoji": "🧘",
+            "home_region_id": "emd_ingye",
+            "category": "요가",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0064",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "현우",
+            "emoji": "🧘",
+            "home_region_id": "emd_gwonseon",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0065",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "현우",
+            "emoji": "☕",
+            "home_region_id": "emd_paldal",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0066",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "도윤",
+            "emoji": "🎨",
+            "home_region_id": "emd_maetan",
+            "category": "요리",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0067",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "수빈",
+            "emoji": "🧗",
+            "home_region_id": "emd_sinchon",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0068",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "소연",
+            "emoji": "🧗",
+            "home_region_id": "emd_jangan",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0069",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "소연",
+            "emoji": "🏃",
+            "home_region_id": "emd_yeonmu",
+            "category": "운동",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0070",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "채원",
+            "emoji": "📚",
+            "home_region_id": "emd_yeongtong",
+            "category": "요리",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0071",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "주원",
+            "emoji": "📚",
+            "home_region_id": "emd_ingye",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0072",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "재민",
+            "emoji": "🧗",
+            "home_region_id": "emd_gwonseon",
+            "category": "미술",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0073",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "지훈",
+            "emoji": "☕",
+            "home_region_id": "emd_paldal",
+            "category": "볼더링",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0074",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "하린",
+            "emoji": "🧘",
+            "home_region_id": "emd_maetan",
+            "category": "요가",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0075",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "현우",
+            "emoji": "🧗",
+            "home_region_id": "emd_sinchon",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0076",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "지훈",
+            "emoji": "🥾",
+            "home_region_id": "emd_jangan",
+            "category": "음악",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0077",
+            "agent_role": "protagonist",
+            "archetype": "helper",
+            "name": "유진",
+            "emoji": "🎨",
+            "home_region_id": "emd_yeonmu",
+            "category": "미술",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0078",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "소연",
+            "emoji": "📚",
+            "home_region_id": "emd_yeongtong",
+            "category": "코딩",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0079",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "민지",
+            "emoji": "☕",
+            "home_region_id": "emd_ingye",
+            "category": "코딩",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0080",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "예원",
+            "emoji": "🍳",
+            "home_region_id": "emd_gwonseon",
+            "category": "음악",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0081",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "재민",
+            "emoji": "🧘",
+            "home_region_id": "emd_paldal",
+            "category": "음악",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0082",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "주원",
+            "emoji": "🏃",
+            "home_region_id": "emd_maetan",
+            "category": "미술",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0083",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "소연",
+            "emoji": "📚",
+            "home_region_id": "emd_sinchon",
+            "category": "코딩",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0084",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "소연",
+            "emoji": "☕",
+            "home_region_id": "emd_jangan",
+            "category": "운동",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0085",
+            "agent_role": "protagonist",
+            "archetype": "explorer",
+            "name": "지훈",
+            "emoji": "📚",
+            "home_region_id": "emd_yeonmu",
+            "category": "요가",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0086",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "나윤",
+            "emoji": "🏃",
+            "home_region_id": "emd_yeongtong",
+            "category": "볼더링",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0087",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "하린",
+            "emoji": "🎵",
+            "home_region_id": "emd_ingye",
+            "category": "공예",
+            "intent": "request"
+        },
+        {
+            "agent_id": "A_p_0088",
+            "agent_role": "protagonist",
+            "archetype": "learner",
+            "name": "주원",
+            "emoji": "☕",
+            "home_region_id": "emd_gwonseon",
+            "category": "미술",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0089",
+            "agent_role": "protagonist",
+            "archetype": "creator",
+            "name": "민지",
+            "emoji": "💻",
+            "home_region_id": "emd_paldal",
+            "category": "미술",
+            "intent": "offer"
+        },
+        {
+            "agent_id": "A_p_0090",
+            "agent_role": "protagonist",
+            "archetype": "connector",
+            "name": "도윤",
+            "emoji": "🏃",
+            "home_region_id": "emd_maetan",
+            "category": "볼더링",
+            "intent": "request"
+        }
+    ],
+    "places": [
+        {
+            "place_id": "emd_sinchon",
+            "place_type": "region",
+            "lat": 37.262,
+            "lng": 127.029,
+            "label": "신촌동"
+        },
+        {
+            "place_id": "emd_jangan",
+            "place_type": "region",
+            "lat": 37.301,
+            "lng": 127.012,
+            "label": "장안동"
+        },
+        {
+            "place_id": "emd_yeonmu",
+            "place_type": "region",
+            "lat": 37.286,
+            "lng": 127.034,
+            "label": "연무동"
+        },
+        {
+            "place_id": "emd_yeongtong",
+            "place_type": "region",
+            "lat": 37.255,
+            "lng": 127.07,
+            "label": "영통동"
+        },
+        {
+            "place_id": "emd_ingye",
+            "place_type": "region",
+            "lat": 37.265,
+            "lng": 127.025,
+            "label": "인계동"
+        },
+        {
+            "place_id": "emd_gwonseon",
+            "place_type": "region",
+            "lat": 37.245,
+            "lng": 127,
+            "label": "권선동"
+        },
+        {
+            "place_id": "emd_paldal",
+            "place_type": "region",
+            "lat": 37.278,
+            "lng": 127.015,
+            "label": "팔달동"
+        },
+        {
+            "place_id": "emd_maetan",
+            "place_type": "region",
+            "lat": 37.252,
+            "lng": 127.05,
+            "label": "매탄동"
+        },
+        {
+            "place_id": "S_0001",
+            "place_type": "spot",
+            "lat": 37.27536220103936,
+            "lng": 127.03015476862298,
+            "region_id": "emd_sinchon",
+            "label": "S_0001",
+            "category": "요가",
+            "intent": "offer",
+            "title": "공원 모닝 요가"
+        },
+        {
+            "place_id": "S_0002",
+            "place_type": "spot",
+            "lat": 37.30309518266565,
+            "lng": 127.0064564136551,
+            "region_id": "emd_jangan",
+            "label": "S_0002",
+            "category": "미술",
+            "intent": "request",
+            "title": "드로잉 같이"
+        },
+        {
+            "place_id": "S_0003",
+            "place_type": "spot",
+            "lat": 37.27966769430316,
+            "lng": 127.03777602575568,
+            "region_id": "emd_yeonmu",
+            "label": "S_0003",
+            "category": "음악",
+            "intent": "offer",
+            "title": "합주 모임"
+        },
+        {
+            "place_id": "S_0004",
+            "place_type": "spot",
+            "lat": 37.249680583748784,
+            "lng": 127.07709172393461,
+            "region_id": "emd_yeongtong",
+            "label": "S_0004",
+            "category": "공예",
+            "intent": "offer",
+            "title": "가죽공예 같이"
+        },
+        {
+            "place_id": "S_0005",
+            "place_type": "spot",
+            "lat": 37.261714445385444,
+            "lng": 127.02151439952476,
+            "region_id": "emd_ingye",
+            "label": "S_0005",
+            "category": "공예",
+            "intent": "offer",
+            "title": "도자기 원데이"
+        },
+        {
+            "place_id": "S_0006",
+            "place_type": "spot",
+            "lat": 37.24775965144291,
+            "lng": 126.99609423883064,
+            "region_id": "emd_gwonseon",
+            "label": "S_0006",
+            "category": "등산",
+            "intent": "request",
+            "title": "등산 크루 구해요"
+        },
+        {
+            "place_id": "S_0007",
+            "place_type": "spot",
+            "lat": 37.27126252649378,
+            "lng": 127.01274018321253,
+            "region_id": "emd_paldal",
+            "label": "S_0007",
+            "category": "요리",
+            "intent": "request",
+            "title": "초심자 요리 모임"
+        },
+        {
+            "place_id": "S_0008",
+            "place_type": "spot",
+            "lat": 37.259651058486114,
+            "lng": 127.04521365927828,
+            "region_id": "emd_maetan",
+            "label": "S_0008",
+            "category": "요리",
+            "intent": "request",
+            "title": "초심자 요리 모임"
+        },
+        {
+            "place_id": "S_0009",
+            "place_type": "spot",
+            "lat": 37.271798459352446,
+            "lng": 127.0296302983555,
+            "region_id": "emd_sinchon",
+            "label": "S_0009",
+            "category": "요리",
+            "intent": "request",
+            "title": "요리 같이 배우실 분"
+        },
+        {
+            "place_id": "S_0010",
+            "place_type": "spot",
+            "lat": 37.29143242292296,
+            "lng": 127.00381089131614,
+            "region_id": "emd_jangan",
+            "label": "S_0010",
+            "category": "공예",
+            "intent": "offer",
+            "title": "가죽공예 같이"
+        },
+        {
+            "place_id": "S_0011",
+            "place_type": "spot",
+            "lat": 37.2784159303398,
+            "lng": 127.03138303241627,
+            "region_id": "emd_yeonmu",
+            "label": "S_0011",
+            "category": "코딩",
+            "intent": "offer",
+            "title": "사이드프로젝트"
+        },
+        {
+            "place_id": "S_0012",
+            "place_type": "spot",
+            "lat": 37.26071808635216,
+            "lng": 127.0779364834951,
+            "region_id": "emd_yeongtong",
+            "label": "S_0012",
+            "category": "코딩",
+            "intent": "request",
+            "title": "리액트 멘토 모집"
+        },
+        {
+            "place_id": "S_0013",
+            "place_type": "spot",
+            "lat": 37.261554872191205,
+            "lng": 127.01198954310289,
+            "region_id": "emd_ingye",
+            "label": "S_0013",
+            "category": "등산",
+            "intent": "offer",
+            "title": "청계산 오전"
+        },
+        {
+            "place_id": "S_0014",
+            "place_type": "spot",
+            "lat": 37.238680610352276,
+            "lng": 127.00091858051897,
+            "region_id": "emd_gwonseon",
+            "label": "S_0014",
+            "category": "코딩",
+            "intent": "request",
+            "title": "코딩 스터디 같이"
+        },
+        {
+            "place_id": "S_0015",
+            "place_type": "spot",
+            "lat": 37.272270310869395,
+            "lng": 127.01906403245285,
+            "region_id": "emd_paldal",
+            "label": "S_0015",
+            "category": "등산",
+            "intent": "request",
+            "title": "등산 크루 구해요"
+        },
+        {
+            "place_id": "S_0016",
+            "place_type": "spot",
+            "lat": 37.247495978115225,
+            "lng": 127.05879548337944,
+            "region_id": "emd_maetan",
+            "label": "S_0016",
+            "category": "볼더링",
+            "intent": "offer",
+            "title": "볼더링 크루"
+        },
+        {
+            "place_id": "S_0017",
+            "place_type": "spot",
+            "lat": 37.265674554350525,
+            "lng": 127.0152766514193,
+            "region_id": "emd_sinchon",
+            "label": "S_0017",
+            "category": "공예",
+            "intent": "request",
+            "title": "금속공예 입문"
+        },
+        {
+            "place_id": "S_0018",
+            "place_type": "spot",
+            "lat": 37.291317888728855,
+            "lng": 127.02075389441623,
+            "region_id": "emd_jangan",
+            "label": "S_0018",
+            "category": "코딩",
+            "intent": "request",
+            "title": "코딩 스터디 같이"
+        }
+    ]
+}
