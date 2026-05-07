@@ -37,6 +37,7 @@ import backend.spot.entity.SpotSchedule;
 import backend.spot.entity.SpotVote;
 import backend.spot.entity.SpotVoteAnswer;
 import backend.spot.entity.SpotVoteOption;
+import backend.spot.entity.VoteState;
 import backend.spot.repository.SpotChecklistRepository;
 import backend.spot.repository.SpotFileRepository;
 import backend.spot.repository.SpotNoteRepository;
@@ -264,6 +265,10 @@ public class SpotService {
 		SpotVote vote = spotVoteRepository.findById(voteId)
 			.filter(v -> v.getSpotId().equals(spotId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
+
+		if (vote.getState() != VoteState.ACTIVE) {
+			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
+		}
 
 		spotVoteOptionRepository.findById(request.getOptionId())
 			.filter(o -> o.getVoteId().equals(voteId))

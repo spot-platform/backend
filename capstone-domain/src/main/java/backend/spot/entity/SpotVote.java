@@ -59,6 +59,9 @@ public class SpotVote {
 	private LocalDateTime createdAt;
 
 	public void close() {
+		if (this.state != VoteState.ACTIVE) {
+			throw new IllegalStateException("활성 투표만 마감할 수 있습니다. 현재 상태: " + this.state);
+		}
 		this.state = VoteState.CLOSED;
 		this.closedAt = LocalDateTime.now();
 	}

@@ -120,6 +120,7 @@ public class Spot {
 		return Spot.builder()
 				.type(post.getType())
 				.status(FeedItemStatus.MATCHED) // 매칭된 상태로 생성
+				.matchedAt(LocalDateTime.now()) // MATCHED 팩토리 경로에서도 라이프사이클 시각 stamp
 				.title(title)
 				.description(description)
 				.pointCost(pointCost)
