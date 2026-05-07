@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
+import backend.chat.dto.ChatRoomResponse.ChatRoomEnrichment;
 import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
@@ -20,6 +21,10 @@ import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.spot.entity.Spot;
+import backend.spot.repository.SpotRepository;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +35,8 @@ public class ChatService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final SseEmitterService sseEmitterService;
+	private final SpotRepository spotRepository;
+	private final UserRepository userRepository;
 
 	// ─────────────────────────────────────────────
 	// 채팅방 (Room)
@@ -41,9 +48,15 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRooms() {
+		return getRooms(null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRooms(String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
 		return chatRoomRepository.findAll()
 			.stream()
-			.map(ChatRoomResponse::from)
+			.map(room -> ChatRoomResponse.from(room, buildEnrichment(room, currentUser)))
 			.toList();
 	}
 
@@ -69,7 +82,14 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public ChatRoomResponse getRoom(Long roomId) {
-		return ChatRoomResponse.from(findRoomOrThrow(roomId));
+		return getRoom(roomId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public ChatRoomResponse getRoom(Long roomId, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		return ChatRoomResponse.from(room, buildEnrichment(room, currentUser));
 	}
 
 	/**
@@ -77,9 +97,15 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId) {
+		return getRoomsBySpot(spotId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsBySpot(String spotId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
 		return chatRoomRepository.findBySpotId(spotId)
 			.stream()
-			.map(ChatRoomResponse::from)
+			.map(room -> ChatRoomResponse.from(room, buildEnrichment(room, currentUser)))
 			.toList();
 	}
 
@@ -89,9 +115,15 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByUser(String userId) {
+		return getRoomsByUser(userId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsByUser(String userId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
 		return chatRoomRepository.findAll()
 			.stream()
-			.map(ChatRoomResponse::from)
+			.map(room -> ChatRoomResponse.from(room, buildEnrichment(room, currentUser)))
 			.toList();
 	}
 
@@ -164,7 +196,12 @@ public class ChatService {
 	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현
 	 */
 	public void markAsRead(Long roomId) {
+		markAsRead(roomId, null);
+	}
+
+	public void markAsRead(Long roomId, String currentUserId) {
 		findRoomOrThrow(roomId);
+		sseEmitterService.broadcastRead(roomId, currentUserId);
 	}
 
 	// ─────────────────────────────────────────────
@@ -174,5 +211,23 @@ public class ChatService {
 	public ChatRoom findRoomOrThrow(Long roomId) {
 		return chatRoomRepository.findById(roomId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+	}
+
+	private ChatRoomEnrichment buildEnrichment(ChatRoom room, UserEntity currentUser) {
+		ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomIdOrderByIdDesc(room.getId())
+			.orElse(null);
+		Spot spot = room.getSpotId() == null ? null : spotRepository.findById(room.getSpotId()).orElse(null);
+		return ChatRoomEnrichment.builder()
+			.lastMessage(lastMessage)
+			.spot(spot)
+			.currentUser(currentUser)
+			.build();
+	}
+
+	private UserEntity findCurrentUser(String currentUserId) {
+		if (currentUserId == null) {
+			return null;
+		}
+		return userRepository.findById(currentUserId).orElse(null);
 	}
 }
