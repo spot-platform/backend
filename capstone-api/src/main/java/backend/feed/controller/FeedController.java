@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import backend.feed.dto.FeedApplicationResponse;
 import backend.feed.dto.FeedApplyRequest;
-import backend.feed.dto.FeedItemResponse;
+import backend.feed.dto.FeedDetailResponse;
 import backend.feed.dto.FeedListQuery;
 import backend.feed.dto.FeedListResponse;
 import backend.feed.service.FeedItemService;
@@ -38,7 +38,7 @@ public class FeedController {
 
 	@Operation(summary = "피드 상세 조회")
 	@GetMapping("/{feedId}")
-	public ApiResponse<FeedItemResponse> getFeedItem(@PathVariable String feedId) {
+	public ApiResponse<FeedDetailResponse> getFeedItem(@PathVariable String feedId) {
 		return ApiResponse.success(feedItemService.getFeedItem(feedId));
 	}
 
@@ -87,3 +87,4 @@ public class FeedController {
 		return ApiResponse.success(response);
 	}
 }
+

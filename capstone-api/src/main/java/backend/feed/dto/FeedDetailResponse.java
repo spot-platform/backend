@@ -1,5 +1,7 @@
 package backend.feed.dto;
 
+import java.util.List;
+
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedCategory;
@@ -16,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "FeedItem 응답 DTO")
-public class FeedItemResponse {
+@Schema(description = "FeedItem 상세 응답 DTO")
+public class FeedDetailResponse extends FeedItemResponse {
 
 	@Schema(description = "피드 아이템 ID", example = "uuid-string")
 	private String id;
@@ -85,58 +87,59 @@ public class FeedItemResponse {
 	@Schema(description = "좋아요수", example = "0")
 	private Integer likes;
 
-	public static FeedItemResponse from(FeedItem feedItem) {
-		return from(feedItem, null, null, null, buildAuthorProfile(feedItem));
-	}
+	@Schema(description = "계획")
+	private PlanV3 plan;
 
-	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
-			FeedApplicationStatus myApplicationStatus, FeedAuthorProfile authorProfile) {
-		return FeedItemResponse.builder()
-				.id(feedItem.getId())
-				.title(feedItem.getTitle())
-				.description(feedItem.getDescription())
-				.imageUrl(feedItem.getImageUrl())
-				.location(feedItem.getLocation())
-				.authorNickname(feedItem.getAuthorNickname())
-				.price(feedItem.getPrice())
-				.type(feedItem.getType())
-				.status(feedItem.getStatus())
-				.category(feedItem.getCategory())
-				.maxParticipants(feedItem.getMaxParticipants())
-				.deadline(feedItem.getDeadline())
-				.partnerCount(feedItem.getType() == PostType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
-				.progressPercent(feedItem.getType() == PostType.OFFER ? calculateProgressPercent(feedItem) : null)
-				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
-				.isBookmarked(isBookmarked)
-				.myApplicationStatus(myApplicationStatus)
-				.authorProfile(authorProfile)
-				.spotId(feedItem.getSpotId())
-				.isAi(feedItem.isAi())
-				.views(feedItem.getViews())
-				.likes(feedItem.getLikes())
+	@Schema(description = "가격 상세")
+	private PriceBreakdown priceBreakdown;
+
+	@Schema(description = "준비물")
+	private Preparation preparation;
+
+	@Schema(description = "장소 앵커 목록")
+	private List<ResolvedPlace> venueAnchors;
+
+	@Schema(description = "주요 핀")
+	private ResolvedPlace primaryPin;
+
+	@Schema(description = "확정 파트너 프로필 목록")
+	private List<FeedParticipantProfile> confirmedPartnerProfiles;
+
+	public static FeedDetailResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
+			FeedApplicationStatus myApplicationStatus, FeedAuthorProfile authorProfile, PlanV3 plan,
+			PriceBreakdown priceBreakdown, Preparation preparation, List<ResolvedPlace> venueAnchors,
+			ResolvedPlace primaryPin, List<FeedParticipantProfile> confirmedPartnerProfiles) {
+		FeedItemResponse itemResponse = FeedItemResponse.from(
+				feedItem, applicantCount, isBookmarked, myApplicationStatus, authorProfile);
+		return FeedDetailResponse.builder()
+				.id(itemResponse.getId())
+				.title(itemResponse.getTitle())
+				.description(itemResponse.getDescription())
+				.imageUrl(itemResponse.getImageUrl())
+				.location(itemResponse.getLocation())
+				.authorNickname(itemResponse.getAuthorNickname())
+				.price(itemResponse.getPrice())
+				.type(itemResponse.getType())
+				.status(itemResponse.getStatus())
+				.category(itemResponse.getCategory())
+				.maxParticipants(itemResponse.getMaxParticipants())
+				.deadline(itemResponse.getDeadline())
+				.partnerCount(itemResponse.getPartnerCount())
+				.progressPercent(itemResponse.getProgressPercent())
+				.applicantCount(itemResponse.getApplicantCount())
+				.isBookmarked(itemResponse.getIsBookmarked())
+				.myApplicationStatus(itemResponse.getMyApplicationStatus())
+				.authorProfile(itemResponse.getAuthorProfile())
+				.spotId(itemResponse.getSpotId())
+				.isAi(itemResponse.isAi())
+				.views(itemResponse.getViews())
+				.likes(itemResponse.getLikes())
+				.plan(plan)
+				.priceBreakdown(priceBreakdown)
+				.preparation(preparation)
+				.venueAnchors(venueAnchors)
+				.primaryPin(primaryPin)
+				.confirmedPartnerProfiles(confirmedPartnerProfiles)
 				.build();
-	}
-
-	public static FeedAuthorProfile buildAuthorProfile(FeedItem feedItem) {
-		if (feedItem.getAuthorRole() == null) {
-			return null;
-		}
-		return FeedAuthorProfile.builder()
-				.id(feedItem.getAuthorId())
-				.nickname(feedItem.getAuthorNickname())
-				.avatarUrl(feedItem.getAuthorAvatarUrl())
-				.role(feedItem.getAuthorRole())
-				.rating(feedItem.getAuthorRating() == null ? null : feedItem.getAuthorRating().doubleValue())
-				.field(feedItem.getAuthorField())
-				.build();
-	}
-
-	private static Integer calculateProgressPercent(FeedItem feedItem) {
-		Integer fundingGoal = feedItem.getFundingGoal();
-		if (fundingGoal == null || fundingGoal <= 0) {
-			return null;
-		}
-		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
-		return fundedAmount * 100 / fundingGoal;
 	}
 }
