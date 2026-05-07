@@ -98,10 +98,10 @@ public class FeedItem {
 	@Column
 	private String deadline;
 
-	@Column
+	@Column(length = 2048)
 	private String imageUrl;
 
-	@Column
+	@Column(length = 2048)
 	private String authorAvatarUrl;
 
 	@Enumerated(EnumType.STRING)
@@ -118,7 +118,7 @@ public class FeedItem {
 	private String spotId;
 
 	@Builder.Default
-	@Column(nullable = false)
+	@Column(columnDefinition = "BOOLEAN NOT NULL DEFAULT FALSE")
 	private boolean isAi = false;
 
 	@Column(columnDefinition = "TEXT")

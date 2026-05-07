@@ -137,6 +137,6 @@ public class FeedItemResponse {
 			return null;
 		}
 		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
-		return fundedAmount * 100 / fundingGoal;
+		return (int) ((long) fundedAmount * 100L / fundingGoal);
 	}
 }

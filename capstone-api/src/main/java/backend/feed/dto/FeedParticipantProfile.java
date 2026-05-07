@@ -1,5 +1,7 @@
 package backend.feed.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ public class FeedParticipantProfile {
 	@Schema(description = "참여자 닉네임", example = "유저1")
 	private String nickname;
 
+	@JsonProperty("avatar_url")
 	@Schema(description = "참여자 아바타 URL")
 	private String avatarUrl;
 }

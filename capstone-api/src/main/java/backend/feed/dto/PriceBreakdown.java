@@ -20,7 +20,7 @@ public class PriceBreakdown {
 
 	@JsonProperty("base_fee")
 	@Schema(description = "기본 금액", example = "5000")
-	private int baseFee;
+	private Integer baseFee;
 
 	@JsonProperty("included_items")
 	@Schema(description = "포함 항목 목록")
