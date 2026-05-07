@@ -43,6 +43,15 @@ public class SpotResponse {
 	@Schema(description = "작성자 닉네임", example = "한강러버")
 	private String authorNickname;
 
+	@Schema(description = "활성 참여자 수", example = "3")
+	private Integer participantCount;
+
+	@Schema(description = "매칭 일시", nullable = true, example = "2024-04-10T11:00:00")
+	private LocalDateTime matchedAt;
+
+	@Schema(description = "종료 일시", nullable = true, example = "2024-04-10T12:00:00")
+	private LocalDateTime closedAt;
+
 	@Schema(description = "생성 일시", example = "2024-04-10T10:00:00")
 	private LocalDateTime createdAt;
 
@@ -54,6 +63,10 @@ public class SpotResponse {
 	 * Controller/Service에서 SpotResponse.from(spot) 으로 사용
 	 */
 	public static SpotResponse from(Spot spot) {
+		return from(spot, 0);
+	}
+
+	public static SpotResponse from(Spot spot, int participantCount) {
 		return SpotResponse.builder()
 			.id(spot.getId())
 			.type(spot.getType())
@@ -63,6 +76,9 @@ public class SpotResponse {
 			.pointCost(spot.getPointCost())
 			.authorId(spot.getAuthorId())
 			.authorNickname(spot.getAuthorNickname())
+			.participantCount(participantCount)
+			.matchedAt(spot.getMatchedAt())
+			.closedAt(spot.getClosedAt())
 			.createdAt(spot.getCreatedAt())
 			.updatedAt(spot.getUpdatedAt())
 			.build();

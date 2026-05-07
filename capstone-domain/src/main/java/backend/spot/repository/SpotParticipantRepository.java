@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import backend.spot.entity.ParticipantRole;
+import backend.spot.entity.ParticipantState;
 import backend.spot.entity.SpotParticipant;
 
 public interface SpotParticipantRepository extends JpaRepository<SpotParticipant, Long> {
@@ -19,4 +20,6 @@ public interface SpotParticipantRepository extends JpaRepository<SpotParticipant
 	boolean existsBySpotIdAndUserId(String spotId, String userId);
 
 	List<SpotParticipant> findBySpotIdAndRole(String spotId, ParticipantRole role);
+
+	long countBySpotIdAndState(String spotId, ParticipantState state);
 }

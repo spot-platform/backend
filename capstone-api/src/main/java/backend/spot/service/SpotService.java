@@ -28,6 +28,7 @@ import backend.spot.dto.SpotScheduleResponse;
 import backend.spot.dto.SpotVoteOptionResponse;
 import backend.spot.dto.SpotVoteResponse;
 import backend.spot.dto.UploadFileRequest;
+import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
 import backend.spot.entity.SpotChecklist;
 import backend.spot.entity.SpotFile;
@@ -80,7 +81,7 @@ public class SpotService {
 			.authorNickname("테스트유저")
 			.build();
 
-		return SpotResponse.from(spotRepository.save(spot));
+		return toSpotResponse(spotRepository.save(spot));
 	}
 
 	/**
@@ -93,7 +94,10 @@ public class SpotService {
 
 		List<SpotResponse> data = spotPage.getContent()
 			.stream()
-			.map(SpotResponse::from)
+			.map(spot -> {
+				// TODO: batch participant counts when N is large
+				return toSpotResponse(spot);
+			})
 			.toList();
 
 		ApiResponseMeta meta = ApiResponseMeta.builder()
@@ -114,7 +118,7 @@ public class SpotService {
 	 */
 	@Transactional(readOnly = true)
 	public SpotResponse getSpot(String spotId) {
-		return SpotResponse.from(findSpotOrThrow(spotId));
+		return toSpotResponse(findSpotOrThrow(spotId));
 	}
 
 	/**
@@ -123,7 +127,7 @@ public class SpotService {
 	public SpotResponse matchSpot(String spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.match();
-		return SpotResponse.from(spot);
+		return toSpotResponse(spot);
 	}
 
 	/**
@@ -132,7 +136,7 @@ public class SpotService {
 	public SpotResponse cancelSpot(String spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
-		return SpotResponse.from(spot);
+		return toSpotResponse(spot);
 	}
 
 	/**
@@ -141,7 +145,7 @@ public class SpotService {
 	public SpotResponse completeSpot(String spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
-		return SpotResponse.from(spot);
+		return toSpotResponse(spot);
 	}
 
 	// ─────────────────────────────────────────────
@@ -201,7 +205,7 @@ public class SpotService {
 	 * 스팟의 투표 목록을 선택지 포함하여 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotVoteResponse> getVotes(String spotId) {
+	public List<SpotVoteResponse> getVotes(String spotId, String currentUserId) {
 		validateSpotExists(spotId);
 
 		return spotVoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId)
@@ -211,7 +215,7 @@ public class SpotService {
 					.stream()
 					.map(SpotVoteOptionResponse::from)
 					.toList();
-				return SpotVoteResponse.of(vote, options);
+				return SpotVoteResponse.of(vote, options, getMyVotedOptionIds(vote.getId(), currentUserId));
 			})
 			.toList();
 	}
@@ -220,12 +224,12 @@ public class SpotService {
 	 * 스팟에 투표를 생성합니다.
 	 * TODO: 인증 시스템 도입 후 creatorId 를 실제 로그인 유저 ID로 교체
 	 */
-	public SpotVoteResponse createVote(String spotId, CreateVoteRequest request) {
+	public SpotVoteResponse createVote(String spotId, CreateVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotVote vote = SpotVote.builder()
 			.spotId(spotId)
-			.creatorId("dummy-user-id")
+			.creatorId(currentUserId != null ? currentUserId : "dummy-user-id")
 			.question(request.getQuestion())
 			.build();
 
@@ -244,7 +248,7 @@ public class SpotService {
 			.map(SpotVoteOptionResponse::from)
 			.toList();
 
-		return SpotVoteResponse.of(savedVote, optionResponses);
+		return SpotVoteResponse.of(savedVote, optionResponses, getMyVotedOptionIds(savedVote.getId(), currentUserId));
 	}
 
 	/**
@@ -254,7 +258,7 @@ public class SpotService {
 	 * - 원자적 득표 증가: DB UPDATE 쿼리로 race condition 없이 처리
 	 * TODO: 인증 시스템 도입 후 userId 를 실제 로그인 유저 ID로 교체
 	 */
-	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request) {
+	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotVote vote = spotVoteRepository.findById(voteId)
@@ -265,7 +269,7 @@ public class SpotService {
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
-		String userId = "dummy-user-id";
+		String userId = currentUserId != null ? currentUserId : "dummy-user-id";
 
 		SpotVoteAnswer answer = SpotVoteAnswer.builder()
 			.voteId(voteId)
@@ -282,7 +286,7 @@ public class SpotService {
 			.map(SpotVoteOptionResponse::from)
 			.toList();
 
-		return SpotVoteResponse.of(vote, optionResponses);
+		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
 	}
 
 	// ─────────────────────────────────────────────
@@ -411,6 +415,25 @@ public class SpotService {
 	// ─────────────────────────────────────────────
 	// 내부 헬퍼
 	// ─────────────────────────────────────────────
+
+	private SpotResponse toSpotResponse(Spot spot) {
+		long participantCount = spotParticipantRepository.countBySpotIdAndState(
+			spot.getId(),
+			ParticipantState.ACTIVE
+		);
+		return SpotResponse.from(spot, Math.toIntExact(participantCount));
+	}
+
+	private List<Long> getMyVotedOptionIds(Long voteId, String currentUserId) {
+		if (currentUserId == null) {
+			return null;
+		}
+
+		return spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, currentUserId)
+			.stream()
+			.map(SpotVoteAnswer::getOptionId)
+			.toList();
+	}
 
 	private Spot findSpotOrThrow(String spotId) {
 		return spotRepository.findById(spotId)

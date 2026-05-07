@@ -11,6 +11,8 @@ public interface SpotVoteAnswerRepository extends JpaRepository<SpotVoteAnswer, 
 
 	List<SpotVoteAnswer> findByVoteId(Long voteId);
 
+	List<SpotVoteAnswer> findAllByVoteIdAndUserId(Long voteId, String userId);
+
 	Optional<SpotVoteAnswer> findByVoteIdAndUserId(Long voteId, String userId);
 
 	boolean existsByVoteIdAndUserId(Long voteId, String userId);
