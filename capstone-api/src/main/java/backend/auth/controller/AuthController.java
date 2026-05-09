@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.auth.dto.JWTResponseDTO;
 import backend.auth.dto.LoginRequest;
 import backend.auth.dto.LoginResultDTO;
+import backend.auth.dto.RefreshResponseDTO;
 import backend.auth.service.AuthService;
 import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.BusinessException;
@@ -121,18 +122,14 @@ public class AuthController {
 		)
 	})
 	@PostMapping("/refresh")
-	public ApiResponse<JWTResponseDTO> refresh(
+	public ApiResponse<RefreshResponseDTO> refresh(
 		HttpServletRequest request,
 		HttpServletResponse response
 	) {
 		String refreshToken = extractRefreshFromCookie(request);
 		JWTResponseDTO result = authService.refresh(refreshToken);
 		addRefreshCookie(response, result.refreshToken());
-		return ApiResponse.success(
-			JWTResponseDTO.builder()
-				.accessToken(result.accessToken())
-				.build()
-		);
+		return ApiResponse.success(new RefreshResponseDTO(result.accessToken()));
 	}
 
 	private void addRefreshCookie(HttpServletResponse response, String refreshToken) {
