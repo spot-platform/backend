@@ -47,7 +47,22 @@ public class SpotVote {
 	@Column(nullable = false)
 	private VoteState state = VoteState.ACTIVE;
 
+	@Builder.Default
+	@Column(nullable = false)
+	private boolean multiSelect = false;
+
+	@Column
+	private LocalDateTime closedAt;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	public void close() {
+		if (this.state != VoteState.ACTIVE) {
+			throw new IllegalStateException("활성 투표만 마감할 수 있습니다. 현재 상태: " + this.state);
+		}
+		this.state = VoteState.CLOSED;
+		this.closedAt = LocalDateTime.now();
+	}
 }

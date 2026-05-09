@@ -34,16 +34,36 @@ public class SpotVoteResponse {
 	@Schema(description = "선택지 목록")
 	private List<SpotVoteOptionResponse> options;
 
+	@Schema(description = "다중 선택 가능 여부", example = "false")
+	private boolean multiSelect;
+
+	@Schema(description = "투표 마감 일시", nullable = true)
+	private LocalDateTime closedAt;
+
+	@Schema(description = "인증 사용자가 선택한 옵션 ID 목록 (비인증 시 null)", nullable = true)
+	private List<Long> myVotedOptionIds;
+
 	@Schema(description = "생성 일시")
 	private LocalDateTime createdAt;
 
 	public static SpotVoteResponse of(SpotVote vote, List<SpotVoteOptionResponse> options) {
+		return of(vote, options, null);
+	}
+
+	public static SpotVoteResponse of(
+		SpotVote vote,
+		List<SpotVoteOptionResponse> options,
+		List<Long> myVotedOptionIds
+	) {
 		return SpotVoteResponse.builder()
 			.id(vote.getId())
 			.question(vote.getQuestion())
 			.state(vote.getState())
 			.creatorId(vote.getCreatorId())
 			.options(options)
+			.multiSelect(vote.isMultiSelect())
+			.closedAt(vote.getClosedAt())
+			.myVotedOptionIds(myVotedOptionIds)
 			.createdAt(vote.getCreatedAt())
 			.build();
 	}

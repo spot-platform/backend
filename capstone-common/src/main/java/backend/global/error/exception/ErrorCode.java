@@ -26,6 +26,7 @@ public enum ErrorCode {
 	OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "S004", "Vote option not found"),
 	OPTION_NOT_IN_VOTE(HttpStatus.BAD_REQUEST, "S005", "Option does not belong to this vote"),
 	ALREADY_VOTED(HttpStatus.CONFLICT, "S006", "Already voted on this vote"),
+	VOTE_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "S010", "Vote is not active"),
 	CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "S007", "Checklist item not found"),
 	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),

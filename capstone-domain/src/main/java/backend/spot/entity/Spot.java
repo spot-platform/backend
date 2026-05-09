@@ -63,6 +63,12 @@ public class Spot {
 	@Column(nullable = false)
 	private String authorNickname;
 
+	@Column
+	private LocalDateTime matchedAt;
+
+	@Column
+	private LocalDateTime closedAt;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -80,6 +86,7 @@ public class Spot {
 			throw new IllegalStateException("모집 중인 스팟만 매칭할 수 있습니다. 현재 상태: " + this.status);
 		}
 		this.status = FeedItemStatus.MATCHED;
+		this.matchedAt = LocalDateTime.now();
 	}
 
 	/**
@@ -91,6 +98,7 @@ public class Spot {
 			throw new IllegalStateException("모집 중인 스팟만 취소할 수 있습니다. 현재 상태: " + this.status);
 		}
 		this.status = FeedItemStatus.CLOSED;
+		this.closedAt = LocalDateTime.now();
 	}
 
 	/**
@@ -102,6 +110,7 @@ public class Spot {
 			throw new IllegalStateException("진행 중인 스팟만 완료할 수 있습니다. 현재 상태: " + this.status);
 		}
 		this.status = FeedItemStatus.CLOSED;
+		this.closedAt = LocalDateTime.now();
 	}
 
 	/**
@@ -111,6 +120,7 @@ public class Spot {
 		return Spot.builder()
 				.type(post.getType())
 				.status(FeedItemStatus.MATCHED) // 매칭된 상태로 생성
+				.matchedAt(LocalDateTime.now()) // MATCHED 팩토리 경로에서도 라이프사이클 시각 stamp
 				.title(title)
 				.description(description)
 				.pointCost(pointCost)

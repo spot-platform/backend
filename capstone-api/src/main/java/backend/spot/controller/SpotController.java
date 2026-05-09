@@ -3,6 +3,9 @@ package backend.spot.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.global.common.response.ApiResponse;
+import backend.global.security.CustomUserDetails;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
@@ -116,17 +120,27 @@ public class SpotController {
 
 	@Operation(summary = "스팟 투표 목록 조회")
 	@GetMapping("/{spotId}/votes")
-	public ResponseEntity<ApiResponse<List<SpotVoteResponse>>> getVotes(@PathVariable String spotId) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getVotes(spotId)));
+	public ResponseEntity<ApiResponse<List<SpotVoteResponse>>> getVotes(
+		@PathVariable String spotId,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.getVotes(spotId, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	@Operation(summary = "스팟 투표 생성")
 	@PostMapping("/{spotId}/votes")
 	public ResponseEntity<ApiResponse<SpotVoteResponse>> createVote(
 		@PathVariable String spotId,
-		@Valid @RequestBody CreateVoteRequest request
+		@Valid @RequestBody CreateVoteRequest request,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.createVote(spotId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.createVote(spotId, request, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	@Operation(summary = "스팟 투표 참여")
@@ -134,9 +148,13 @@ public class SpotController {
 	public ResponseEntity<ApiResponse<SpotVoteResponse>> castVote(
 		@PathVariable String spotId,
 		@PathVariable Long voteId,
-		@Valid @RequestBody CastVoteRequest request
+		@Valid @RequestBody CastVoteRequest request,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.castVote(spotId, voteId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.castVote(spotId, voteId, request, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	// ─── 체크리스트 (Checklist) ───────────────────
@@ -207,6 +225,22 @@ public class SpotController {
 		@Valid @RequestBody CreateNoteRequest request
 	) {
 		return ResponseEntity.ok(ApiResponse.success(spotService.createNote(spotId, request)));
+	}
+
+	private String resolveCurrentUserId(Object principal, Authentication authentication) {
+		if (authentication == null || !authentication.isAuthenticated()
+			|| authentication instanceof AnonymousAuthenticationToken) {
+			return null;
+		}
+
+		if (principal instanceof CustomUserDetails userDetails) {
+			return userDetails.getUserId();
+		}
+		if (principal instanceof String userId) {
+			return userId;
+		}
+
+		return null;
 	}
 
 	// ─── 리뷰 (Review) - TODO ─────────────────────
