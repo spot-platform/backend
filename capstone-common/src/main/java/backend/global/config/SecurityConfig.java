@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import backend.global.error.JwtAccessDeniedHandler;
 import backend.global.error.JwtAuthenticationEntryPoint;
 import backend.global.filter.JWTFilter;
+import backend.global.util.CookieUtil;
 import backend.global.util.JWTUtil;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -123,9 +124,10 @@ public class SecurityConfig {
 			.logout(logout -> logout
 				.logoutUrl("/api/auth/logout")
 				.addLogoutHandler(refreshTokenLogoutHandler)
-				.logoutSuccessHandler((request, response, authentication) ->
-					response.setStatus(HttpServletResponse.SC_OK)
-				)
+				.logoutSuccessHandler((request, response, authentication) -> {
+					CookieUtil.clearRefreshCookie(response);
+					response.setStatus(HttpServletResponse.SC_OK);
+				})
 			)
 			.exceptionHandling(exceptions -> exceptions
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint)

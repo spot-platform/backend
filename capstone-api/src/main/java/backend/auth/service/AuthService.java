@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.dto.JWTResponseDTO;
-import backend.auth.dto.RefreshRequestDTO;
 import backend.auth.entity.RefreshEntity;
 import backend.auth.repository.RefreshRepository;
 import backend.global.error.exception.BusinessException;
@@ -23,8 +22,7 @@ public class AuthService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public JWTResponseDTO refresh(RefreshRequestDTO request) {
-		String refreshToken = request.refreshToken();
+	public JWTResponseDTO refresh(String refreshToken) {
 		validateRefreshTokenStructure(refreshToken);
 
 		String email = jwtUtil.getEmail(refreshToken);
