@@ -7,12 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.auth.dto.JWTResponseDTO;
 import backend.auth.service.AuthService;
 import backend.global.common.response.ApiResponse;
-import backend.global.error.exception.BusinessException;
-import backend.global.error.exception.ErrorCode;
+import backend.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -38,20 +36,8 @@ public class JwtController {
 	})
 	@PostMapping("/exchange")
 	public ApiResponse<JWTResponseDTO> exchangeSocialToken(HttpServletRequest request) {
-		String refreshToken = extractRefreshFromCookie(request);
+		String refreshToken = CookieUtil.extractRefresh(request);
 		JWTResponseDTO result = authService.exchangeSocialToken(refreshToken);
 		return ApiResponse.success(result);
-	}
-
-	private String extractRefreshFromCookie(HttpServletRequest request) {
-		if (request.getCookies() == null) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
-		for (Cookie cookie : request.getCookies()) {
-			if ("refresh".equals(cookie.getName())) {
-				return cookie.getValue();
-			}
-		}
-		throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 	}
 }

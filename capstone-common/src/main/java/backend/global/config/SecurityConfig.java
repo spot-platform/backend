@@ -2,9 +2,7 @@ package backend.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import backend.global.error.JwtAccessDeniedHandler;
 import backend.global.error.JwtAuthenticationEntryPoint;
 import backend.global.filter.JWTFilter;
+import backend.global.util.CookieUtil;
 import backend.global.util.JWTUtil;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -126,14 +125,7 @@ public class SecurityConfig {
 				.logoutUrl("/api/auth/logout")
 				.addLogoutHandler(refreshTokenLogoutHandler)
 				.logoutSuccessHandler((request, response, authentication) -> {
-					ResponseCookie refreshCookie = ResponseCookie.from("refresh", "")
-						.httpOnly(true)
-						.secure(true)
-						.path("/")
-						.maxAge(0)
-						.sameSite("Strict")
-						.build();
-					response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+					CookieUtil.clearRefreshCookie(response);
 					response.setStatus(HttpServletResponse.SC_OK);
 				})
 			)

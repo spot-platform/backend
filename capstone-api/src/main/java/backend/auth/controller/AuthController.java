@@ -1,7 +1,5 @@
 package backend.auth.controller;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +13,7 @@ import backend.auth.dto.LoginResultDTO;
 import backend.auth.dto.RefreshResponseDTO;
 import backend.auth.service.AuthService;
 import backend.global.common.response.ApiResponse;
-import backend.global.error.exception.BusinessException;
-import backend.global.error.exception.ErrorCode;
+import backend.global.util.CookieUtil;
 import backend.global.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +21,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -126,33 +122,9 @@ public class AuthController {
 		HttpServletRequest request,
 		HttpServletResponse response
 	) {
-		String refreshToken = extractRefreshFromCookie(request);
+		String refreshToken = CookieUtil.extractRefresh(request);
 		JWTResponseDTO result = authService.refresh(refreshToken);
-		addRefreshCookie(response, result.refreshToken());
+		CookieUtil.addRefreshCookie(response, result.refreshToken(), (int)(jwtUtil.getRefreshExpiry() / 1000));
 		return ApiResponse.success(new RefreshResponseDTO(result.accessToken()));
-	}
-
-	private void addRefreshCookie(HttpServletResponse response, String refreshToken) {
-		int maxAge = (int)(jwtUtil.getRefreshExpiry() / 1000);
-		ResponseCookie refreshCookie = ResponseCookie.from("refresh", refreshToken)
-			.httpOnly(true)
-			.secure(true)
-			.path("/")
-			.maxAge(maxAge)
-			.sameSite("Strict")
-			.build();
-		response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-	}
-
-	private String extractRefreshFromCookie(HttpServletRequest request) {
-		if (request.getCookies() == null) {
-			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-		}
-		for (Cookie cookie : request.getCookies()) {
-			if ("refresh".equals(cookie.getName())) {
-				return cookie.getValue();
-			}
-		}
-		throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 	}
 }

@@ -2,9 +2,7 @@ package backend.global.filter;
 
 import java.io.IOException;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +18,7 @@ import backend.auth.entity.RefreshEntity;
 import backend.auth.repository.RefreshRepository;
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
+import backend.global.util.CookieUtil;
 import backend.global.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,15 +97,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 				.build()
 		);
 
-		int maxAge = (int)(jwtUtil.getRefreshExpiry() / 1000);
-		ResponseCookie refreshCookie = ResponseCookie.from("refresh", refreshToken)
-			.httpOnly(true)
-			.secure(true)
-			.path("/")
-			.maxAge(maxAge)
-			.sameSite("Strict")
-			.build();
-		response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+		CookieUtil.addRefreshCookie(response, refreshToken, (int)(jwtUtil.getRefreshExpiry() / 1000));
 
 		LoginResultDTO result = LoginResultDTO.builder()
 			.accessToken(accessToken)
