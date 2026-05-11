@@ -1,6 +1,11 @@
 package backend.chat.service;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -11,6 +16,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
+import backend.chat.dto.ChatRoomResponse.ChatRoomEnrichment;
 import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
@@ -20,6 +26,10 @@ import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.spot.entity.Spot;
+import backend.spot.repository.SpotRepository;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +40,8 @@ public class ChatService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final SseEmitterService sseEmitterService;
+	private final SpotRepository spotRepository;
+	private final UserRepository userRepository;
 
 	// ─────────────────────────────────────────────
 	// 채팅방 (Room)
@@ -41,9 +53,16 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRooms() {
-		return chatRoomRepository.findAll()
-			.stream()
-			.map(ChatRoomResponse::from)
+		return getRooms(null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRooms(String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		List<ChatRoom> rooms = chatRoomRepository.findAll();
+		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
+		return rooms.stream()
+			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
 			.toList();
 	}
 
@@ -69,7 +88,14 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public ChatRoomResponse getRoom(Long roomId) {
-		return ChatRoomResponse.from(findRoomOrThrow(roomId));
+		return getRoom(roomId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public ChatRoomResponse getRoom(Long roomId, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		return ChatRoomResponse.from(room, buildEnrichment(room, currentUser));
 	}
 
 	/**
@@ -77,9 +103,16 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId) {
-		return chatRoomRepository.findBySpotId(spotId)
-			.stream()
-			.map(ChatRoomResponse::from)
+		return getRoomsBySpot(spotId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsBySpot(String spotId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		List<ChatRoom> rooms = chatRoomRepository.findBySpotId(spotId);
+		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
+		return rooms.stream()
+			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
 			.toList();
 	}
 
@@ -89,9 +122,17 @@ public class ChatService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByUser(String userId) {
-		return chatRoomRepository.findAll()
-			.stream()
-			.map(ChatRoomResponse::from)
+		return getRoomsByUser(userId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsByUser(String userId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		List<Long> roomIds = chatMessageRepository.findDistinctChatRoomIdsBySenderId(userId);
+		List<ChatRoom> rooms = chatRoomRepository.findAllById(roomIds);
+		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
+		return rooms.stream()
+			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
 			.toList();
 	}
 
@@ -164,7 +205,15 @@ public class ChatService {
 	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현
 	 */
 	public void markAsRead(Long roomId) {
+		markAsRead(roomId, null);
+	}
+
+	public void markAsRead(Long roomId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
 		findRoomOrThrow(roomId);
+		sseEmitterService.broadcastRead(roomId, currentUserId);
 	}
 
 	// ─────────────────────────────────────────────
@@ -174,5 +223,52 @@ public class ChatService {
 	public ChatRoom findRoomOrThrow(Long roomId) {
 		return chatRoomRepository.findById(roomId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+	}
+
+	private ChatRoomEnrichment buildEnrichment(ChatRoom room, UserEntity currentUser) {
+		return buildEnrichments(List.of(room), currentUser)
+			.getOrDefault(room.getId(), ChatRoomEnrichment.empty());
+	}
+
+	private Map<Long, ChatRoomEnrichment> buildEnrichments(Collection<ChatRoom> rooms, UserEntity currentUser) {
+		if (rooms.isEmpty()) {
+			return Map.of();
+		}
+
+		List<Long> roomIds = rooms.stream()
+			.map(ChatRoom::getId)
+			.toList();
+		Map<Long, ChatMessage> lastMessagesByRoomId = currentUser == null
+			? Map.of()
+			: chatMessageRepository.findLatestByChatRoomIds(roomIds)
+				.stream()
+				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
+
+		Set<String> spotIds = rooms.stream()
+			.map(ChatRoom::getSpotId)
+			.filter(spotId -> spotId != null && !spotId.isBlank())
+			.collect(Collectors.toSet());
+		Map<String, Spot> spotsById = spotIds.isEmpty()
+			? Map.of()
+			: spotRepository.findAllById(spotIds)
+				.stream()
+				.collect(Collectors.toMap(Spot::getId, Function.identity()));
+
+		return rooms.stream()
+			.collect(Collectors.toMap(
+				ChatRoom::getId,
+				room -> ChatRoomEnrichment.builder()
+					.lastMessage(lastMessagesByRoomId.get(room.getId()))
+					.spot(room.getSpotId() == null ? null : spotsById.get(room.getSpotId()))
+					.currentUser(currentUser)
+					.build()
+			));
+	}
+
+	private UserEntity findCurrentUser(String currentUserId) {
+		if (currentUserId == null) {
+			return null;
+		}
+		return userRepository.findById(currentUserId).orElse(null);
 	}
 }

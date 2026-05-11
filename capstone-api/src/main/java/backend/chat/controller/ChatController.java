@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import backend.chat.dto.SendMessageRequest;
 import backend.chat.service.ChatService;
 import backend.chat.service.SseEmitterService;
 import backend.global.common.response.ApiResponse;
+import backend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,8 +56,10 @@ public class ChatController {
 
 	@Operation(summary = "채팅방 목록 조회")
 	@GetMapping("/rooms")
-	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRooms() {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms()));
+	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRooms(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(userDetails))));
 	}
 
 	@Operation(summary = "채팅방 생성")
@@ -68,24 +72,29 @@ public class ChatController {
 
 	@Operation(summary = "채팅방 상세 조회")
 	@GetMapping("/rooms/{roomId}")
-	public ResponseEntity<ApiResponse<ChatRoomResponse>> getRoom(@PathVariable Long roomId) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId)));
+	public ResponseEntity<ApiResponse<ChatRoomResponse>> getRoom(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId, currentUserId(userDetails))));
 	}
 
 	@Operation(summary = "스팟별 채팅방 조회")
 	@GetMapping("/rooms/by-spot/{spotId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomBySpot(
-		@PathVariable String spotId
+		@PathVariable String spotId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId)));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId, currentUserId(userDetails))));
 	}
 
 	@Operation(summary = "사용자별 채팅방 조회")
 	@GetMapping("/rooms/by-user/{userId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByUser(
-		@PathVariable String userId
+		@PathVariable String userId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId)));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId, currentUserId(userDetails))));
 	}
 
 	// ─── 메시지 (Message) ─────────────────────────
@@ -118,8 +127,15 @@ public class ChatController {
 
 	@Operation(summary = "메시지 읽음 처리")
 	@PostMapping("/rooms/{roomId}/read")
-	public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long roomId) {
-		chatService.markAsRead(roomId);
+	public ResponseEntity<ApiResponse<Void>> markAsRead(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.markAsRead(roomId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	private String currentUserId(CustomUserDetails userDetails) {
+		return userDetails == null ? null : userDetails.getUserId();
 	}
 }

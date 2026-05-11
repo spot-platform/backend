@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import backend.chat.dto.ChatMessageResponse;
+import backend.chat.dto.ChatSseEvent;
 import backend.chat.repository.ChatRoomRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -77,19 +78,31 @@ public class SseEmitterService {
 	 * @param message 전송할 메시지 DTO
 	 */
 	public void broadcast(Long roomId, ChatMessageResponse message) {
+		sendEvent(roomId, ChatSseEvent.message(message));
+	}
+
+	public void broadcastRead(Long roomId, String userId) {
+		sendEvent(roomId, ChatSseEvent.read(roomId, userId));
+	}
+
+	public void broadcastTyping(Long roomId, String userId) {
+		sendEvent(roomId, ChatSseEvent.typing(roomId, userId));
+	}
+
+	private void sendEvent(Long roomId, ChatSseEvent event) {
 		List<SseEmitter> emitters = roomEmitters.getOrDefault(roomId, List.of());
 
 		if (emitters.isEmpty()) {
 			return;
 		}
 
-		SseEmitter.SseEventBuilder event = SseEmitter.event()
-			.name("message")
-			.data(message);
+		SseEmitter.SseEventBuilder sseEvent = SseEmitter.event()
+			.name(event.getType().getValue())
+			.data(event);
 
 		for (SseEmitter emitter : emitters) {
 			try {
-				emitter.send(event);
+				emitter.send(sseEvent);
 			} catch (IOException e) {
 				log.debug("[SSE] send failed - roomId={}, removing emitter", roomId);
 				removeEmitter(roomId, emitter);
