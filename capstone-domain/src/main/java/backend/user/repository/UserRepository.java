@@ -1,5 +1,6 @@
 package backend.user.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,7 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 	boolean existsByEmail(String email);
 
 	Optional<UserEntity> findBySocialIdAndSocialProviderType(String socialId, SocialProviderType socialProviderType);
+
+	List<UserEntity> findAllByIdIn(List<String> ids);
 }
+

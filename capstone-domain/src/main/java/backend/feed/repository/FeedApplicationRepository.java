@@ -1,5 +1,6 @@
 package backend.feed.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,11 @@ public interface FeedApplicationRepository extends JpaRepository<FeedApplication
 			String feedItemId, String userId, FeedApplicationStatus status);
 
 	Optional<FeedApplication> findByIdAndFeedItemId(String id, String feedItemId);
+
+	long countByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
+
+	Optional<FeedApplication> findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(String feedItemId, String userId);
+
+	List<FeedApplication> findAllByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
 }
+

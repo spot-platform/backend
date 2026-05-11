@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
@@ -96,6 +97,44 @@ public class FeedItem {
 
 	@Column
 	private String deadline;
+
+	@Column(length = 2048)
+	private String imageUrl;
+
+	@Column(length = 2048)
+	private String authorAvatarUrl;
+
+	@Enumerated(EnumType.STRING)
+	@Column
+	private FeedAuthorRole authorRole;
+
+	@Column
+	private Float authorRating;
+
+	@Column
+	private String authorField;
+
+	@Column
+	private String spotId;
+
+	@Builder.Default
+	@Column(columnDefinition = "BOOLEAN NOT NULL DEFAULT FALSE")
+	private boolean isAi = false;
+
+	@Column(columnDefinition = "TEXT")
+	private String planJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String priceBreakdownJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String preparationJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String venueAnchorsJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String primaryPinJson;
 
 	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
