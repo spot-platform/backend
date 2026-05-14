@@ -265,10 +265,20 @@ public class SpotService {
 
 	/**
 	 * 투표에 참여(응답)합니다.
-	 * - 중복 투표 방지: DB unique constraint (vote_id, user_id) 로 보장
-	 * - 선택지 소속 검증: optionId 가 해당 voteId 에 속하는지 확인 (IDOR 방지)
-	 * - 원자적 득표 증가: DB UPDATE 쿼리로 race condition 없이 처리
-	 * TODO: 인증 시스템 도입 후 userId 를 실제 로그인 유저 ID로 교체
+	 *
+	 * <p>단일선택({@code multiSelect=false}): 같은 유저의 기존 답변을 모두 삭제하고
+	 * 해당 옵션들의 voteCount 를 감소시킨 뒤, 새 답변을 저장하고 새 옵션의 voteCount 를 증가시킵니다.
+	 * 결과적으로 "표 변경(re-vote)" 이 지원됩니다.
+	 *
+	 * <p>다중선택({@code multiSelect=true}): 기존 답변을 유지한 채 새 답변을 추가합니다.
+	 * 동일 옵션 중복 선택은 DB unique constraint {@code (vote_id, user_id, option_id)} 가 차단합니다.
+	 *
+	 * <p>그 외 검증:
+	 * <ul>
+	 *   <li>선택지 소속 검증: {@code optionId} 가 해당 {@code voteId} 에 속하는지 확인 (IDOR 방지)</li>
+	 *   <li>원자적 카운트 증감: DB UPDATE 쿼리로 race condition 없이 처리, voteCount 음수 가드</li>
+	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
+	 * </ul>
 	 */
 	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
@@ -285,7 +295,16 @@ public class SpotService {
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
-		String userId = currentUserId != null ? currentUserId : "dummy-user-id";
+		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+
+		if (!vote.isMultiSelect()) {
+			// 단일선택: 기존 답변 삭제 + 이전 옵션 카운트 감소 후 새 답변 등록
+			List<SpotVoteAnswer> previousAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+			if (!previousAnswers.isEmpty()) {
+				spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
+				previousAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
+			}
+		}
 
 		SpotVoteAnswer answer = SpotVoteAnswer.builder()
 			.voteId(voteId)
@@ -293,7 +312,8 @@ public class SpotService {
 			.userId(userId)
 			.build();
 
-		spotVoteAnswerRepository.save(answer); // unique constraint 가 중복 투표를 DB 수준에서 차단
+		// unique constraint (vote_id, user_id, option_id) 가 동일 옵션 중복 선택을 DB 수준에서 차단
+		spotVoteAnswerRepository.save(answer);
 
 		spotVoteOptionRepository.incrementVoteCount(request.getOptionId()); // 원자적 UPDATE
 

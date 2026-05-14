@@ -16,4 +16,10 @@ public interface SpotVoteAnswerRepository extends JpaRepository<SpotVoteAnswer, 
 	Optional<SpotVoteAnswer> findByVoteIdAndUserId(Long voteId, String userId);
 
 	boolean existsByVoteIdAndUserId(Long voteId, String userId);
+
+	/**
+	 * 특정 유저의 특정 투표 답변을 일괄 삭제합니다.
+	 * 단일선택 모드에서 표를 변경할 때 이전 답변을 제거하는 용도입니다.
+	 */
+	void deleteAllByVoteIdAndUserId(Long voteId, String userId);
 }
