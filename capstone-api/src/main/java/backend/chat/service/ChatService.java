@@ -171,19 +171,21 @@ public class ChatService {
 	}
 
 	/**
-	 * 메시지를 전송합니다.
+	 * 메시지를 전송합니다. senderId 는 인증된 유저 ID 를 사용합니다.
 	 *
 	 * <p>트랜잭션 커밋 완료 후 SSE 브로드캐스트를 실행하여
 	 * DB 미커밋 상태의 메시지가 클라이언트에 전달되는 phantom message 를 방지합니다.
-	 *
-	 * TODO: 인증 도입 후 senderId 를 실제 로그인 유저 ID로 교체
 	 */
 	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request) {
+		return sendMessage(roomId, request, null);
+	}
+
+	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request, String currentUserId) {
 		findRoomOrThrow(roomId);
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
-			.senderId("dummy-user-id")
+			.senderId(currentUserId != null ? currentUserId : "dummy-user-id")
 			.content(request.getContent())
 			.build();
 

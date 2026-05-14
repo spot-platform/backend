@@ -120,9 +120,12 @@ public class ChatController {
 	@PostMapping("/rooms/{roomId}/messages")
 	public ResponseEntity<ApiResponse<ChatMessageResponse>> sendMessage(
 		@PathVariable Long roomId,
-		@Valid @RequestBody SendMessageRequest request
+		@Valid @RequestBody SendMessageRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.sendMessage(roomId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.sendMessage(roomId, request, currentUserId(userDetails))
+		));
 	}
 
 	@Operation(summary = "메시지 읽음 처리")

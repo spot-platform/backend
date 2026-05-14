@@ -61,8 +61,14 @@ public class SpotController {
 
 	@Operation(summary = "스팟 생성")
 	@PostMapping
-	public ResponseEntity<ApiResponse<SpotResponse>> createSpot(@Valid @RequestBody CreateSpotRequest request) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.createSpot(request)));
+	public ResponseEntity<ApiResponse<SpotResponse>> createSpot(
+		@Valid @RequestBody CreateSpotRequest request,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.createSpot(request, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	@Operation(summary = "스팟 상세 조회")
@@ -195,9 +201,13 @@ public class SpotController {
 	@PostMapping("/{spotId}/files")
 	public ResponseEntity<ApiResponse<SpotFileResponse>> uploadFile(
 		@PathVariable String spotId,
-		@Valid @RequestBody UploadFileRequest request
+		@Valid @RequestBody UploadFileRequest request,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.uploadFile(spotId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.uploadFile(spotId, request, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	@Operation(summary = "스팟 파일 삭제")
@@ -222,9 +232,13 @@ public class SpotController {
 	@PostMapping("/{spotId}/notes")
 	public ResponseEntity<ApiResponse<SpotNoteResponse>> createNote(
 		@PathVariable String spotId,
-		@Valid @RequestBody CreateNoteRequest request
+		@Valid @RequestBody CreateNoteRequest request,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.createNote(spotId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.createNote(spotId, request, resolveCurrentUserId(principal, authentication))
+		));
 	}
 
 	private String resolveCurrentUserId(Object principal, Authentication authentication) {

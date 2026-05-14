@@ -47,6 +47,8 @@ import backend.spot.repository.SpotScheduleRepository;
 import backend.spot.repository.SpotVoteAnswerRepository;
 import backend.spot.repository.SpotVoteOptionRepository;
 import backend.spot.repository.SpotVoteRepository;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -63,6 +65,10 @@ public class SpotService {
 	private final SpotChecklistRepository spotChecklistRepository;
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
+	private final UserRepository userRepository;
+
+	private static final String FALLBACK_USER_ID = "dummy-user-id";
+	private static final String FALLBACK_NICKNAME = "테스트유저";
 
 	// ─────────────────────────────────────────────
 	// Spot 기본 CRUD
@@ -70,16 +76,21 @@ public class SpotService {
 
 	/**
 	 * 스팟을 생성합니다.
-	 * TODO: 인증 시스템 도입 후 authorId, authorNickname 을 실제 로그인 유저 정보로 교체
+	 *
+	 * <p>인증된 유저의 userId 와 nickname 을 작성자 정보로 저장합니다.
+	 * 미인증 호출(인증 미적용 단계)에는 fallback 더미 값을 사용합니다.
+	 * authorNickname 은 스냅샷이라 작성 시점 닉네임을 보존합니다.
 	 */
-	public SpotResponse createSpot(CreateSpotRequest request) {
+	public SpotResponse createSpot(CreateSpotRequest request, String currentUserId) {
+		UserEntity author = currentUserId == null ? null : userRepository.findById(currentUserId).orElse(null);
+
 		Spot spot = Spot.builder()
 			.type(request.getType())
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.pointCost(request.getPointCost())
-			.authorId("dummy-user-id")
-			.authorNickname("테스트유저")
+			.authorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.authorNickname(author != null ? author.getNickname() : FALLBACK_NICKNAME)
 			.build();
 
 		return toSpotResponse(spotRepository.save(spot));
@@ -356,15 +367,14 @@ public class SpotService {
 	}
 
 	/**
-	 * 스팟에 파일 정보를 등록합니다.
-	 * TODO: 인증 시스템 도입 후 uploaderId 를 실제 로그인 유저 ID로 교체
+	 * 스팟에 파일 정보를 등록합니다. 업로더 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request) {
+	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotFile file = SpotFile.builder()
 			.spotId(spotId)
-			.uploaderId("dummy-user-id")
+			.uploaderId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.fileName(request.getFileName())
 			.fileUrl(request.getFileUrl())
 			.build();
@@ -402,15 +412,14 @@ public class SpotService {
 	}
 
 	/**
-	 * 스팟에 노트를 작성합니다.
-	 * TODO: 인증 시스템 도입 후 authorId 를 실제 로그인 유저 ID로 교체
+	 * 스팟에 노트를 작성합니다. 작성자 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request) {
+	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotNote note = SpotNote.builder()
 			.spotId(spotId)
-			.authorId("dummy-user-id")
+			.authorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.content(request.getContent())
 			.build();
 
