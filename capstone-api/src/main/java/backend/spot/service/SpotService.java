@@ -241,8 +241,9 @@ public class SpotService {
 
 		SpotVote vote = SpotVote.builder()
 			.spotId(spotId)
-			.creatorId(currentUserId != null ? currentUserId : "dummy-user-id")
+			.creatorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.question(request.getQuestion())
+			.multiSelect(request.isMultiSelect())
 			.build();
 
 		SpotVote savedVote = spotVoteRepository.save(vote);

@@ -20,4 +20,7 @@ public class CreateVoteRequest {
 	@NotEmpty
 	@Schema(description = "선택지 목록 (최소 2개)", example = "[\"여의도\", \"뚝섬\"]")
 	private List<String> options;
+
+	@Schema(description = "다중 선택 허용 여부 (true면 한 유저가 여러 옵션 선택 가능)", example = "false", defaultValue = "false")
+	private boolean multiSelect;
 }
