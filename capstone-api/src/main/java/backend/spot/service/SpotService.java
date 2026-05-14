@@ -1,6 +1,7 @@
 package backend.spot.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -265,20 +266,25 @@ public class SpotService {
 	}
 
 	/**
-	 * 투표에 참여(응답)합니다.
+	 * 투표에 토글 시맨틱으로 참여/해제합니다. (카카오톡 투표 방식)
 	 *
-	 * <p>단일선택({@code multiSelect=false}): 같은 유저의 기존 답변을 모두 삭제하고
-	 * 해당 옵션들의 voteCount 를 감소시킨 뒤, 새 답변을 저장하고 새 옵션의 voteCount 를 증가시킵니다.
-	 * 결과적으로 "표 변경(re-vote)" 이 지원됩니다.
+	 * <p>이미 해당 옵션에 투표한 상태에서 같은 옵션을 다시 캐스트하면 <b>투표 해제</b>되고
+	 * voteCount 가 감소합니다. 별도 "투표 취소" 엔드포인트 없이 cast 한 개로 토글이 됩니다.
 	 *
-	 * <p>다중선택({@code multiSelect=true}): 기존 답변을 유지한 채 새 답변을 추가합니다.
-	 * 동일 옵션 중복 선택은 DB unique constraint {@code (vote_id, user_id, option_id)} 가 차단합니다.
+	 * <p>동작 규칙:
+	 * <ul>
+	 *   <li>이미 그 옵션에 답변이 있음 → 답변 삭제, count--</li>
+	 *   <li>단일선택({@code multiSelect=false}) 이고 다른 옵션에 답변이 있음 →
+	 *       기존 답변 삭제 + 카운트 감소 후 새 답변 추가 (= 표 변경)</li>
+	 *   <li>그 외 → 새 답변 추가, count++</li>
+	 * </ul>
 	 *
-	 * <p>그 외 검증:
+	 * <p>검증:
 	 * <ul>
 	 *   <li>선택지 소속 검증: {@code optionId} 가 해당 {@code voteId} 에 속하는지 확인 (IDOR 방지)</li>
-	 *   <li>원자적 카운트 증감: DB UPDATE 쿼리로 race condition 없이 처리, voteCount 음수 가드</li>
+	 *   <li>원자적 카운트 증감: DB UPDATE 쿼리, voteCount 음수 가드</li>
 	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
+	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행시켜 unique constraint 충돌 방지</li>
 	 * </ul>
 	 */
 	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request, String currentUserId) {
@@ -292,68 +298,38 @@ public class SpotService {
 			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
 		}
 
-		spotVoteOptionRepository.findById(request.getOptionId())
+		Long optionId = request.getOptionId();
+		spotVoteOptionRepository.findById(optionId)
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
 		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
 
-		if (!vote.isMultiSelect()) {
-			// 단일선택: 기존 답변 삭제 + 이전 옵션 카운트 감소 후 새 답변 등록.
-			// Hibernate 가 INSERT 를 DELETE 보다 먼저 정렬할 수 있으므로 (같은 옵션 재캐스트 시 unique 충돌),
-			// flush() 로 DELETE 를 명시적으로 먼저 실행시킨다.
-			List<SpotVoteAnswer> previousAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
-			if (!previousAnswers.isEmpty()) {
+		List<SpotVoteAnswer> myAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+		Optional<SpotVoteAnswer> existingOnSameOption = myAnswers.stream()
+			.filter(a -> a.getOptionId().equals(optionId))
+			.findFirst();
+
+		if (existingOnSameOption.isPresent()) {
+			// 토글 OFF: 같은 옵션 재캐스트 = 투표 해제
+			spotVoteAnswerRepository.delete(existingOnSameOption.get());
+			spotVoteAnswerRepository.flush();
+			spotVoteOptionRepository.decrementVoteCount(optionId);
+		} else {
+			// 단일선택에서 다른 옵션에 이미 투표 중이면 기존 답변을 표 변경 처리
+			if (!vote.isMultiSelect() && !myAnswers.isEmpty()) {
 				spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
 				spotVoteAnswerRepository.flush();
-				previousAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
+				myAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
 			}
-		}
 
-		SpotVoteAnswer answer = SpotVoteAnswer.builder()
-			.voteId(voteId)
-			.optionId(request.getOptionId())
-			.userId(userId)
-			.build();
-
-		// unique constraint (vote_id, user_id, option_id) 가 동일 옵션 중복 선택을 DB 수준에서 차단
-		spotVoteAnswerRepository.save(answer);
-
-		spotVoteOptionRepository.incrementVoteCount(request.getOptionId()); // 원자적 UPDATE
-
-		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
-			.stream()
-			.map(SpotVoteOptionResponse::from)
-			.toList();
-
-		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
-	}
-
-	/**
-	 * 투표 참여를 취소합니다. 해당 유저의 모든 답변을 삭제하고
-	 * 선택했던 옵션들의 voteCount 를 원자적으로 감소시킵니다.
-	 *
-	 * <p>답변이 없는 상태에서 호출되어도 200 (no-op) — 멱등성 보장.
-	 * ACTIVE 상태가 아닌 투표는 거부합니다.
-	 */
-	public SpotVoteResponse cancelVote(String spotId, Long voteId, String currentUserId) {
-		validateSpotExists(spotId);
-
-		SpotVote vote = spotVoteRepository.findById(voteId)
-			.filter(v -> v.getSpotId().equals(spotId))
-			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
-
-		if (vote.getState() != VoteState.ACTIVE) {
-			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
-		}
-
-		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
-
-		List<SpotVoteAnswer> previousAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
-		if (!previousAnswers.isEmpty()) {
-			spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
-			spotVoteAnswerRepository.flush();
-			previousAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
+			SpotVoteAnswer answer = SpotVoteAnswer.builder()
+				.voteId(voteId)
+				.optionId(optionId)
+				.userId(userId)
+				.build();
+			spotVoteAnswerRepository.save(answer);
+			spotVoteOptionRepository.incrementVoteCount(optionId);
 		}
 
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)

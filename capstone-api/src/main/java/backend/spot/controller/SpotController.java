@@ -149,7 +149,10 @@ public class SpotController {
 		));
 	}
 
-	@Operation(summary = "스팟 투표 참여")
+	@Operation(
+		summary = "스팟 투표 참여 (토글)",
+		description = "이미 투표한 옵션을 다시 cast 하면 해제됩니다. 단일선택에서 다른 옵션을 cast 하면 표 변경됩니다."
+	)
 	@PostMapping("/{spotId}/votes/{voteId}/cast")
 	public ResponseEntity<ApiResponse<SpotVoteResponse>> castVote(
 		@PathVariable String spotId,
@@ -160,22 +163,6 @@ public class SpotController {
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
 			spotService.castVote(spotId, voteId, request, resolveCurrentUserId(principal, authentication))
-		));
-	}
-
-	@Operation(
-		summary = "스팟 투표 참여 취소",
-		description = "현재 유저가 해당 vote 에 한 모든 답변을 삭제하고 옵션 voteCount 를 감소시킵니다. 멱등 (답변 없어도 200)."
-	)
-	@DeleteMapping("/{spotId}/votes/{voteId}/cast")
-	public ResponseEntity<ApiResponse<SpotVoteResponse>> cancelVote(
-		@PathVariable String spotId,
-		@PathVariable Long voteId,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
-	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			spotService.cancelVote(spotId, voteId, resolveCurrentUserId(principal, authentication))
 		));
 	}
 
