@@ -299,10 +299,13 @@ public class SpotService {
 		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
 
 		if (!vote.isMultiSelect()) {
-			// 단일선택: 기존 답변 삭제 + 이전 옵션 카운트 감소 후 새 답변 등록
+			// 단일선택: 기존 답변 삭제 + 이전 옵션 카운트 감소 후 새 답변 등록.
+			// Hibernate 가 INSERT 를 DELETE 보다 먼저 정렬할 수 있으므로 (같은 옵션 재캐스트 시 unique 충돌),
+			// flush() 로 DELETE 를 명시적으로 먼저 실행시킨다.
 			List<SpotVoteAnswer> previousAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
 			if (!previousAnswers.isEmpty()) {
 				spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
+				spotVoteAnswerRepository.flush();
 				previousAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
 			}
 		}
@@ -317,6 +320,41 @@ public class SpotService {
 		spotVoteAnswerRepository.save(answer);
 
 		spotVoteOptionRepository.incrementVoteCount(request.getOptionId()); // 원자적 UPDATE
+
+		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
+			.stream()
+			.map(SpotVoteOptionResponse::from)
+			.toList();
+
+		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
+	}
+
+	/**
+	 * 투표 참여를 취소합니다. 해당 유저의 모든 답변을 삭제하고
+	 * 선택했던 옵션들의 voteCount 를 원자적으로 감소시킵니다.
+	 *
+	 * <p>답변이 없는 상태에서 호출되어도 200 (no-op) — 멱등성 보장.
+	 * ACTIVE 상태가 아닌 투표는 거부합니다.
+	 */
+	public SpotVoteResponse cancelVote(String spotId, Long voteId, String currentUserId) {
+		validateSpotExists(spotId);
+
+		SpotVote vote = spotVoteRepository.findById(voteId)
+			.filter(v -> v.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
+
+		if (vote.getState() != VoteState.ACTIVE) {
+			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
+		}
+
+		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+
+		List<SpotVoteAnswer> previousAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+		if (!previousAnswers.isEmpty()) {
+			spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
+			spotVoteAnswerRepository.flush();
+			previousAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
+		}
 
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
 			.stream()

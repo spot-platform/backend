@@ -163,6 +163,22 @@ public class SpotController {
 		));
 	}
 
+	@Operation(
+		summary = "스팟 투표 참여 취소",
+		description = "현재 유저가 해당 vote 에 한 모든 답변을 삭제하고 옵션 voteCount 를 감소시킵니다. 멱등 (답변 없어도 200)."
+	)
+	@DeleteMapping("/{spotId}/votes/{voteId}/cast")
+	public ResponseEntity<ApiResponse<SpotVoteResponse>> cancelVote(
+		@PathVariable String spotId,
+		@PathVariable Long voteId,
+		@AuthenticationPrincipal Object principal,
+		Authentication authentication
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.cancelVote(spotId, voteId, resolveCurrentUserId(principal, authentication))
+		));
+	}
+
 	// ─── 체크리스트 (Checklist) ───────────────────
 
 	@Operation(summary = "스팟 체크리스트 조회")
