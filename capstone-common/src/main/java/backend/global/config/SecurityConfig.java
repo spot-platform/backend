@@ -1,5 +1,8 @@
 package backend.global.config;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,6 +37,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 public class SecurityConfig {
 
+	private final String frontendBaseUrl;
+
 	private final JWTUtil jwtUtil;
 	private final ObjectMapper objectMapper;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
@@ -40,6 +48,7 @@ public class SecurityConfig {
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
 	public SecurityConfig(
+		@Value("${frontend.base-url}") String frontendBaseUrl,
 		JWTUtil jwtUtil,
 		ObjectMapper objectMapper,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
@@ -48,6 +57,7 @@ public class SecurityConfig {
 		JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
 		JwtAccessDeniedHandler jwtAccessDeniedHandler
 	) {
+		this.frontendBaseUrl = frontendBaseUrl;
 		this.jwtUtil = jwtUtil;
 		this.objectMapper = objectMapper;
 		this.oAuth2UserService = oAuth2UserService;
@@ -55,6 +65,26 @@ public class SecurityConfig {
 		this.refreshTokenLogoutHandler = refreshTokenLogoutHandler;
 		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
 		this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of(frontendBaseUrl));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of(
+			"Authorization",
+			"Content-Type",
+			"Accept",
+			"Origin",
+			"X-Requested-With"
+		));
+		config.setAllowCredentials(true);
+		config.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
 	}
 
 	@Bean
@@ -87,7 +117,7 @@ public class SecurityConfig {
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			.cors(cors -> { })
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.POST,
 					"/api/users/exist",
