@@ -37,8 +37,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Value("${frontend.base-url}")
-	private String frontendBaseUrl;
+	private final String frontendBaseUrl;
 
 	private final JWTUtil jwtUtil;
 	private final ObjectMapper objectMapper;
@@ -49,6 +48,7 @@ public class SecurityConfig {
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
 	public SecurityConfig(
+		@Value("${frontend.base-url}") String frontendBaseUrl,
 		JWTUtil jwtUtil,
 		ObjectMapper objectMapper,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
@@ -57,6 +57,7 @@ public class SecurityConfig {
 		JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
 		JwtAccessDeniedHandler jwtAccessDeniedHandler
 	) {
+		this.frontendBaseUrl = frontendBaseUrl;
 		this.jwtUtil = jwtUtil;
 		this.objectMapper = objectMapper;
 		this.oAuth2UserService = oAuth2UserService;
@@ -71,7 +72,13 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(List.of(frontendBaseUrl));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
+		config.setAllowedHeaders(List.of(
+			"Authorization",
+			"Content-Type",
+			"Accept",
+			"Origin",
+			"X-Requested-With"
+		));
 		config.setAllowCredentials(true);
 		config.setMaxAge(3600L);
 
