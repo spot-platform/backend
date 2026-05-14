@@ -128,4 +128,6 @@
 - 황호찬 2026-05-04 에 `FeedApplication` 엔티티/리포지토리 추가, `FeedItem`·`Post` 엔티티에 펀딩 관련 필드(`fundingGoal`, `fundedAmount`, `isDeleted` 등) 추가, `POST /posts/offer|request` 생성 시 `FeedItem` 자동 연동 구현, `GET /feeds/{feedId}` 피드 상세 조회·`DELETE /feeds/{feedId}` 피드 소프트 딜리트, `POST /feeds/{feedId}/apply` 신청·`DELETE /feeds/{feedId}/apply` 취소·`PATCH /feeds/{feedId}/applications/{id}/accept|reject` 수락/거절 구현, 수락 시 `fundedAmount` 누적 후 목표 달성 시 Spot 자동 전환 로직 완성, `GET /posts/{postId}` 상세 조회·`DELETE /posts/{postId}` 소프트 딜리트 구현 완료함. Neon DB 연동 후 통합 테스트 및 인증 도입 시 dummy-user-id 교체를 해야 됨.
 
 ---
-*마지막 업데이트: 2026-05-04 (황호찬)*
+- 이성찬 2026-05-14 에 SecurityConfig CORS 설정 명시화(CorsConfigurationSource 빈 등록, cors() 빈 람다 수정), MvcConfig allowedOriginPatterns("*") → frontend.base-url 프로퍼티 기반으로 변경하여 허용 origin 환경변수화 완료함. 추후 배포 환경 origin 추가 시 application.yml의 frontend.base-url만 수정하면 됨.
+
+*마지막 업데이트: 2026-05-14 (이성찬)*
