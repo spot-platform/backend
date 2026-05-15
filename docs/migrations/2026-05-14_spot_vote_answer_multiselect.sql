@@ -35,8 +35,17 @@ BEGIN;
 ALTER TABLE spot_vote_answers DROP CONSTRAINT IF EXISTS uq_vote_user;
 
 -- 2) 새 constraint 추가 (Hibernate 가 동일 이름으로 만들어두면 중복 생성 방지)
-ALTER TABLE spot_vote_answers
-    ADD CONSTRAINT uq_vote_user_option UNIQUE (vote_id, user_id, option_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+         WHERE conrelid = 'spot_vote_answers'::regclass
+           AND conname = 'uq_vote_user_option'
+    ) THEN
+        ALTER TABLE spot_vote_answers
+            ADD CONSTRAINT uq_vote_user_option UNIQUE (vote_id, user_id, option_id);
+    END IF;
+END $$;
 
 COMMIT;
 
