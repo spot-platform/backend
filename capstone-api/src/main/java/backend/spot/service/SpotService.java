@@ -1,7 +1,9 @@
 package backend.spot.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,7 @@ import backend.spot.dto.SpotResponse;
 import backend.spot.dto.SpotScheduleResponse;
 import backend.spot.dto.SpotVoteOptionResponse;
 import backend.spot.dto.SpotVoteResponse;
+import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
@@ -331,6 +334,105 @@ public class SpotService {
 				.userId(userId)
 				.build();
 			spotVoteAnswerRepository.save(answer);
+			spotVoteOptionRepository.incrementVoteCount(optionId);
+		}
+
+		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
+			.stream()
+			.map(SpotVoteOptionResponse::from)
+			.toList();
+
+		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
+	}
+
+	/**
+	 * 투표 답변을 배치로 일괄 제출합니다. (카카오톡 다중선택 투표 UX: "선택중 → 투표 버튼")
+	 *
+	 * <p>요청 바디의 {@code optionIds} 가 <b>최종 확정 상태</b>이며, 서버가 현재 답변과 diff 하여
+	 * 추가/삭제를 한 트랜잭션 안에서 원자적으로 적용합니다. 같은 body 를 두 번 보내면 변화 없음 (멱등).
+	 *
+	 * <p>동작 규칙:
+	 * <ul>
+	 *   <li>새로 추가된 옵션 → INSERT + voteCount++</li>
+	 *   <li>제거된 옵션 → DELETE + voteCount--</li>
+	 *   <li>그대로인 옵션 → no-op</li>
+	 *   <li>빈 배열 {@code []} → 모든 답변 삭제 (= 투표 전체 취소)</li>
+	 * </ul>
+	 *
+	 * <p>검증:
+	 * <ul>
+	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
+	 *   <li>모든 optionId 가 해당 voteId 소속이어야 함 (IDOR 방지)</li>
+	 *   <li>단일선택({@code multiSelect=false}) 은 0~1개만 허용 → {@code SINGLE_SELECT_VOTE_LIMIT}</li>
+	 *   <li>중복 optionId 는 자동 dedupe (Set)</li>
+	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행 (unique constraint 충돌 방지)</li>
+	 * </ul>
+	 */
+	public SpotVoteResponse submitAnswers(
+		String spotId,
+		Long voteId,
+		SubmitVoteAnswersRequest request,
+		String currentUserId
+	) {
+		validateSpotExists(spotId);
+
+		SpotVote vote = spotVoteRepository.findById(voteId)
+			.filter(v -> v.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
+
+		if (vote.getState() != VoteState.ACTIVE) {
+			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
+		}
+
+		Set<Long> desiredOptionIds = new HashSet<>(request.getOptionIds());
+
+		if (!vote.isMultiSelect() && desiredOptionIds.size() > 1) {
+			throw new BusinessException(ErrorCode.SINGLE_SELECT_VOTE_LIMIT);
+		}
+
+		// 모든 요청 optionId 가 이 vote 의 옵션인지 검증 (한 번의 쿼리로 묶어서)
+		if (!desiredOptionIds.isEmpty()) {
+			List<SpotVoteOption> allVoteOptions = spotVoteOptionRepository.findByVoteId(voteId);
+			Set<Long> validOptionIds = allVoteOptions.stream()
+				.map(SpotVoteOption::getId)
+				.collect(java.util.stream.Collectors.toSet());
+			for (Long optionId : desiredOptionIds) {
+				if (!validOptionIds.contains(optionId)) {
+					throw new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE);
+				}
+			}
+		}
+
+		String userId = currentUserId != null && !currentUserId.isBlank() ? currentUserId : FALLBACK_USER_ID;
+
+		List<SpotVoteAnswer> currentAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+		Set<Long> currentOptionIds = currentAnswers.stream()
+			.map(SpotVoteAnswer::getOptionId)
+			.collect(java.util.stream.Collectors.toSet());
+
+		// diff: 제거 대상 (현재에는 있고 desired 에는 없음)
+		List<SpotVoteAnswer> toRemove = currentAnswers.stream()
+			.filter(a -> !desiredOptionIds.contains(a.getOptionId()))
+			.toList();
+		// diff: 추가 대상 (desired 에는 있고 현재에는 없음)
+		List<Long> toAdd = desiredOptionIds.stream()
+			.filter(id -> !currentOptionIds.contains(id))
+			.toList();
+
+		if (!toRemove.isEmpty()) {
+			spotVoteAnswerRepository.deleteAll(toRemove);
+			spotVoteAnswerRepository.flush();
+			toRemove.forEach(a -> spotVoteOptionRepository.decrementVoteCount(a.getOptionId()));
+		}
+
+		for (Long optionId : toAdd) {
+			spotVoteAnswerRepository.save(
+				SpotVoteAnswer.builder()
+					.voteId(voteId)
+					.optionId(optionId)
+					.userId(userId)
+					.build()
+			);
 			spotVoteOptionRepository.incrementVoteCount(optionId);
 		}
 
