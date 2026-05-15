@@ -18,6 +18,7 @@ import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
 import backend.chat.dto.CreateChatRoomRequest;
+import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.service.ChatService;
 import backend.chat.service.SseEmitterService;
@@ -62,12 +63,33 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(userDetails))));
 	}
 
-	@Operation(summary = "채팅방 생성")
+	@Operation(
+		summary = "그룹 채팅방 생성",
+		description = "GROUP 타입만 허용. 동일 spotId 의 활성 GROUP 방이 있으면 idempotent 하게 기존 방을 반환합니다. "
+			+ "PERSONAL 채팅은 POST /rooms/personal 을 사용하세요."
+	)
 	@PostMapping("/rooms")
 	public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(
-		@Valid @RequestBody CreateChatRoomRequest request
+		@Valid @RequestBody CreateChatRoomRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.createRoom(request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.createRoom(request, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "1:1 채팅방 시작",
+		description = "현재 유저와 partnerId 사이의 PERSONAL 채팅방을 만들거나 기존 방을 반환합니다 (카카오톡 스타일)."
+	)
+	@PostMapping("/rooms/personal")
+	public ResponseEntity<ApiResponse<ChatRoomResponse>> createPersonalRoom(
+		@Valid @RequestBody CreatePersonalChatRoomRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.createPersonalRoom(request, currentUserId(userDetails))
+		));
 	}
 
 	@Operation(summary = "채팅방 상세 조회")
@@ -108,9 +130,12 @@ public class ChatController {
 		@PathVariable Long roomId,
 		@Parameter(description = "커서 (마지막 메시지 ID, 최초 조회 시 생략)")
 		@RequestParam(required = false) Long cursor,
-		@RequestParam(defaultValue = "30") int size
+		@RequestParam(defaultValue = "30") int size,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getMessages(roomId, cursor, size)));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails))
+		));
 	}
 
 	@Operation(

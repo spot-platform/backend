@@ -39,6 +39,10 @@ public enum ErrorCode {
 	// Chat
 	CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CH001", "Chat room not found"),
 	GROUP_CHAT_REQUIRES_SPOT(HttpStatus.BAD_REQUEST, "CH002", "Group chat room requires a spotId"),
+	CHAT_ROOM_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CH003", "You are not a member of this chat room"),
+	CHAT_PARTNER_NOT_FOUND(HttpStatus.NOT_FOUND, "CH004", "Chat partner user not found"),
+	CHAT_PERSONAL_SELF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH005", "Cannot start a personal chat with yourself"),
+	CHAT_PERSONAL_REQUIRES_PARTNER(HttpStatus.BAD_REQUEST, "CH006", "Personal chat requires a partnerId"),
 
 	// User
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -70,6 +71,7 @@ public class SpotService {
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
 	private final UserRepository userRepository;
+	private final ChatService chatService;
 
 	private static final String FALLBACK_USER_ID = "dummy-user-id";
 	private static final String FALLBACK_NICKNAME = "테스트유저";
@@ -145,6 +147,15 @@ public class SpotService {
 	public SpotResponse matchSpot(String spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.match();
+
+		// 매칭 시 GROUP 채팅방을 보장하고 참가자를 자동 가입
+		List<String> participantUserIds = spotParticipantRepository.findBySpotId(spotId).stream()
+			.map(p -> p.getUserId())
+			.filter(uid -> uid != null && !uid.isBlank())
+			.distinct()
+			.toList();
+		chatService.ensureGroupRoomForSpot(spotId, participantUserIds);
+
 		return toSpotResponse(spot);
 	}
 

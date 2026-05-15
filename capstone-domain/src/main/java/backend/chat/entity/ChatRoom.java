@@ -36,11 +36,28 @@ public class ChatRoom {
 	@Column(name = "spot_id")
 	private String spotId;
 
+	@Column(name = "post_id")
+	private String postId;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ChatRoomType type;
 
+	@Column(name = "name")
+	private String name;
+
+	@Column(name = "image_url")
+	private String imageUrl;
+
+	@Column(name = "is_deleted", nullable = false)
+	@Builder.Default
+	private boolean isDeleted = false;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	public void markDeleted() {
+		this.isDeleted = true;
+	}
 }
