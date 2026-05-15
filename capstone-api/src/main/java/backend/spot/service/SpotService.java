@@ -85,12 +85,14 @@ public class SpotService {
 	public SpotResponse createSpot(CreateSpotRequest request, String currentUserId) {
 		UserEntity author = currentUserId == null ? null : userRepository.findById(currentUserId).orElse(null);
 
+		// authorId/authorNickname 을 항상 같은 source(author 객체) 에서 도출.
+		// userRepository.findById 가 miss 했을 때 한쪽만 실제 ID 가 들어가는 불일치를 방지.
 		Spot spot = Spot.builder()
 			.type(request.getType())
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.pointCost(request.getPointCost())
-			.authorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.authorId(author != null ? author.getId() : FALLBACK_USER_ID)
 			.authorNickname(author != null ? author.getNickname() : FALLBACK_NICKNAME)
 			.build();
 

@@ -185,7 +185,7 @@ public class ChatService {
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
-			.senderId(currentUserId != null ? currentUserId : "dummy-user-id")
+			.senderId(currentUserId != null && !currentUserId.isBlank() ? currentUserId : "dummy-user-id")
 			.content(request.getContent())
 			.build();
 
