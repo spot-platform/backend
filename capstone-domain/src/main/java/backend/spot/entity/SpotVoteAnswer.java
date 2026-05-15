@@ -28,8 +28,8 @@ import lombok.NoArgsConstructor;
 @Table(
 	name = "spot_vote_answers",
 	uniqueConstraints = @UniqueConstraint(
-		name = "uq_vote_user",
-		columnNames = {"vote_id", "user_id"}
+		name = "uq_vote_user_option",
+		columnNames = {"vote_id", "user_id", "option_id"}
 	)
 )
 public class SpotVoteAnswer {

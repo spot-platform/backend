@@ -1,6 +1,9 @@
 package backend.spot.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +30,7 @@ import backend.spot.dto.SpotResponse;
 import backend.spot.dto.SpotScheduleResponse;
 import backend.spot.dto.SpotVoteOptionResponse;
 import backend.spot.dto.SpotVoteResponse;
+import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
@@ -47,6 +51,8 @@ import backend.spot.repository.SpotScheduleRepository;
 import backend.spot.repository.SpotVoteAnswerRepository;
 import backend.spot.repository.SpotVoteOptionRepository;
 import backend.spot.repository.SpotVoteRepository;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -63,6 +69,10 @@ public class SpotService {
 	private final SpotChecklistRepository spotChecklistRepository;
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
+	private final UserRepository userRepository;
+
+	private static final String FALLBACK_USER_ID = "dummy-user-id";
+	private static final String FALLBACK_NICKNAME = "테스트유저";
 
 	// ─────────────────────────────────────────────
 	// Spot 기본 CRUD
@@ -70,16 +80,23 @@ public class SpotService {
 
 	/**
 	 * 스팟을 생성합니다.
-	 * TODO: 인증 시스템 도입 후 authorId, authorNickname 을 실제 로그인 유저 정보로 교체
+	 *
+	 * <p>인증된 유저의 userId 와 nickname 을 작성자 정보로 저장합니다.
+	 * 미인증 호출(인증 미적용 단계)에는 fallback 더미 값을 사용합니다.
+	 * authorNickname 은 스냅샷이라 작성 시점 닉네임을 보존합니다.
 	 */
-	public SpotResponse createSpot(CreateSpotRequest request) {
+	public SpotResponse createSpot(CreateSpotRequest request, String currentUserId) {
+		UserEntity author = currentUserId == null ? null : userRepository.findById(currentUserId).orElse(null);
+
+		// authorId/authorNickname 을 항상 같은 source(author 객체) 에서 도출.
+		// userRepository.findById 가 miss 했을 때 한쪽만 실제 ID 가 들어가는 불일치를 방지.
 		Spot spot = Spot.builder()
 			.type(request.getType())
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.pointCost(request.getPointCost())
-			.authorId("dummy-user-id")
-			.authorNickname("테스트유저")
+			.authorId(author != null ? author.getId() : FALLBACK_USER_ID)
+			.authorNickname(author != null ? author.getNickname() : FALLBACK_NICKNAME)
 			.build();
 
 		return toSpotResponse(spotRepository.save(spot));
@@ -230,8 +247,9 @@ public class SpotService {
 
 		SpotVote vote = SpotVote.builder()
 			.spotId(spotId)
-			.creatorId(currentUserId != null ? currentUserId : "dummy-user-id")
+			.creatorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.question(request.getQuestion())
+			.multiSelect(request.isMultiSelect())
 			.build();
 
 		SpotVote savedVote = spotVoteRepository.save(vote);
@@ -253,11 +271,26 @@ public class SpotService {
 	}
 
 	/**
-	 * 투표에 참여(응답)합니다.
-	 * - 중복 투표 방지: DB unique constraint (vote_id, user_id) 로 보장
-	 * - 선택지 소속 검증: optionId 가 해당 voteId 에 속하는지 확인 (IDOR 방지)
-	 * - 원자적 득표 증가: DB UPDATE 쿼리로 race condition 없이 처리
-	 * TODO: 인증 시스템 도입 후 userId 를 실제 로그인 유저 ID로 교체
+	 * 투표에 토글 시맨틱으로 참여/해제합니다. (카카오톡 투표 방식)
+	 *
+	 * <p>이미 해당 옵션에 투표한 상태에서 같은 옵션을 다시 캐스트하면 <b>투표 해제</b>되고
+	 * voteCount 가 감소합니다. 별도 "투표 취소" 엔드포인트 없이 cast 한 개로 토글이 됩니다.
+	 *
+	 * <p>동작 규칙:
+	 * <ul>
+	 *   <li>이미 그 옵션에 답변이 있음 → 답변 삭제, count--</li>
+	 *   <li>단일선택({@code multiSelect=false}) 이고 다른 옵션에 답변이 있음 →
+	 *       기존 답변 삭제 + 카운트 감소 후 새 답변 추가 (= 표 변경)</li>
+	 *   <li>그 외 → 새 답변 추가, count++</li>
+	 * </ul>
+	 *
+	 * <p>검증:
+	 * <ul>
+	 *   <li>선택지 소속 검증: {@code optionId} 가 해당 {@code voteId} 에 속하는지 확인 (IDOR 방지)</li>
+	 *   <li>원자적 카운트 증감: DB UPDATE 쿼리, voteCount 음수 가드</li>
+	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
+	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행시켜 unique constraint 충돌 방지</li>
+	 * </ul>
 	 */
 	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
@@ -270,21 +303,138 @@ public class SpotService {
 			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
 		}
 
-		spotVoteOptionRepository.findById(request.getOptionId())
+		Long optionId = request.getOptionId();
+		spotVoteOptionRepository.findById(optionId)
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
-		String userId = currentUserId != null ? currentUserId : "dummy-user-id";
+		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
 
-		SpotVoteAnswer answer = SpotVoteAnswer.builder()
-			.voteId(voteId)
-			.optionId(request.getOptionId())
-			.userId(userId)
-			.build();
+		List<SpotVoteAnswer> myAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+		Optional<SpotVoteAnswer> existingOnSameOption = myAnswers.stream()
+			.filter(a -> a.getOptionId().equals(optionId))
+			.findFirst();
 
-		spotVoteAnswerRepository.save(answer); // unique constraint 가 중복 투표를 DB 수준에서 차단
+		if (existingOnSameOption.isPresent()) {
+			// 토글 OFF: 같은 옵션 재캐스트 = 투표 해제
+			spotVoteAnswerRepository.delete(existingOnSameOption.get());
+			spotVoteAnswerRepository.flush();
+			spotVoteOptionRepository.decrementVoteCount(optionId);
+		} else {
+			// 단일선택에서 다른 옵션에 이미 투표 중이면 기존 답변을 표 변경 처리
+			if (!vote.isMultiSelect() && !myAnswers.isEmpty()) {
+				spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
+				spotVoteAnswerRepository.flush();
+				myAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
+			}
 
-		spotVoteOptionRepository.incrementVoteCount(request.getOptionId()); // 원자적 UPDATE
+			SpotVoteAnswer answer = SpotVoteAnswer.builder()
+				.voteId(voteId)
+				.optionId(optionId)
+				.userId(userId)
+				.build();
+			spotVoteAnswerRepository.save(answer);
+			spotVoteOptionRepository.incrementVoteCount(optionId);
+		}
+
+		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
+			.stream()
+			.map(SpotVoteOptionResponse::from)
+			.toList();
+
+		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
+	}
+
+	/**
+	 * 투표 답변을 배치로 일괄 제출합니다. (카카오톡 다중선택 투표 UX: "선택중 → 투표 버튼")
+	 *
+	 * <p>요청 바디의 {@code optionIds} 가 <b>최종 확정 상태</b>이며, 서버가 현재 답변과 diff 하여
+	 * 추가/삭제를 한 트랜잭션 안에서 원자적으로 적용합니다. 같은 body 를 두 번 보내면 변화 없음 (멱등).
+	 *
+	 * <p>동작 규칙:
+	 * <ul>
+	 *   <li>새로 추가된 옵션 → INSERT + voteCount++</li>
+	 *   <li>제거된 옵션 → DELETE + voteCount--</li>
+	 *   <li>그대로인 옵션 → no-op</li>
+	 *   <li>빈 배열 {@code []} → 모든 답변 삭제 (= 투표 전체 취소)</li>
+	 * </ul>
+	 *
+	 * <p>검증:
+	 * <ul>
+	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
+	 *   <li>모든 optionId 가 해당 voteId 소속이어야 함 (IDOR 방지)</li>
+	 *   <li>단일선택({@code multiSelect=false}) 은 0~1개만 허용 → {@code SINGLE_SELECT_VOTE_LIMIT}</li>
+	 *   <li>중복 optionId 는 자동 dedupe (Set)</li>
+	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행 (unique constraint 충돌 방지)</li>
+	 * </ul>
+	 */
+	public SpotVoteResponse submitAnswers(
+		String spotId,
+		Long voteId,
+		SubmitVoteAnswersRequest request,
+		String currentUserId
+	) {
+		validateSpotExists(spotId);
+
+		SpotVote vote = spotVoteRepository.findById(voteId)
+			.filter(v -> v.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
+
+		if (vote.getState() != VoteState.ACTIVE) {
+			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
+		}
+
+		Set<Long> desiredOptionIds = new HashSet<>(request.getOptionIds());
+
+		if (!vote.isMultiSelect() && desiredOptionIds.size() > 1) {
+			throw new BusinessException(ErrorCode.SINGLE_SELECT_VOTE_LIMIT);
+		}
+
+		// 모든 요청 optionId 가 이 vote 의 옵션인지 검증 (한 번의 쿼리로 묶어서)
+		if (!desiredOptionIds.isEmpty()) {
+			List<SpotVoteOption> allVoteOptions = spotVoteOptionRepository.findByVoteId(voteId);
+			Set<Long> validOptionIds = allVoteOptions.stream()
+				.map(SpotVoteOption::getId)
+				.collect(java.util.stream.Collectors.toSet());
+			for (Long optionId : desiredOptionIds) {
+				if (!validOptionIds.contains(optionId)) {
+					throw new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE);
+				}
+			}
+		}
+
+		String userId = currentUserId != null && !currentUserId.isBlank() ? currentUserId : FALLBACK_USER_ID;
+
+		List<SpotVoteAnswer> currentAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
+		Set<Long> currentOptionIds = currentAnswers.stream()
+			.map(SpotVoteAnswer::getOptionId)
+			.collect(java.util.stream.Collectors.toSet());
+
+		// diff: 제거 대상 (현재에는 있고 desired 에는 없음)
+		List<SpotVoteAnswer> toRemove = currentAnswers.stream()
+			.filter(a -> !desiredOptionIds.contains(a.getOptionId()))
+			.toList();
+		// diff: 추가 대상 (desired 에는 있고 현재에는 없음)
+		List<Long> toAdd = desiredOptionIds.stream()
+			.filter(id -> !currentOptionIds.contains(id))
+			.toList();
+
+		if (!toRemove.isEmpty()) {
+			spotVoteAnswerRepository.deleteAll(toRemove);
+			spotVoteAnswerRepository.flush();
+			toRemove.forEach(a -> spotVoteOptionRepository.decrementVoteCount(a.getOptionId()));
+		}
+
+		for (Long optionId : toAdd) {
+			spotVoteAnswerRepository.save(
+				SpotVoteAnswer.builder()
+					.voteId(voteId)
+					.optionId(optionId)
+					.userId(userId)
+					.build()
+			);
+			spotVoteOptionRepository.incrementVoteCount(optionId);
+		}
 
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
 			.stream()
@@ -356,15 +506,14 @@ public class SpotService {
 	}
 
 	/**
-	 * 스팟에 파일 정보를 등록합니다.
-	 * TODO: 인증 시스템 도입 후 uploaderId 를 실제 로그인 유저 ID로 교체
+	 * 스팟에 파일 정보를 등록합니다. 업로더 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request) {
+	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotFile file = SpotFile.builder()
 			.spotId(spotId)
-			.uploaderId("dummy-user-id")
+			.uploaderId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.fileName(request.getFileName())
 			.fileUrl(request.getFileUrl())
 			.build();
@@ -402,15 +551,14 @@ public class SpotService {
 	}
 
 	/**
-	 * 스팟에 노트를 작성합니다.
-	 * TODO: 인증 시스템 도입 후 authorId 를 실제 로그인 유저 ID로 교체
+	 * 스팟에 노트를 작성합니다. 작성자 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request) {
+	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotNote note = SpotNote.builder()
 			.spotId(spotId)
-			.authorId("dummy-user-id")
+			.authorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
 			.content(request.getContent())
 			.build();
 
