@@ -103,6 +103,12 @@ public class JWTFilter extends OncePerRequestFilter {
 		if (!"access".equals(claims.get("type", String.class))) {
 			throw new AuthenticationRejected(ErrorCode.INVALID_TOKEN);
 		}
+		// sub 가 비어있으면 loadUserByUsername(null) 이 호출되어 구현 의존적인 동작을 유발한다.
+		// 서명만 통과한 sub-less 토큰은 위조에 준하므로 INVALID_TOKEN 으로 거절.
+		String subject = claims.getSubject();
+		if (subject == null || subject.isBlank()) {
+			throw new AuthenticationRejected(ErrorCode.INVALID_TOKEN);
+		}
 		return claims;
 	}
 
