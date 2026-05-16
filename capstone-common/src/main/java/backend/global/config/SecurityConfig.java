@@ -100,8 +100,10 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public JWTFilter jwtFilter() {
-		return new JWTFilter(jwtUtil, objectMapper);
+	public JWTFilter jwtFilter(
+		org.springframework.security.core.userdetails.UserDetailsService userDetailsService
+	) {
+		return new JWTFilter(jwtUtil, userDetailsService, objectMapper);
 	}
 
 	@Bean
