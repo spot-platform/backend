@@ -32,8 +32,10 @@ import backend.spot.dto.SpotVoteOptionResponse;
 import backend.spot.dto.SpotVoteResponse;
 import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UploadFileRequest;
+import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
+import backend.spot.entity.SpotParticipant;
 import backend.spot.entity.SpotChecklist;
 import backend.spot.entity.SpotFile;
 import backend.spot.entity.SpotNote;
@@ -90,16 +92,31 @@ public class SpotService {
 
 		// authorId/authorNickname 을 항상 같은 source(author 객체) 에서 도출.
 		// userRepository.findById 가 miss 했을 때 한쪽만 실제 ID 가 들어가는 불일치를 방지.
+		String authorId = author != null ? author.getId() : FALLBACK_USER_ID;
 		Spot spot = Spot.builder()
 			.type(request.getType())
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.pointCost(request.getPointCost())
-			.authorId(author != null ? author.getId() : FALLBACK_USER_ID)
+			.authorId(authorId)
 			.authorNickname(author != null ? author.getNickname() : FALLBACK_NICKNAME)
 			.build();
 
-		return toSpotResponse(spotRepository.save(spot));
+		Spot saved = spotRepository.save(spot);
+
+		// 작성자를 AUTHOR role 의 참가자로 동시 등록.
+		// 이후 matchSpot 이 spot_participants 를 그대로 사용해 채팅 멤버를 채울 수 있도록 일관된
+		// 데이터 모델을 보장한다 (이전에는 author 가 별도 union 으로 합쳐져야 했음).
+		spotParticipantRepository.save(
+			SpotParticipant.builder()
+				.spotId(saved.getId())
+				.userId(authorId)
+				.role(ParticipantRole.AUTHOR)
+				.state(ParticipantState.ACTIVE)
+				.build()
+		);
+
+		return toSpotResponse(saved);
 	}
 
 	/**
