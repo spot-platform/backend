@@ -27,13 +27,22 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
 	List<String> findUserIdsByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 
 	/**
-	 * 두 유저가 정확히 둘만 멤버로 있는 PERSONAL 방 ID 를 조회.
+	 * 두 유저가 정확히 둘만 멤버로 있는 PERSONAL 활성 방 ID 를 조회.
 	 * PERSONAL 재사용 정책 (A↔B 채팅 다시 시작 시 기존 방 반환) 의 핵심 쿼리.
+	 *
+	 * <p>ChatRoom 의 type/isDeleted 도 함께 필터하여, GROUP 방이나 soft-deleted 방이
+	 * 우연히 동일한 두 유저만 멤버로 가지더라도 잘못 재사용되지 않도록 한다.
 	 */
 	@Query("""
 		select m.chatRoomId
 		from ChatRoomMember m
-		where m.chatRoomId in (
+		where exists (
+			select 1 from ChatRoom r
+			where r.id = m.chatRoomId
+				and r.type = backend.chat.entity.ChatRoomType.PERSONAL
+				and r.isDeleted = false
+		)
+		and m.chatRoomId in (
 			select m2.chatRoomId from ChatRoomMember m2
 			where m2.userId in (:userA, :userB)
 			group by m2.chatRoomId

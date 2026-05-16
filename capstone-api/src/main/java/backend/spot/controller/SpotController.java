@@ -280,10 +280,13 @@ public class SpotController {
 		}
 		// JWTFilter 가 principal 에 email (String) 만 셋팅하는 현 상태를 우회.
 		// TODO: JWTFilter 자체가 CustomUserDetails 를 셋팅하도록 리팩터링되면 본 분기 제거.
-		if (principal instanceof String emailOrId) {
-			return userRepository.findByEmail(emailOrId)
+		if (principal instanceof String email) {
+			// email 을 userId 로 그대로 흘려보내면 author/sender 등에 email 이 박혀
+			// 멤버십 조회와 join 이 모두 깨진다. 매칭되는 user 가 없으면 null 반환하여
+			// 비인증 흐름을 타도록 한다 (ChatController#currentUserId 와 동일 정책).
+			return userRepository.findByEmail(email)
 				.map(UserEntity::getId)
-				.orElse(emailOrId);
+				.orElse(null);
 		}
 
 		return null;

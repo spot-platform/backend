@@ -157,6 +157,7 @@ public class SpotService {
 			memberUserIds.add(spot.getAuthorId());
 		}
 		spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
 			.map(p -> p.getUserId())
 			.filter(uid -> uid != null && !uid.isBlank())
 			.forEach(memberUserIds::add);

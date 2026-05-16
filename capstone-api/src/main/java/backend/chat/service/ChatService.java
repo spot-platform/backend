@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +72,11 @@ public class ChatService {
 			rooms = List.of();
 		} else {
 			List<Long> roomIds = chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId());
-			rooms = roomIds.isEmpty() ? List.of() : chatRoomRepository.findAllById(roomIds);
+			rooms = roomIds.isEmpty()
+				? List.of()
+				: chatRoomRepository.findAllById(roomIds).stream()
+					.filter(r -> !r.isDeleted())
+					.toList();
 		}
 		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
 		return rooms.stream()
@@ -95,16 +100,8 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.GROUP_CHAT_REQUIRES_SPOT);
 		}
 
-		// 동일 spot 의 활성 GROUP 방 idempotent 재사용
-		ChatRoom room = chatRoomRepository
-			.findFirstBySpotIdAndTypeAndIsDeletedFalse(request.getSpotId(), ChatRoomType.GROUP)
-			.orElseGet(() -> chatRoomRepository.save(
-				ChatRoom.builder()
-					.spotId(request.getSpotId())
-					.type(ChatRoomType.GROUP)
-					.isDeleted(false)
-					.build()
-			));
+		// 동일 spot 의 활성 GROUP 방 idempotent 재사용 (concurrent-safe)
+		ChatRoom room = findOrCreateGroupRoomForSpot(request.getSpotId());
 
 		// 호출 유저를 멤버로 등록 (이미 있으면 no-op)
 		if (currentUserId != null && !currentUserId.isBlank()) {
@@ -135,26 +132,47 @@ public class ChatService {
 		UserEntity partner = userRepository.findById(partnerId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_PARTNER_NOT_FOUND));
 
-		// 기존 PERSONAL 방 재사용
-		List<Long> existing = chatRoomMemberRepository.findPersonalRoomIdsBetween(me.getId(), partner.getId());
-		ChatRoom room = existing.stream()
+		ChatRoom room = lookupPersonalRoom(me.getId(), partner.getId());
+		if (room == null) {
+			try {
+				room = chatRoomRepository.save(
+					ChatRoom.builder()
+						.type(ChatRoomType.PERSONAL)
+						.isDeleted(false)
+						.build()
+				);
+				ensureMember(room.getId(), me.getId());
+				ensureMember(room.getId(), partner.getId());
+			} catch (DataIntegrityViolationException race) {
+				// 멤버 INSERT 시 (room_id, user_id) UNIQUE 가 충돌하는 경우는 ensureMember 가
+				// 내부에서 흡수하므로 여기까지 오기 어렵다. 안전망으로 재조회.
+				room = lookupPersonalRoom(me.getId(), partner.getId());
+				if (room == null) {
+					throw race;
+				}
+			}
+			// PERSONAL 은 (userA, userB) canonical pair 의 partial unique index 가 없는 한
+			// 동시 요청에서 두 방이 만들어질 수 있다 (CodeRabbit 지적, heavy lift). 한 번 더 재조회하여
+			// 그 사이 다른 트랜잭션이 만든 방이 있으면 가장 오래된 것을 채택하고 본 트랜잭션이 만든 방은 soft-delete.
+			ChatRoom existingNow = lookupPersonalRoom(me.getId(), partner.getId());
+			if (existingNow != null && !existingNow.getId().equals(room.getId())) {
+				ChatRoom older = existingNow.getId() < room.getId() ? existingNow : room;
+				ChatRoom newer = existingNow.getId() < room.getId() ? room : existingNow;
+				newer.markDeleted();
+				chatRoomRepository.save(newer);
+				room = older;
+			}
+		}
+
+		return ChatRoomResponse.from(room, buildEnrichment(room, me));
+	}
+
+	private ChatRoom lookupPersonalRoom(String userA, String userB) {
+		return chatRoomMemberRepository.findPersonalRoomIdsBetween(userA, userB).stream()
 			.flatMap(id -> chatRoomRepository.findById(id).stream())
 			.filter(r -> r.getType() == ChatRoomType.PERSONAL && !r.isDeleted())
 			.min(Comparator.comparing(ChatRoom::getId))
 			.orElse(null);
-
-		if (room == null) {
-			room = chatRoomRepository.save(
-				ChatRoom.builder()
-					.type(ChatRoomType.PERSONAL)
-					.isDeleted(false)
-					.build()
-			);
-			ensureMember(room.getId(), me.getId());
-			ensureMember(room.getId(), partner.getId());
-		}
-
-		return ChatRoomResponse.from(room, buildEnrichment(room, me));
 	}
 
 	/**
@@ -187,7 +205,10 @@ public class ChatService {
 		List<ChatRoom> rooms = chatRoomRepository.findBySpotId(spotId);
 		if (currentUser != null) {
 			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
-			rooms = rooms.stream().filter(r -> myRoomIds.contains(r.getId())).toList();
+			rooms = rooms.stream()
+				.filter(r -> !r.isDeleted())
+				.filter(r -> myRoomIds.contains(r.getId()))
+				.toList();
 		} else {
 			rooms = List.of();
 		}
@@ -215,7 +236,11 @@ public class ChatService {
 		} else {
 			targetRoomIds = List.of();
 		}
-		List<ChatRoom> rooms = targetRoomIds.isEmpty() ? List.of() : chatRoomRepository.findAllById(targetRoomIds);
+		List<ChatRoom> rooms = targetRoomIds.isEmpty()
+			? List.of()
+			: chatRoomRepository.findAllById(targetRoomIds).stream()
+				.filter(r -> !r.isDeleted())
+				.toList();
 		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
 		return rooms.stream()
 			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
@@ -237,12 +262,17 @@ public class ChatService {
 		if (chatRoomMemberRepository.existsByChatRoomIdAndUserId(roomId, userId)) {
 			return;
 		}
-		chatRoomMemberRepository.save(
-			ChatRoomMember.builder()
-				.chatRoomId(roomId)
-				.userId(userId)
-				.build()
-		);
+		try {
+			chatRoomMemberRepository.save(
+				ChatRoomMember.builder()
+					.chatRoomId(roomId)
+					.userId(userId)
+					.build()
+			);
+		} catch (DataIntegrityViolationException race) {
+			// (room_id, user_id) UNIQUE 위반 — 다른 트랜잭션이 동일 멤버를 먼저 등록함.
+			// idempotent 한 작업이므로 무시.
+		}
 	}
 
 	/**
@@ -250,21 +280,40 @@ public class ChatService {
 	 * SpotService 측에서 매칭 완료 시 호출.
 	 */
 	public ChatRoom ensureGroupRoomForSpot(String spotId, Collection<String> participantUserIds) {
-		ChatRoom room = chatRoomRepository
-			.findFirstBySpotIdAndTypeAndIsDeletedFalse(spotId, ChatRoomType.GROUP)
-			.orElseGet(() -> chatRoomRepository.save(
-				ChatRoom.builder()
-					.spotId(spotId)
-					.type(ChatRoomType.GROUP)
-					.isDeleted(false)
-					.build()
-			));
+		ChatRoom room = findOrCreateGroupRoomForSpot(spotId);
 		if (participantUserIds != null) {
 			for (String userId : participantUserIds) {
 				ensureMember(room.getId(), userId);
 			}
 		}
 		return room;
+	}
+
+	/**
+	 * spot 의 GROUP 방을 조회 또는 생성. partial unique index
+	 * (spot_id WHERE type=GROUP AND is_deleted=false) 와 짝이 되어 동시 요청에서도
+	 * 정확히 1 개의 방만 살아남도록 보장한다.
+	 */
+	private ChatRoom findOrCreateGroupRoomForSpot(String spotId) {
+		return chatRoomRepository
+			.findFirstBySpotIdAndTypeAndIsDeletedFalse(spotId, ChatRoomType.GROUP)
+			.orElseGet(() -> {
+				try {
+					return chatRoomRepository.save(
+						ChatRoom.builder()
+							.spotId(spotId)
+							.type(ChatRoomType.GROUP)
+							.isDeleted(false)
+							.build()
+					);
+				} catch (DataIntegrityViolationException race) {
+					// 다른 트랜잭션이 먼저 만들었음 — partial unique index 가 두 번째 insert 를 막음.
+					// 재조회하여 idempotent 한 결과를 돌려준다.
+					return chatRoomRepository
+						.findFirstBySpotIdAndTypeAndIsDeletedFalse(spotId, ChatRoomType.GROUP)
+						.orElseThrow(() -> race);
+				}
+			});
 	}
 
 	// ─────────────────────────────────────────────

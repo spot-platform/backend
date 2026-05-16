@@ -57,8 +57,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_chat_room_group_spot
     ON chat_rooms (spot_id)
     WHERE type = 'GROUP' AND is_deleted = false AND spot_id IS NOT NULL;
 
--- 4) 백필: 기존 chat_messages 의 sender_id 를 해당 방 멤버로 등록
---    (방장/단일 참여자 등 메타데이터가 없어도 sender 는 사실상 멤버였음)
+-- 4) 백필: 기존 chat_messages 의 sender_id 를 해당 방 멤버로 등록.
+--    한계: 메시지를 보낸 적이 없는 과거 멤버 (예: 입장만 하고 침묵한 유저) 는 본 백필에서
+--    누락된다. 본 PR 이전 단계에는 멤버십 메타데이터가 존재하지 않았기 때문에 다른
+--    백필 소스를 활용할 수 없다. 운영 환경에서 침묵 유저 명단이 다른 곳 (예: SpotParticipant)
+--    에 남아 있다면 본 스크립트 외에 보강 백필을 별도 수행해야 한다.
+--    현재 컴포지션 (chat 도메인 단독, 메시지 보낸 자만 사실상 참여자) 에서는 충분.
 INSERT INTO chat_room_members (chat_room_id, user_id, joined_at)
 SELECT m.room_id, m.sender_id, MIN(m.created_at)
   FROM chat_messages m
