@@ -98,9 +98,19 @@ public class ChatRoomResponse {
 			.currentUserName(currentUser == null ? null : currentUser.getNickname())
 			.partnerId(partner == null ? null : partner.getId())
 			.partnerNickname(partner == null ? null : partner.getNickname())
-			// TODO: per-user unread tracking — PR B 에서 실 구현
-			.unreadCount(0)
+			.unreadCount(resolveUnreadCount(enrichment.getUnreadCount()))
 			.build();
+	}
+
+	/**
+	 * Long count 를 int 로 안전 변환. 한 사용자의 한 방 unread 가 21 억을 넘는 일은 없으나
+	 * 방어적으로 Integer.MAX_VALUE 로 clamp. null 은 0 으로.
+	 */
+	private static int resolveUnreadCount(Long count) {
+		if (count == null) {
+			return 0;
+		}
+		return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : count.intValue();
 	}
 
 	private static String resolveLastMessagePreview(ChatMessage lastMessage) {
@@ -144,6 +154,7 @@ public class ChatRoomResponse {
 		private Spot spot;
 		private UserEntity currentUser;
 		private UserEntity partner;
+		private Long unreadCount;
 
 		public static ChatRoomEnrichment empty() {
 			return ChatRoomEnrichment.builder().build();

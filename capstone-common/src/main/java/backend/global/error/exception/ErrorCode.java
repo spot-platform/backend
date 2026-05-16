@@ -43,6 +43,8 @@ public enum ErrorCode {
 	CHAT_PARTNER_NOT_FOUND(HttpStatus.NOT_FOUND, "CH004", "Chat partner user not found"),
 	CHAT_PERSONAL_SELF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH005", "Cannot start a personal chat with yourself"),
 	CHAT_PERSONAL_REQUIRES_PARTNER(HttpStatus.BAD_REQUEST, "CH006", "Personal chat requires a partnerId"),
+	CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CH007", "Chat message not found"),
+	CHAT_MESSAGE_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "CH008", "Message does not belong to this chat room"),
 
 	// User
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),

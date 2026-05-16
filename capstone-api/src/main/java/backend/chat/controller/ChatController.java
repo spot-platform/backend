@@ -153,13 +153,33 @@ public class ChatController {
 		));
 	}
 
-	@Operation(summary = "메시지 읽음 처리")
+	@Operation(
+		summary = "채팅방 전체 읽음 처리",
+		description = "본 채팅방의 모든 메시지를 읽음 처리합니다 (lastReadMessageId 를 최신 메시지 ID 로 끌어올림). "
+			+ "특정 메시지까지만 읽음 처리하려면 POST /rooms/{roomId}/messages/{messageId}/read 를 사용하세요."
+	)
 	@PostMapping("/rooms/{roomId}/read")
 	public ResponseEntity<ApiResponse<Void>> markAsRead(
 		@PathVariable Long roomId,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		chatService.markAsRead(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(
+		summary = "특정 메시지까지 읽음 처리",
+		description = "클라이언트가 \"여기까지 봤어요\" 를 명시적으로 보고합니다. "
+			+ "lastReadMessageId 는 단조 증가 — 더 작은 messageId 호출은 무시됩니다. "
+			+ "성공 시 SSE READ 이벤트가 동일 방 구독자에게 lastReadMessageId 와 함께 브로드캐스트됩니다."
+	)
+	@PostMapping("/rooms/{roomId}/messages/{messageId}/read")
+	public ResponseEntity<ApiResponse<Void>> markMessageAsRead(
+		@PathVariable Long roomId,
+		@PathVariable Long messageId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.markAsReadUpTo(roomId, messageId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 

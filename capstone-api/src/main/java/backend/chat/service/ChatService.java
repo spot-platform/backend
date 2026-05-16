@@ -383,8 +383,8 @@ public class ChatService {
 	}
 
 	/**
-	 * 채팅방의 메시지를 읽음 처리합니다. 멤버만 가능.
-	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현 (PR B)
+	 * 채팅방의 모든 메시지를 읽음 처리합니다. 멤버만 가능.
+	 * 멤버십의 {@code lastReadMessageId} 를 방의 최신 메시지 ID 까지 끌어올린다.
 	 */
 	public void markAsRead(Long roomId) {
 		markAsRead(roomId, null);
@@ -396,7 +396,55 @@ public class ChatService {
 		}
 		findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
-		sseEmitterService.broadcastRead(roomId, currentUserId);
+
+		Long latestMessageId = chatMessageRepository.findTopByChatRoomIdOrderByIdDesc(roomId)
+			.map(ChatMessage::getId)
+			.orElse(null);
+		if (latestMessageId == null) {
+			// 빈 방 — 굳이 멤버 row 갱신 안 함. 호환을 위해 SSE 만 broadcast.
+			sseEmitterService.broadcastRead(roomId, currentUserId);
+			return;
+		}
+		applyReadMarker(roomId, currentUserId, latestMessageId);
+	}
+
+	/**
+	 * 특정 메시지까지 읽음 처리. 클라이언트가 "여기까지 봤다" 를 명시적으로 신호하는 경로.
+	 * 멤버십의 {@code lastReadMessageId} 를 messageId 까지 끌어올린다 (단조 증가).
+	 *
+	 * @param roomId      대상 방
+	 * @param messageId   읽음 처리할 마지막 메시지 ID. 본 방에 속해야 함.
+	 * @param currentUserId 인증된 호출자
+	 */
+	public void markAsReadUpTo(Long roomId, Long messageId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
+
+		ChatMessage message = chatMessageRepository.findById(messageId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+		if (!message.getChatRoomId().equals(roomId)) {
+			throw new BusinessException(ErrorCode.CHAT_MESSAGE_NOT_IN_ROOM);
+		}
+		applyReadMarker(roomId, currentUserId, messageId);
+	}
+
+	/**
+	 * 멤버십의 read 커서를 갱신하고 진행된 경우에만 SSE broadcast.
+	 * 멱등 — 이미 더 큰 lastReadMessageId 라면 no-op + broadcast 도 skip.
+	 */
+	private void applyReadMarker(Long roomId, String userId, Long messageId) {
+		ChatRoomMember member = chatRoomMemberRepository
+			.findByChatRoomIdAndUserId(roomId, userId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED));
+		boolean advanced = member.markRead(messageId);
+		if (advanced) {
+			// dirty checking 으로 자동 update. 명시적 save 는 trace 가독성 ↑.
+			chatRoomMemberRepository.save(member);
+			sseEmitterService.broadcastRead(roomId, userId, messageId);
+		}
 	}
 
 	// ─────────────────────────────────────────────
@@ -450,6 +498,9 @@ public class ChatService {
 		// PERSONAL 방 파트너 lookup
 		Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
 
+		// 본인 시점 unread 카운트. 비인증/빈 컬렉션 시 0 으로 fallback.
+		Map<Long, Long> unreadByRoomId = resolveUnreadCounts(roomIds, currentUser);
+
 		return rooms.stream()
 			.collect(Collectors.toMap(
 				ChatRoom::getId,
@@ -458,7 +509,24 @@ public class ChatService {
 					.spot(room.getSpotId() == null ? null : spotsById.get(room.getSpotId()))
 					.currentUser(currentUser)
 					.partner(partnerByRoomId.get(room.getId()))
+					.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
 					.build()
+			));
+	}
+
+	/**
+	 * 방 N 개의 unread 카운트를 한 번의 쿼리로 채워 반환.
+	 * 본인 멤버십이 없는 방은 자동 제외 (조인 누락) → 응답 DTO 단계에서 0 으로 노출.
+	 */
+	private Map<Long, Long> resolveUnreadCounts(Collection<Long> roomIds, UserEntity currentUser) {
+		if (currentUser == null || roomIds.isEmpty()) {
+			return Map.of();
+		}
+		return chatMessageRepository.countUnreadByUserAndRoomIds(currentUser.getId(), roomIds)
+			.stream()
+			.collect(Collectors.toMap(
+				row -> (Long) row[0],
+				row -> (Long) row[1]
 			));
 	}
 
