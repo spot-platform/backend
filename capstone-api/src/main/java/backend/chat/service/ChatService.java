@@ -1,12 +1,15 @@
 package backend.chat.service;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +21,14 @@ import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
 import backend.chat.dto.ChatRoomResponse.ChatRoomEnrichment;
 import backend.chat.dto.CreateChatRoomRequest;
+import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
 import backend.chat.entity.ChatRoom;
+import backend.chat.entity.ChatRoomMember;
 import backend.chat.entity.ChatRoomType;
 import backend.chat.repository.ChatMessageRepository;
+import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatRoomRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -39,6 +45,7 @@ public class ChatService {
 
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
+	private final ChatRoomMemberRepository chatRoomMemberRepository;
 	private final SseEmitterService sseEmitterService;
 	private final SpotRepository spotRepository;
 	private final UserRepository userRepository;
@@ -49,7 +56,7 @@ public class ChatService {
 
 	/**
 	 * 전체 채팅방 목록을 조회합니다.
-	 * TODO: 인증 도입 후 현재 로그인 유저가 참여한 방만 반환하도록 수정
+	 * 인증된 유저만 호출 가능 — 본인이 멤버로 속한 방만 반환합니다.
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRooms() {
@@ -59,7 +66,18 @@ public class ChatService {
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRooms(String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
-		List<ChatRoom> rooms = chatRoomRepository.findAll();
+		List<ChatRoom> rooms;
+		if (currentUser == null) {
+			// 비인증 — 멤버십 기반 필터가 불가능하므로 빈 리스트 반환
+			rooms = List.of();
+		} else {
+			List<Long> roomIds = chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId());
+			rooms = roomIds.isEmpty()
+				? List.of()
+				: chatRoomRepository.findAllById(roomIds).stream()
+					.filter(r -> !r.isDeleted())
+					.toList();
+		}
 		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
 		return rooms.stream()
 			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
@@ -67,24 +85,98 @@ public class ChatService {
 	}
 
 	/**
-	 * 채팅방을 생성합니다.
-	 * GROUP 타입은 반드시 spotId 가 있어야 합니다.
+	 * 그룹 채팅방을 생성합니다. (PERSONAL 은 createPersonalRoom 사용)
+	 * 동일 spotId 의 GROUP 방이 이미 있으면 idempotent 하게 기존 방을 반환합니다.
 	 */
 	public ChatRoomResponse createRoom(CreateChatRoomRequest request) {
+		return createRoom(request, null);
+	}
+
+	public ChatRoomResponse createRoom(CreateChatRoomRequest request, String currentUserId) {
+		if (request.getType() == ChatRoomType.PERSONAL) {
+			throw new BusinessException(ErrorCode.CHAT_PERSONAL_REQUIRES_PARTNER);
+		}
 		if (request.getType() == ChatRoomType.GROUP && request.getSpotId() == null) {
 			throw new BusinessException(ErrorCode.GROUP_CHAT_REQUIRES_SPOT);
 		}
 
-		ChatRoom room = ChatRoom.builder()
-			.spotId(request.getSpotId())
-			.type(request.getType())
-			.build();
+		// 동일 spot 의 활성 GROUP 방 idempotent 재사용 (concurrent-safe)
+		ChatRoom room = findOrCreateGroupRoomForSpot(request.getSpotId());
 
-		return ChatRoomResponse.from(chatRoomRepository.save(room));
+		// 호출 유저를 멤버로 등록 (이미 있으면 no-op)
+		if (currentUserId != null && !currentUserId.isBlank()) {
+			ensureMember(room.getId(), currentUserId);
+		}
+
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		return ChatRoomResponse.from(room, buildEnrichment(room, currentUser));
 	}
 
 	/**
-	 * 채팅방 단건 상세 조회를 합니다.
+	 * 1:1 채팅방을 시작합니다. A↔B 가 이미 있으면 기존 방을 반환 (카카오톡 스타일).
+	 */
+	public ChatRoomResponse createPersonalRoom(CreatePersonalChatRoomRequest request, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		String partnerId = request.getPartnerId();
+		if (partnerId == null || partnerId.isBlank()) {
+			throw new BusinessException(ErrorCode.CHAT_PERSONAL_REQUIRES_PARTNER);
+		}
+		if (Objects.equals(currentUserId, partnerId)) {
+			throw new BusinessException(ErrorCode.CHAT_PERSONAL_SELF_NOT_ALLOWED);
+		}
+
+		UserEntity me = userRepository.findById(currentUserId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+		UserEntity partner = userRepository.findById(partnerId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_PARTNER_NOT_FOUND));
+
+		ChatRoom room = lookupPersonalRoom(me.getId(), partner.getId());
+		if (room == null) {
+			try {
+				room = chatRoomRepository.save(
+					ChatRoom.builder()
+						.type(ChatRoomType.PERSONAL)
+						.isDeleted(false)
+						.build()
+				);
+				ensureMember(room.getId(), me.getId());
+				ensureMember(room.getId(), partner.getId());
+			} catch (DataIntegrityViolationException race) {
+				// 멤버 INSERT 시 (room_id, user_id) UNIQUE 가 충돌하는 경우는 ensureMember 가
+				// 내부에서 흡수하므로 여기까지 오기 어렵다. 안전망으로 재조회.
+				room = lookupPersonalRoom(me.getId(), partner.getId());
+				if (room == null) {
+					throw race;
+				}
+			}
+			// PERSONAL 은 (userA, userB) canonical pair 의 partial unique index 가 없는 한
+			// 동시 요청에서 두 방이 만들어질 수 있다 (CodeRabbit 지적, heavy lift). 한 번 더 재조회하여
+			// 그 사이 다른 트랜잭션이 만든 방이 있으면 가장 오래된 것을 채택하고 본 트랜잭션이 만든 방은 soft-delete.
+			ChatRoom existingNow = lookupPersonalRoom(me.getId(), partner.getId());
+			if (existingNow != null && !existingNow.getId().equals(room.getId())) {
+				ChatRoom older = existingNow.getId() < room.getId() ? existingNow : room;
+				ChatRoom newer = existingNow.getId() < room.getId() ? room : existingNow;
+				newer.markDeleted();
+				chatRoomRepository.save(newer);
+				room = older;
+			}
+		}
+
+		return ChatRoomResponse.from(room, buildEnrichment(room, me));
+	}
+
+	private ChatRoom lookupPersonalRoom(String userA, String userB) {
+		return chatRoomMemberRepository.findPersonalRoomIdsBetween(userA, userB).stream()
+			.flatMap(id -> chatRoomRepository.findById(id).stream())
+			.filter(r -> r.getType() == ChatRoomType.PERSONAL && !r.isDeleted())
+			.min(Comparator.comparing(ChatRoom::getId))
+			.orElse(null);
+	}
+
+	/**
+	 * 채팅방 단건 상세 조회. 멤버만 접근 가능.
 	 */
 	@Transactional(readOnly = true)
 	public ChatRoomResponse getRoom(Long roomId) {
@@ -94,12 +186,13 @@ public class ChatService {
 	@Transactional(readOnly = true)
 	public ChatRoomResponse getRoom(Long roomId, String currentUserId) {
 		ChatRoom room = findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
 		UserEntity currentUser = findCurrentUser(currentUserId);
 		return ChatRoomResponse.from(room, buildEnrichment(room, currentUser));
 	}
 
 	/**
-	 * 스팟 ID로 연결된 채팅방을 조회합니다.
+	 * 스팟 ID로 연결된 채팅방을 조회합니다. 멤버 방만 반환.
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId) {
@@ -110,6 +203,15 @@ public class ChatService {
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId, String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
 		List<ChatRoom> rooms = chatRoomRepository.findBySpotId(spotId);
+		if (currentUser != null) {
+			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
+			rooms = rooms.stream()
+				.filter(r -> !r.isDeleted())
+				.filter(r -> myRoomIds.contains(r.getId()))
+				.toList();
+		} else {
+			rooms = List.of();
+		}
 		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
 		return rooms.stream()
 			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
@@ -117,8 +219,7 @@ public class ChatService {
 	}
 
 	/**
-	 * 유저 ID로 참여 중인 채팅방 목록을 조회합니다.
-	 * TODO: ChatRoomMember 테이블 도입 후 실제 필터링 구현
+	 * 유저 ID로 참여 중인 채팅방 목록을 조회합니다. 본인 멤버십과 교집합.
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByUser(String userId) {
@@ -128,8 +229,18 @@ public class ChatService {
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByUser(String userId, String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
-		List<Long> roomIds = chatMessageRepository.findDistinctChatRoomIdsBySenderId(userId);
-		List<ChatRoom> rooms = chatRoomRepository.findAllById(roomIds);
+		List<Long> targetRoomIds = chatRoomMemberRepository.findChatRoomIdsByUserId(userId);
+		if (currentUser != null) {
+			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
+			targetRoomIds = targetRoomIds.stream().filter(myRoomIds::contains).toList();
+		} else {
+			targetRoomIds = List.of();
+		}
+		List<ChatRoom> rooms = targetRoomIds.isEmpty()
+			? List.of()
+			: chatRoomRepository.findAllById(targetRoomIds).stream()
+				.filter(r -> !r.isDeleted())
+				.toList();
 		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
 		return rooms.stream()
 			.map(room -> ChatRoomResponse.from(room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
@@ -137,22 +248,90 @@ public class ChatService {
 	}
 
 	// ─────────────────────────────────────────────
+	// 멤버십 (Membership) — 외부 도메인 (Spot) 에서도 호출 가능
+	// ─────────────────────────────────────────────
+
+	/**
+	 * 채팅방에 유저를 멤버로 추가합니다. 이미 멤버면 no-op.
+	 * SpotService 의 matchSpot 등에서 자동 가입 시 호출.
+	 */
+	public void ensureMember(Long roomId, String userId) {
+		if (userId == null || userId.isBlank()) {
+			return;
+		}
+		if (chatRoomMemberRepository.existsByChatRoomIdAndUserId(roomId, userId)) {
+			return;
+		}
+		try {
+			chatRoomMemberRepository.save(
+				ChatRoomMember.builder()
+					.chatRoomId(roomId)
+					.userId(userId)
+					.build()
+			);
+		} catch (DataIntegrityViolationException race) {
+			// (room_id, user_id) UNIQUE 위반 — 다른 트랜잭션이 동일 멤버를 먼저 등록함.
+			// idempotent 한 작업이므로 무시.
+		}
+	}
+
+	/**
+	 * 스팟 GROUP 방을 idempotent 하게 보장 + 참가자 일괄 가입.
+	 * SpotService 측에서 매칭 완료 시 호출.
+	 */
+	public ChatRoom ensureGroupRoomForSpot(String spotId, Collection<String> participantUserIds) {
+		ChatRoom room = findOrCreateGroupRoomForSpot(spotId);
+		if (participantUserIds != null) {
+			for (String userId : participantUserIds) {
+				ensureMember(room.getId(), userId);
+			}
+		}
+		return room;
+	}
+
+	/**
+	 * spot 의 GROUP 방을 조회 또는 생성. partial unique index
+	 * (spot_id WHERE type=GROUP AND is_deleted=false) 와 짝이 되어 동시 요청에서도
+	 * 정확히 1 개의 방만 살아남도록 보장한다.
+	 */
+	private ChatRoom findOrCreateGroupRoomForSpot(String spotId) {
+		return chatRoomRepository
+			.findFirstBySpotIdAndTypeAndIsDeletedFalse(spotId, ChatRoomType.GROUP)
+			.orElseGet(() -> {
+				try {
+					return chatRoomRepository.save(
+						ChatRoom.builder()
+							.spotId(spotId)
+							.type(ChatRoomType.GROUP)
+							.isDeleted(false)
+							.build()
+					);
+				} catch (DataIntegrityViolationException race) {
+					// 다른 트랜잭션이 먼저 만들었음 — partial unique index 가 두 번째 insert 를 막음.
+					// 재조회하여 idempotent 한 결과를 돌려준다.
+					return chatRoomRepository
+						.findFirstBySpotIdAndTypeAndIsDeletedFalse(spotId, ChatRoomType.GROUP)
+						.orElseThrow(() -> race);
+				}
+			});
+	}
+
+	// ─────────────────────────────────────────────
 	// 메시지 (Message)
 	// ─────────────────────────────────────────────
 
 	/**
-	 * 채팅방의 메시지를 커서 기반 페이지네이션으로 조회합니다.
-	 *
-	 * <p>실제 size+1 개를 조회하여 다음 페이지 존재 여부(hasMore)를 정확히 판단합니다.
-	 * 반환 목록은 요청한 size 개로 잘려 반환됩니다.
-	 *
-	 * @param roomId 채팅방 ID
-	 * @param cursor 마지막으로 받은 메시지 ID (없으면 null, 최신부터 조회)
-	 * @param size   한 번에 가져올 메시지 수
+	 * 채팅방의 메시지를 커서 기반 페이지네이션으로 조회합니다. 멤버만 가능.
 	 */
 	@Transactional(readOnly = true)
 	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size) {
+		return getMessages(roomId, cursor, size, null);
+	}
+
+	@Transactional(readOnly = true)
+	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size, String currentUserId) {
 		findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
 
 		PageRequest pageRequest = PageRequest.of(0, size + 1); // +1 로 hasMore 판단
 		List<ChatMessage> messages;
@@ -171,7 +350,7 @@ public class ChatService {
 	}
 
 	/**
-	 * 메시지를 전송합니다. senderId 는 인증된 유저 ID 를 사용합니다.
+	 * 메시지를 전송합니다. 멤버만 가능. senderId 는 인증된 유저 ID 를 사용합니다.
 	 *
 	 * <p>트랜잭션 커밋 완료 후 SSE 브로드캐스트를 실행하여
 	 * DB 미커밋 상태의 메시지가 클라이언트에 전달되는 phantom message 를 방지합니다.
@@ -182,10 +361,11 @@ public class ChatService {
 
 	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request, String currentUserId) {
 		findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
-			.senderId(currentUserId != null && !currentUserId.isBlank() ? currentUserId : "dummy-user-id")
+			.senderId(currentUserId)
 			.content(request.getContent())
 			.build();
 
@@ -203,8 +383,8 @@ public class ChatService {
 	}
 
 	/**
-	 * 채팅방의 메시지를 읽음 처리합니다.
-	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현
+	 * 채팅방의 메시지를 읽음 처리합니다. 멤버만 가능.
+	 * TODO: ChatMessageReadStatus 테이블 도입 후 유저별 읽음 상태 저장 구현 (PR B)
 	 */
 	public void markAsRead(Long roomId) {
 		markAsRead(roomId, null);
@@ -215,6 +395,7 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 		findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
 		sseEmitterService.broadcastRead(roomId, currentUserId);
 	}
 
@@ -224,7 +405,17 @@ public class ChatService {
 
 	public ChatRoom findRoomOrThrow(Long roomId) {
 		return chatRoomRepository.findById(roomId)
+			.filter(r -> !r.isDeleted())
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+	}
+
+	private void assertMembership(Long roomId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		if (!chatRoomMemberRepository.existsByChatRoomIdAndUserId(roomId, currentUserId)) {
+			throw new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED);
+		}
 	}
 
 	private ChatRoomEnrichment buildEnrichment(ChatRoom room, UserEntity currentUser) {
@@ -256,6 +447,9 @@ public class ChatService {
 				.stream()
 				.collect(Collectors.toMap(Spot::getId, Function.identity()));
 
+		// PERSONAL 방 파트너 lookup
+		Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
+
 		return rooms.stream()
 			.collect(Collectors.toMap(
 				ChatRoom::getId,
@@ -263,12 +457,49 @@ public class ChatService {
 					.lastMessage(lastMessagesByRoomId.get(room.getId()))
 					.spot(room.getSpotId() == null ? null : spotsById.get(room.getSpotId()))
 					.currentUser(currentUser)
+					.partner(partnerByRoomId.get(room.getId()))
 					.build()
 			));
 	}
 
+	private Map<Long, UserEntity> resolvePersonalPartners(Collection<ChatRoom> rooms, UserEntity currentUser) {
+		if (currentUser == null) {
+			return Map.of();
+		}
+		List<Long> personalRoomIds = rooms.stream()
+			.filter(r -> r.getType() == ChatRoomType.PERSONAL)
+			.map(ChatRoom::getId)
+			.toList();
+		if (personalRoomIds.isEmpty()) {
+			return Map.of();
+		}
+
+		// 각 PERSONAL 방의 멤버 중 본인이 아닌 유저 ID 추출
+		Map<Long, String> partnerIdByRoomId = personalRoomIds.stream()
+			.collect(Collectors.toMap(
+				Function.identity(),
+				roomId -> chatRoomMemberRepository.findUserIdsByChatRoomId(roomId).stream()
+					.filter(uid -> !Objects.equals(uid, currentUser.getId()))
+					.findFirst()
+					.orElse(null)
+			));
+
+		Set<String> partnerIds = partnerIdByRoomId.values().stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
+		if (partnerIds.isEmpty()) {
+			return Map.of();
+		}
+		Map<String, UserEntity> partnerById = userRepository.findAllById(partnerIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+
+		return partnerIdByRoomId.entrySet().stream()
+			.filter(e -> e.getValue() != null && partnerById.containsKey(e.getValue()))
+			.collect(Collectors.toMap(Map.Entry::getKey, e -> partnerById.get(e.getValue())));
+	}
+
 	private UserEntity findCurrentUser(String currentUserId) {
-		if (currentUserId == null) {
+		if (currentUserId == null || currentUserId.isBlank()) {
 			return null;
 		}
 		return userRepository.findById(currentUserId).orElse(null);

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -70,6 +71,7 @@ public class SpotService {
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
 	private final UserRepository userRepository;
+	private final ChatService chatService;
 
 	private static final String FALLBACK_USER_ID = "dummy-user-id";
 	private static final String FALLBACK_NICKNAME = "테스트유저";
@@ -145,6 +147,22 @@ public class SpotService {
 	public SpotResponse matchSpot(String spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.match();
+
+		// 매칭 시 GROUP 채팅방을 보장하고 author + 참가자를 자동 가입.
+		// (현재 createSpot 이 author 를 spot_participants 에 자동 등록하지 않으므로
+		//  author 를 별도로 합쳐서 누락을 막는다. 향후 별도 PR 에서
+		//  createSpot 단계에서 author 를 OWNER 로 등록하도록 정리.)
+		Set<String> memberUserIds = new HashSet<>();
+		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
+			memberUserIds.add(spot.getAuthorId());
+		}
+		spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
+			.map(p -> p.getUserId())
+			.filter(uid -> uid != null && !uid.isBlank())
+			.forEach(memberUserIds::add);
+		chatService.ensureGroupRoomForSpot(spotId, memberUserIds);
+
 		return toSpotResponse(spot);
 	}
 

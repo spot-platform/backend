@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
@@ -48,6 +50,7 @@ import lombok.RequiredArgsConstructor;
 public class SpotController {
 
 	private final SpotService spotService;
+	private final UserRepository userRepository;
 
 	// ─── Spot 기본 CRUD ───────────────────────────
 
@@ -275,8 +278,15 @@ public class SpotController {
 		if (principal instanceof CustomUserDetails userDetails) {
 			return userDetails.getUserId();
 		}
-		if (principal instanceof String userId) {
-			return userId;
+		// JWTFilter 가 principal 에 email (String) 만 셋팅하는 현 상태를 우회.
+		// TODO: JWTFilter 자체가 CustomUserDetails 를 셋팅하도록 리팩터링되면 본 분기 제거.
+		if (principal instanceof String email) {
+			// email 을 userId 로 그대로 흘려보내면 author/sender 등에 email 이 박혀
+			// 멤버십 조회와 join 이 모두 깨진다. 매칭되는 user 가 없으면 null 반환하여
+			// 비인증 흐름을 타도록 한다 (ChatController#currentUserId 와 동일 정책).
+			return userRepository.findByEmail(email)
+				.map(UserEntity::getId)
+				.orElse(null);
 		}
 
 		return null;
