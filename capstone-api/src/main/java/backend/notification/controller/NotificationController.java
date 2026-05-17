@@ -2,9 +2,11 @@ package backend.notification.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,6 +60,9 @@ public class NotificationController {
 	}
 
 	private String currentUserId(CustomUserDetails userDetails) {
-		return userDetails == null ? null : userDetails.getUserId();
+		if (userDetails == null || userDetails.getUserId() == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return userDetails.getUserId();
 	}
 }
