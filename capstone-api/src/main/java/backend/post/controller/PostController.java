@@ -41,6 +41,13 @@ public class PostController {
 		postService.deletePost(postId);
 	}
 
+	@Operation(summary = "게시글 매칭 처리 (Spot 생성)", description = "펀딩 목표 달성 시 호출. 게시글을 MATCHED 상태로 변경하고 Spot을 생성합니다.")
+	@PostMapping("/{postId}/match")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void matchPost(@PathVariable String postId) {
+		postService.convertToSpot(postId);
+	}
+
 	@Operation(summary = "Offer 게시글 등록")
 	@PostMapping("/offer")
 	public ApiResponse<PostCompletionResponse> createOfferPost(@RequestBody CreateOfferPostRequest request) {

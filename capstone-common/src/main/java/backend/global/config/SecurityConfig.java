@@ -129,10 +129,11 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/sim/**").permitAll()
 				.requestMatchers(
 					"/api/auth/**",
-					"/api/spots/**",   // TODO: 인증 도입 후 제거
-					"/api/chat/**",    // TODO: 인증 도입 후 제거
-					"/api/feeds/**",   // TODO: 인증 도입 후 제거
-					"/api/posts/**",   // TODO: 인증 도입 후 제거
+					"/api/spots/**",         // TODO: 인증 도입 후 제거
+					"/api/chat/**",          // TODO: 인증 도입 후 제거
+					"/api/feeds/**",         // TODO: 인증 도입 후 제거
+					"/api/posts/**",         // TODO: 인증 도입 후 제거
+					"/api/notifications/**", // TODO: 인증 도입 후 제거
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html",

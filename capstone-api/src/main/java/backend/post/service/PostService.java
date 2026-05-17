@@ -7,6 +7,7 @@ import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
+import backend.notification.service.NotificationService;
 import backend.post.dto.CreateOfferPostRequest;
 import backend.post.dto.CreateRequestPostRequest;
 import backend.post.dto.PostCompletionResponse;
@@ -25,6 +26,7 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final FeedItemRepository feedItemRepository;
 	private final SpotRepository spotRepository;
+	private final NotificationService notificationService;
 
 	public PostCompletionResponse createOfferPost(CreateOfferPostRequest request) {
 		Post post = Post.builder()
@@ -157,5 +159,6 @@ public class PostService {
 
 		post.match();
 		spotRepository.save(Spot.fromPost(post, post.getTitle(), post.getContent(), post.getPointCost()));
+		notificationService.send(post.getAuthorId(), "게시글 '" + post.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
 	}
 }

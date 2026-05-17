@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.BusinessException;
@@ -45,6 +46,10 @@ public class GlobalExceptionHandler {
 			message
 		);
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(AsyncRequestTimeoutException.class)
+	protected void handleAsyncRequestTimeout() {
 	}
 
 	@ExceptionHandler(Exception.class)
