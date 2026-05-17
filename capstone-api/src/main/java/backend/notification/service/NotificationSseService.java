@@ -7,8 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import backend.notification.event.NotificationCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,7 +49,12 @@ public class NotificationSseService {
 		return emitter;
 	}
 
-	public void send(String userId, Object data) {
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void onNotificationCreated(NotificationCreatedEvent event) {
+		send(event.userId(), event.notification());
+	}
+
+	private void send(String userId, Object data) {
 		List<SseEmitter> emitters = userEmitters.getOrDefault(userId, List.of());
 
 		if (emitters.isEmpty()) {
@@ -82,6 +90,8 @@ public class NotificationSseService {
 			emitter.send(SseEmitter.event().name("ping").data("connected"));
 		} catch (IOException e) {
 			log.debug("[SSE] initial ping failed - userId={}", userId);
+			removeEmitter(userId, emitter);
+			emitter.completeWithError(e);
 		}
 	}
 }

@@ -2,11 +2,13 @@ package backend.notification.service;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.notification.dto.NotificationResponse;
 import backend.notification.entity.Notification;
+import backend.notification.event.NotificationCreatedEvent;
 import backend.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
-	private final NotificationSseService notificationSseService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	public void send(String userId, String message) {
 		Notification notification = Notification.builder()
@@ -25,7 +27,7 @@ public class NotificationService {
 			.build();
 
 		Notification saved = notificationRepository.save(notification);
-		notificationSseService.send(userId, NotificationResponse.from(saved));
+		eventPublisher.publishEvent(new NotificationCreatedEvent(userId, NotificationResponse.from(saved)));
 	}
 
 	@Transactional(readOnly = true)
@@ -36,8 +38,8 @@ public class NotificationService {
 			.toList();
 	}
 
-	public void markAsRead(String notificationId) {
-		Notification notification = notificationRepository.findById(notificationId)
+	public void markAsRead(String userId, String notificationId) {
+		Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
 			.orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다. id=" + notificationId));
 		notification.markAsRead();
 	}
