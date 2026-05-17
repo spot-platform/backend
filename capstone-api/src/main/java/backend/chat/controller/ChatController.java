@@ -24,8 +24,6 @@ import backend.chat.service.ChatService;
 import backend.chat.service.SseEmitterService;
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
-import backend.user.entity.UserEntity;
-import backend.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,7 +38,6 @@ public class ChatController {
 
 	private final ChatService chatService;
 	private final SseEmitterService sseEmitterService;
-	private final UserRepository userRepository;
 
 	// ─── SSE 연결 ─────────────────────────────────
 
@@ -61,9 +58,9 @@ public class ChatController {
 	@Operation(summary = "채팅방 목록 조회")
 	@GetMapping("/rooms")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRooms(
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(principal))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(userDetails))));
 	}
 
 	@Operation(
@@ -74,10 +71,10 @@ public class ChatController {
 	@PostMapping("/rooms")
 	public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(
 		@Valid @RequestBody CreateChatRoomRequest request,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			chatService.createRoom(request, currentUserId(principal))
+			chatService.createRoom(request, currentUserId(userDetails))
 		));
 	}
 
@@ -88,10 +85,10 @@ public class ChatController {
 	@PostMapping("/rooms/personal")
 	public ResponseEntity<ApiResponse<ChatRoomResponse>> createPersonalRoom(
 		@Valid @RequestBody CreatePersonalChatRoomRequest request,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			chatService.createPersonalRoom(request, currentUserId(principal))
+			chatService.createPersonalRoom(request, currentUserId(userDetails))
 		));
 	}
 
@@ -99,27 +96,27 @@ public class ChatController {
 	@GetMapping("/rooms/{roomId}")
 	public ResponseEntity<ApiResponse<ChatRoomResponse>> getRoom(
 		@PathVariable Long roomId,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId, currentUserId(principal))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId, currentUserId(userDetails))));
 	}
 
 	@Operation(summary = "스팟별 채팅방 조회")
 	@GetMapping("/rooms/by-spot/{spotId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomBySpot(
 		@PathVariable String spotId,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId, currentUserId(principal))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId, currentUserId(userDetails))));
 	}
 
 	@Operation(summary = "사용자별 채팅방 조회")
 	@GetMapping("/rooms/by-user/{userId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByUser(
 		@PathVariable String userId,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId, currentUserId(principal))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId, currentUserId(userDetails))));
 	}
 
 	// ─── 메시지 (Message) ─────────────────────────
@@ -134,10 +131,10 @@ public class ChatController {
 		@Parameter(description = "커서 (마지막 메시지 ID, 최초 조회 시 생략)")
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "30") int size,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			chatService.getMessages(roomId, cursor, size, currentUserId(principal))
+			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails))
 		));
 	}
 
@@ -149,10 +146,10 @@ public class ChatController {
 	public ResponseEntity<ApiResponse<ChatMessageResponse>> sendMessage(
 		@PathVariable Long roomId,
 		@Valid @RequestBody SendMessageRequest request,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			chatService.sendMessage(roomId, request, currentUserId(principal))
+			chatService.sendMessage(roomId, request, currentUserId(userDetails))
 		));
 	}
 
@@ -160,35 +157,17 @@ public class ChatController {
 	@PostMapping("/rooms/{roomId}/read")
 	public ResponseEntity<ApiResponse<Void>> markAsRead(
 		@PathVariable Long roomId,
-		@AuthenticationPrincipal Object principal
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		chatService.markAsRead(roomId, currentUserId(principal));
+		chatService.markAsRead(roomId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
 	/**
-	 * SecurityContext 의 principal 을 실제 user ID 로 변환.
-	 *
-	 * <p>JWTFilter 가 현재 principal 에 email (String) 만 셋팅하므로 (createSpot/Chat 등에서
-	 * @AuthenticationPrincipal CustomUserDetails 가 null 로 들어오는 원인) 여기서 한 번 더
-	 * UserRepository.findByEmail 을 거쳐 진짜 userId 로 풀어준다. CustomUserDetails 가 들어오는
-	 * 경로 (Login 직후 등) 도 함께 처리하기 위해 Object 로 받아 type 분기.
-	 *
-	 * <p>TODO: 별도 PR 에서 JWTFilter 자체가 principal 에 CustomUserDetails 를 셋팅하도록
-	 *   리팩터링되면 본 헬퍼는 제거.
+	 * @AuthenticationPrincipal 으로 받은 CustomUserDetails 에서 userId 를 꺼낸다.
+	 * 비인증 (Anonymous 토큰) 의 경우 Spring 이 null 을 주입하므로 null 안전.
 	 */
-	private String currentUserId(Object principal) {
-		if (principal == null || "anonymousUser".equals(principal)) {
-			return null;
-		}
-		if (principal instanceof CustomUserDetails userDetails) {
-			return userDetails.getUserId();
-		}
-		if (principal instanceof String email) {
-			return userRepository.findByEmail(email)
-				.map(UserEntity::getId)
-				.orElse(null);
-		}
-		return null;
+	private String currentUserId(CustomUserDetails userDetails) {
+		return userDetails == null ? null : userDetails.getUserId();
 	}
 }

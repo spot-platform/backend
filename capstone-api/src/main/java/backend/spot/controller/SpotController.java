@@ -3,8 +3,6 @@ package backend.spot.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
-import backend.user.entity.UserEntity;
-import backend.user.repository.UserRepository;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
@@ -50,7 +46,6 @@ import lombok.RequiredArgsConstructor;
 public class SpotController {
 
 	private final SpotService spotService;
-	private final UserRepository userRepository;
 
 	// ─── Spot 기본 CRUD ───────────────────────────
 
@@ -67,11 +62,10 @@ public class SpotController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<SpotResponse>> createSpot(
 		@Valid @RequestBody CreateSpotRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createSpot(request, resolveCurrentUserId(principal, authentication))
+			spotService.createSpot(request, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -132,11 +126,10 @@ public class SpotController {
 	@GetMapping("/{spotId}/votes")
 	public ResponseEntity<ApiResponse<List<SpotVoteResponse>>> getVotes(
 		@PathVariable String spotId,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.getVotes(spotId, resolveCurrentUserId(principal, authentication))
+			spotService.getVotes(spotId, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -145,11 +138,10 @@ public class SpotController {
 	public ResponseEntity<ApiResponse<SpotVoteResponse>> createVote(
 		@PathVariable String spotId,
 		@Valid @RequestBody CreateVoteRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createVote(spotId, request, resolveCurrentUserId(principal, authentication))
+			spotService.createVote(spotId, request, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -164,11 +156,10 @@ public class SpotController {
 		@PathVariable String spotId,
 		@PathVariable Long voteId,
 		@Valid @RequestBody CastVoteRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.castVote(spotId, voteId, request, resolveCurrentUserId(principal, authentication))
+			spotService.castVote(spotId, voteId, request, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -183,11 +174,10 @@ public class SpotController {
 		@PathVariable String spotId,
 		@PathVariable Long voteId,
 		@Valid @RequestBody SubmitVoteAnswersRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.submitAnswers(spotId, voteId, request, resolveCurrentUserId(principal, authentication))
+			spotService.submitAnswers(spotId, voteId, request, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -230,11 +220,10 @@ public class SpotController {
 	public ResponseEntity<ApiResponse<SpotFileResponse>> uploadFile(
 		@PathVariable String spotId,
 		@Valid @RequestBody UploadFileRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.uploadFile(spotId, request, resolveCurrentUserId(principal, authentication))
+			spotService.uploadFile(spotId, request, resolveCurrentUserId(userDetails))
 		));
 	}
 
@@ -261,35 +250,19 @@ public class SpotController {
 	public ResponseEntity<ApiResponse<SpotNoteResponse>> createNote(
 		@PathVariable String spotId,
 		@Valid @RequestBody CreateNoteRequest request,
-		@AuthenticationPrincipal Object principal,
-		Authentication authentication
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createNote(spotId, request, resolveCurrentUserId(principal, authentication))
+			spotService.createNote(spotId, request, resolveCurrentUserId(userDetails))
 		));
 	}
 
-	private String resolveCurrentUserId(Object principal, Authentication authentication) {
-		if (authentication == null || !authentication.isAuthenticated()
-			|| authentication instanceof AnonymousAuthenticationToken) {
-			return null;
-		}
-
-		if (principal instanceof CustomUserDetails userDetails) {
-			return userDetails.getUserId();
-		}
-		// JWTFilter 가 principal 에 email (String) 만 셋팅하는 현 상태를 우회.
-		// TODO: JWTFilter 자체가 CustomUserDetails 를 셋팅하도록 리팩터링되면 본 분기 제거.
-		if (principal instanceof String email) {
-			// email 을 userId 로 그대로 흘려보내면 author/sender 등에 email 이 박혀
-			// 멤버십 조회와 join 이 모두 깨진다. 매칭되는 user 가 없으면 null 반환하여
-			// 비인증 흐름을 타도록 한다 (ChatController#currentUserId 와 동일 정책).
-			return userRepository.findByEmail(email)
-				.map(UserEntity::getId)
-				.orElse(null);
-		}
-
-		return null;
+	/**
+	 * @AuthenticationPrincipal 으로 받은 CustomUserDetails 에서 userId 를 꺼낸다.
+	 * 비인증 (Anonymous 토큰) 의 경우 Spring 이 null 을 주입하므로 null 안전.
+	 */
+	private String resolveCurrentUserId(CustomUserDetails userDetails) {
+		return userDetails == null ? null : userDetails.getUserId();
 	}
 
 	// ─── 리뷰 (Review) - TODO ─────────────────────
