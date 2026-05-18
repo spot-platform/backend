@@ -37,4 +37,30 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 	List<Long> findDistinctChatRoomIdsBySenderId(@Param("userId") String userId);
 
 	List<ChatMessage> findByChatRoomIdAndIdLessThanOrderByIdDesc(Long chatRoomId, Long id, Pageable pageable);
+
+	/**
+	 * 본인 멤버십의 lastReadMessageId 기준 unread 카운트를 방별로 묶어 반환.
+	 * 룸 ID 마다 ChatMessageRepository 를 따로 호출하지 않기 위한 N+1 가드 쿼리.
+	 *
+	 * <p>{@link backend.chat.entity.ChatRoomMember} 조인으로 본인 멤버십이 없는 방은 자동 제외된다.
+	 * lastReadMessageId 가 null 인 멤버는 0 으로 간주하지 않고 모든 메시지를 unread 로 친다.
+	 *
+	 * <p>본인이 보낸 메시지는 unread 에서 제외한다 — 메시지를 보낸 직후 본인 방의
+	 * unreadCount 가 1 로 뜨는 카운트 오작동 방지. read 마커는 클라이언트가 read 엔드포인트를
+	 * 호출할 때만 advance 하지만, 그 사이에도 본인 메시지가 자기 자신에게 unread 로 잡혀선 안 됨.
+	 */
+	@Query("""
+		select m.chatRoomId, count(m.id)
+		from ChatMessage m, ChatRoomMember mb
+		where mb.userId = :userId
+			and mb.chatRoomId = m.chatRoomId
+			and m.chatRoomId in :roomIds
+			and m.id > coalesce(mb.lastReadMessageId, 0)
+			and m.senderId <> :userId
+		group by m.chatRoomId
+		""")
+	List<Object[]> countUnreadByUserAndRoomIds(
+		@Param("userId") String userId,
+		@Param("roomIds") Collection<Long> roomIds
+	);
 }

@@ -58,4 +58,30 @@ public class ChatRoomMember {
 	@CreatedDate
 	@Column(name = "joined_at", nullable = false, updatable = false)
 	private LocalDateTime joinedAt;
+
+	/**
+	 * 본 멤버가 마지막으로 읽은 메시지 ID. null = 한 번도 읽지 않음.
+	 *
+	 * <p>unreadCount 는 {@code COUNT(chat_messages WHERE room_id = ? AND id > lastReadMessageId)}
+	 * 로 계산. 이 컬럼은 단조 증가만 허용한다 ({@link #markRead}).
+	 */
+	@Column(name = "last_read_message_id")
+	private Long lastReadMessageId;
+
+	/**
+	 * 단조 증가 read 마커 업데이트. 더 작은 ID 를 시도하면 무시되어 read 가 뒤로 가지 않는다.
+	 * 멱등 — 같은 messageId 를 여러 번 호출해도 결과 동일.
+	 *
+	 * @return 실제로 진행된 경우 true (caller 가 SSE broadcast 등 사이드 이펙트를 분기할 수 있게)
+	 */
+	public boolean markRead(Long messageId) {
+		if (messageId == null) {
+			return false;
+		}
+		if (lastReadMessageId == null || messageId > lastReadMessageId) {
+			this.lastReadMessageId = messageId;
+			return true;
+		}
+		return false;
+	}
 }

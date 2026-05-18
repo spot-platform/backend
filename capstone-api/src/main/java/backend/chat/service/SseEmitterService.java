@@ -82,7 +82,15 @@ public class SseEmitterService {
 	}
 
 	public void broadcastRead(Long roomId, String userId) {
-		sendEvent(roomId, ChatSseEvent.read(roomId, userId));
+		broadcastRead(roomId, userId, null);
+	}
+
+	/**
+	 * read 이벤트 브로드캐스트. lastReadMessageId 가 있으면 함께 전송.
+	 * 클라이언트가 메시지별 "안 읽음" 표시를 갱신할 수 있다.
+	 */
+	public void broadcastRead(Long roomId, String userId, Long lastReadMessageId) {
+		sendEvent(roomId, ChatSseEvent.read(roomId, userId, lastReadMessageId));
 	}
 
 	public void broadcastTyping(Long roomId, String userId) {
