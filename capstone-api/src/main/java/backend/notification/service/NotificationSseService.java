@@ -69,8 +69,9 @@ public class NotificationSseService {
 			try {
 				emitter.send(event);
 			} catch (IOException e) {
-				log.debug("[SSE] send failed - userId={}, removing emitter", userId);
+				log.debug("[SSE] send failed - userId={}, removing emitter", userId, e);
 				removeEmitter(userId, emitter);
+				emitter.completeWithError(e);
 			}
 		}
 	}

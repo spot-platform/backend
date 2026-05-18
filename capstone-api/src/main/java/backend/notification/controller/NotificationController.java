@@ -1,17 +1,19 @@
 package backend.notification.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import backend.global.common.response.ApiResponse;
@@ -41,12 +43,13 @@ public class NotificationController {
 		return notificationSseService.subscribe(currentUserId(userDetails));
 	}
 
-	@Operation(summary = "알림 목록 조회", description = "로그인한 유저의 알림 목록을 최신순으로 반환합니다.")
+	@Operation(summary = "알림 목록 조회", description = "로그인한 유저의 알림 목록을 최신순으로 페이지 단위로 반환합니다.")
 	@GetMapping
-	public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(
-		@AuthenticationPrincipal CustomUserDetails userDetails
+	public ResponseEntity<ApiResponse<Page<NotificationResponse>>> getNotifications(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(currentUserId(userDetails))));
+		return ResponseEntity.ok(ApiResponse.success(notificationService.getNotifications(currentUserId(userDetails), pageable)));
 	}
 
 	@Operation(summary = "알림 읽음 처리")

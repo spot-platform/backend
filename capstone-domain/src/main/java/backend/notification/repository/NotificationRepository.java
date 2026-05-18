@@ -1,15 +1,16 @@
 package backend.notification.repository;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import backend.notification.entity.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, String> {
 
-	List<Notification> findByUserIdOrderByCreatedAtDesc(String userId);
+	Page<Notification> findByUserIdOrderByCreatedAtDesc(String userId, Pageable pageable);
 
 	Optional<Notification> findByIdAndUserId(String id, String userId);
 }
