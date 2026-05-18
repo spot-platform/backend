@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -180,6 +181,22 @@ public class ChatController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		chatService.markAsReadUpTo(roomId, messageId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(
+		summary = "채팅방 나가기",
+		description = "현재 사용자를 채팅방 멤버에서 제거합니다. "
+			+ "GROUP 방은 \"OO님이 나갔습니다.\" SYSTEM 메시지가 SSE 로 브로드캐스트되고, "
+			+ "PERSONAL 방은 조용히 나갑니다. 나간 후 멤버가 0 명이면 방이 soft-delete 됩니다. "
+			+ "비멤버 호출은 403 CH003."
+	)
+	@DeleteMapping("/rooms/{roomId}/members/me")
+	public ResponseEntity<ApiResponse<Void>> leaveRoom(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.leaveRoom(roomId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 

@@ -24,6 +24,7 @@ import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
+import backend.chat.entity.ChatMessageType;
 import backend.chat.entity.ChatRoom;
 import backend.chat.entity.ChatRoomMember;
 import backend.chat.entity.ChatRoomType;
@@ -279,6 +280,66 @@ public class ChatService {
 	 * 스팟 GROUP 방을 idempotent 하게 보장 + 참가자 일괄 가입.
 	 * SpotService 측에서 매칭 완료 시 호출.
 	 */
+	/**
+	 * 채팅방에서 호출자를 멤버에서 제거한다.
+	 *
+	 * <p>동작:
+	 * <ul>
+	 *   <li>멤버 row 삭제 (이미 없으면 멱등 no-op).</li>
+	 *   <li>GROUP 방이면 {@code "OO 님이 나갔습니다."} SYSTEM 메시지를 저장 후 SSE broadcast.
+	 *       PERSONAL 방은 시스템 메시지 없이 조용히 나간다 (1:1 특성상 상대만 인지하면 됨).</li>
+	 *   <li>나간 후 멤버가 0 명이면 방을 soft-delete (is_deleted=true) — GROUP/PERSONAL 동일.</li>
+	 * </ul>
+	 *
+	 * <p>이미 멤버가 아니면 {@link ErrorCode#CHAT_ROOM_ACCESS_DENIED} — 비멤버가 leave 시도하면
+	 * 다른 멤버에게 잘못된 SYSTEM 메시지가 발사되는 것을 막는다.
+	 */
+	public void leaveRoom(Long roomId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		ChatRoom room = findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
+
+		// 멤버 row 제거 — UNIQUE (room, user) 라 한 row 만 영향받음
+		chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+
+		if (room.getType() == ChatRoomType.GROUP) {
+			broadcastLeaveSystemMessage(room, currentUserId);
+		}
+
+		// 빈 방 GC
+		if (chatRoomMemberRepository.countByChatRoomId(roomId) == 0) {
+			room.markDeleted();
+			chatRoomRepository.save(room);
+		}
+	}
+
+	/**
+	 * SYSTEM 타입의 "OO 님이 나갔습니다" 메시지를 저장하고 트랜잭션 커밋 이후 SSE broadcast.
+	 * 커밋 이후 발사는 sendMessage 와 동일한 phantom 방지 규약.
+	 */
+	private void broadcastLeaveSystemMessage(ChatRoom room, String userId) {
+		String nickname = userRepository.findById(userId)
+			.map(UserEntity::getNickname)
+			.orElse("알 수 없는 사용자");
+		ChatMessage saved = chatMessageRepository.save(
+			ChatMessage.builder()
+				.chatRoomId(room.getId())
+				.senderId(ChatMessage.SYSTEM_SENDER_ID)
+				.type(ChatMessageType.SYSTEM)
+				.content(nickname + "님이 나갔습니다.")
+				.build()
+		);
+		ChatMessageResponse payload = ChatMessageResponse.from(saved);
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				sseEmitterService.broadcast(room.getId(), payload);
+			}
+		});
+	}
+
 	public ChatRoom ensureGroupRoomForSpot(String spotId, Collection<String> participantUserIds) {
 		ChatRoom room = findOrCreateGroupRoomForSpot(spotId);
 		if (participantUserIds != null) {

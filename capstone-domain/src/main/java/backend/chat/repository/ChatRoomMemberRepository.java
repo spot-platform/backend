@@ -14,6 +14,12 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
 
 	boolean existsByChatRoomIdAndUserId(Long chatRoomId, String userId);
 
+	/**
+	 * 멤버 row 를 hard-delete. 나가기 흐름에서 사용.
+	 * 반환값은 영향받은 row 수 — 0 이면 멤버 아니었음 (이미 나간 후 재요청 등).
+	 */
+	long deleteByChatRoomIdAndUserId(Long chatRoomId, String userId);
+
 	Optional<ChatRoomMember> findByChatRoomIdAndUserId(Long chatRoomId, String userId);
 
 	List<ChatRoomMember> findByChatRoomId(Long chatRoomId);

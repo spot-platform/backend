@@ -3,6 +3,7 @@ package backend.chat.dto;
 import java.time.LocalDateTime;
 
 import backend.chat.entity.ChatMessage;
+import backend.chat.entity.ChatMessageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,8 +24,11 @@ public class ChatMessageResponse {
 	@Schema(description = "채팅방 ID", example = "1")
 	private Long chatRoomId;
 
-	@Schema(description = "발신자 ID", example = "user-uuid-string")
+	@Schema(description = "발신자 ID. SYSTEM 메시지는 \"SYSTEM\" 고정값", example = "user-uuid-string")
 	private String senderId;
+
+	@Schema(description = "메시지 분류 (USER / SYSTEM). SYSTEM 은 \"OO 님이 나갔습니다\" 등 서버 생성 안내", example = "USER")
+	private ChatMessageType type;
 
 	@Schema(description = "메시지 내용")
 	private String content;
@@ -37,6 +41,7 @@ public class ChatMessageResponse {
 			.id(message.getId())
 			.chatRoomId(message.getChatRoomId())
 			.senderId(message.getSenderId())
+			.type(message.getType())
 			.content(message.getContent())
 			.createdAt(message.getCreatedAt())
 			.build();
