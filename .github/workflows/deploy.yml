@@ -32,18 +32,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.EC2_HOST_KEY }}" >> ~/.ssh/known_hosts
 
       - name: Upload JAR to server
         run: |
+          JAR_FILE=$(ls capstone-api/build/libs/capstone-api-*.jar | grep -v plain | head -1)
           scp -i ~/.ssh/id_rsa \
-            capstone-api/build/libs/capstone-api-0.0.1-SNAPSHOT.jar \
+            "$JAR_FILE" \
             ubuntu@${{ secrets.EC2_HOST }}:~/app/app.jar
 
       - name: Restart application
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} bash << 'EOF'
-            pkill -f 'java -jar' || true
+            pkill -f 'app.jar' || true
             sleep 3
             nohup java -jar ~/app/app.jar \
               --spring.config.additional-location=file:$HOME/app/ \
