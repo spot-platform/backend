@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
+import backend.chat.dto.CreateChatBlockRequest;
 import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
@@ -32,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Chat API", description = "채팅 API")
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/v1/chat")
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -45,11 +48,13 @@ public class ChatController {
 		summary = "SSE 구독 연결",
 		description = "특정 채팅방에 SSE 실시간 연결을 맺습니다. 연결 후 해당 방에 새 메시지가 오면 즉시 수신됩니다."
 	)
-	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "/rooms/{roomId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter connect(
 		@Parameter(description = "구독할 채팅방 ID", required = true)
-		@RequestParam Long roomId
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
 		return sseEmitterService.subscribe(roomId);
 	}
 
@@ -126,16 +131,16 @@ public class ChatController {
 		description = "cursor 없으면 최신 메시지부터, cursor 있으면 해당 ID 이전 메시지를 size 개 반환합니다."
 	)
 	@GetMapping("/rooms/{roomId}/messages")
-	public ResponseEntity<ApiResponse<ChatMessageListResponse>> getMessages(
+	public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
 		@PathVariable Long roomId,
-		@Parameter(description = "커서 (마지막 메시지 ID, 최초 조회 시 생략)")
+		@Parameter(description = "커서 (마지막 메시지 ID 문자열, 최초 조회 시 생략)")
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "30") int size,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails))
-		));
+		ChatMessageListResponse.Result result =
+			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(result.data(), result.meta()));
 	}
 
 	@Operation(
@@ -181,6 +186,64 @@ public class ChatController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		chatService.markAsReadUpTo(roomId, messageId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(
+		summary = "채팅방 나가기",
+		description = "현재 사용자를 채팅방 멤버에서 제거합니다. "
+			+ "GROUP 방은 \"OO님이 나갔습니다.\" SYSTEM 메시지가 SSE 로 브로드캐스트되고, "
+			+ "PERSONAL 방은 조용히 나갑니다. 나간 후 멤버가 0 명이면 방이 soft-delete 됩니다. "
+			+ "비멤버 호출은 403 CH003."
+	)
+	@DeleteMapping("/rooms/{roomId}/members/me")
+	public ResponseEntity<ApiResponse<Void>> leaveRoom(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.leaveRoom(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	// ─── 차단 (Block) ─────────────────────────────
+
+	@Operation(
+		summary = "내가 차단한 유저 목록",
+		description = "본인이 차단한 유저 목록을 최신순으로 반환합니다. 닉네임이 함께 제공됩니다."
+	)
+	@GetMapping("/blocks")
+	public ResponseEntity<ApiResponse<List<ChatBlockResponse>>> getBlocks(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getBlocks(currentUserId(userDetails))));
+	}
+
+	@Operation(
+		summary = "유저 차단",
+		description = "지정한 유저를 차단합니다 (멱등 — 이미 차단된 경우 기존 row 반환). "
+			+ "차단 후 PERSONAL 방의 새 메시지는 placeholder 로 가려지고, 두 유저 간 새 PERSONAL 방 시작은 차단됩니다 (CH009). "
+			+ "GROUP 방 메시지는 영향 없음."
+	)
+	@PostMapping("/blocks")
+	public ResponseEntity<ApiResponse<ChatBlockResponse>> blockUser(
+		@Valid @RequestBody CreateChatBlockRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.blockUser(currentUserId(userDetails), request.getUserId())
+		));
+	}
+
+	@Operation(
+		summary = "유저 차단 해제",
+		description = "차단을 해제합니다. 차단한 적 없는 유저를 해제해도 멱등 no-op (200)."
+	)
+	@DeleteMapping("/blocks/{userId}")
+	public ResponseEntity<ApiResponse<Void>> unblockUser(
+		@PathVariable String userId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.unblockUser(currentUserId(userDetails), userId);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 

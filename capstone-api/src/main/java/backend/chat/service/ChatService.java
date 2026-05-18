@@ -1,5 +1,6 @@
 package backend.chat.service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
@@ -24,9 +26,12 @@ import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.entity.ChatMessage;
+import backend.chat.entity.ChatMessageType;
 import backend.chat.entity.ChatRoom;
 import backend.chat.entity.ChatRoomMember;
 import backend.chat.entity.ChatRoomType;
+import backend.chat.entity.ChatBlock;
+import backend.chat.repository.ChatBlockRepository;
 import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatRoomRepository;
@@ -46,6 +51,7 @@ public class ChatService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final ChatRoomMemberRepository chatRoomMemberRepository;
+	private final ChatBlockRepository chatBlockRepository;
 	private final SseEmitterService sseEmitterService;
 	private final SpotRepository spotRepository;
 	private final UserRepository userRepository;
@@ -131,6 +137,12 @@ public class ChatService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		UserEntity partner = userRepository.findById(partnerId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_PARTNER_NOT_FOUND));
+
+		// 양방향 차단 검증 — 한쪽이라도 차단 중이면 1:1 시작 불가.
+		// 이미 존재하는 방에 다시 접근하는 경우도 막아, 차단 상태에서 새 메시지를 보낼 수 없도록 한다.
+		if (chatBlockRepository.existsBetween(me.getId(), partner.getId())) {
+			throw new BusinessException(ErrorCode.CHAT_BLOCKED_BETWEEN_USERS);
+		}
 
 		ChatRoom room = lookupPersonalRoom(me.getId(), partner.getId());
 		if (room == null) {
@@ -279,6 +291,69 @@ public class ChatService {
 	 * 스팟 GROUP 방을 idempotent 하게 보장 + 참가자 일괄 가입.
 	 * SpotService 측에서 매칭 완료 시 호출.
 	 */
+	/**
+	 * 채팅방에서 호출자를 멤버에서 제거한다.
+	 *
+	 * <p>동작:
+	 * <ul>
+	 *   <li>멤버 row 삭제 (이미 없으면 멱등 no-op).</li>
+	 *   <li>GROUP 방이면 {@code "OO 님이 나갔습니다."} SYSTEM 메시지를 저장 후 SSE broadcast.
+	 *       PERSONAL 방은 시스템 메시지 없이 조용히 나간다 (1:1 특성상 상대만 인지하면 됨).</li>
+	 *   <li>나간 후 멤버가 0 명이면 방을 soft-delete (is_deleted=true) — GROUP/PERSONAL 동일.</li>
+	 * </ul>
+	 *
+	 * <p>이미 멤버가 아니면 {@link ErrorCode#CHAT_ROOM_ACCESS_DENIED} — 비멤버가 leave 시도하면
+	 * 다른 멤버에게 잘못된 SYSTEM 메시지가 발사되는 것을 막는다.
+	 */
+	public void leaveRoom(Long roomId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		ChatRoom room = findRoomOrThrow(roomId);
+
+		// delete 반환값으로 멤버십 검증 — assertMembership 선행 후 delete 하는 패턴은
+		// concurrent leave 시 두 요청이 모두 assert 를 통과해 SYSTEM 메시지를 이중 발사함.
+		long deleted = chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+		if (deleted == 0) {
+			throw new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED);
+		}
+
+		if (room.getType() == ChatRoomType.GROUP) {
+			broadcastLeaveSystemMessage(room, currentUserId);
+		}
+
+		// 빈 방 GC
+		if (chatRoomMemberRepository.countByChatRoomId(roomId) == 0) {
+			room.markDeleted();
+			chatRoomRepository.save(room);
+		}
+	}
+
+	/**
+	 * SYSTEM 타입의 "OO 님이 나갔습니다" 메시지를 저장하고 트랜잭션 커밋 이후 SSE broadcast.
+	 * 커밋 이후 발사는 sendMessage 와 동일한 phantom 방지 규약.
+	 */
+	private void broadcastLeaveSystemMessage(ChatRoom room, String userId) {
+		String nickname = userRepository.findById(userId)
+			.map(UserEntity::getNickname)
+			.orElse("알 수 없는 사용자");
+		ChatMessage saved = chatMessageRepository.save(
+			ChatMessage.builder()
+				.chatRoomId(room.getId())
+				.senderId(ChatMessage.SYSTEM_SENDER_ID)
+				.type(ChatMessageType.SYSTEM)
+				.content(nickname + "님이 나갔습니다.")
+				.build()
+		);
+		ChatMessageResponse payload = ChatMessageResponse.from(saved);
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				sseEmitterService.broadcast(room.getId(), payload);
+			}
+		});
+	}
+
 	public ChatRoom ensureGroupRoomForSpot(String spotId, Collection<String> participantUserIds) {
 		ChatRoom room = findOrCreateGroupRoomForSpot(spotId);
 		if (participantUserIds != null) {
@@ -324,29 +399,64 @@ public class ChatService {
 	 * 채팅방의 메시지를 커서 기반 페이지네이션으로 조회합니다. 멤버만 가능.
 	 */
 	@Transactional(readOnly = true)
-	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size) {
+	public ChatMessageListResponse.Result getMessages(Long roomId, Long cursor, int size) {
 		return getMessages(roomId, cursor, size, null);
 	}
 
 	@Transactional(readOnly = true)
-	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size, String currentUserId) {
-		findRoomOrThrow(roomId);
+	public ChatMessageListResponse.Result getMessages(Long roomId, Long cursor, int size, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
 
-		PageRequest pageRequest = PageRequest.of(0, size + 1); // +1 로 hasMore 판단
-		List<ChatMessage> messages;
+		PageRequest pageRequest = PageRequest.of(0, size + 1);
+		List<ChatMessage> messages = cursor == null
+			? chatMessageRepository.findByChatRoomIdOrderByIdDesc(roomId, pageRequest)
+			: chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(roomId, cursor, pageRequest);
 
-		if (cursor == null) {
-			messages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(roomId, pageRequest);
-		} else {
-			messages = chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(roomId, cursor, pageRequest);
-		}
+		// 발신자 닉네임 배치 조회 — FRONTEND.md 계약: authorName 필드 필요
+		Set<String> senderIds = messages.stream()
+			.map(ChatMessage::getSenderId)
+			.filter(id -> id != null && !ChatMessage.SYSTEM_SENDER_ID.equals(id))
+			.collect(Collectors.toSet());
+		Map<String, String> nicknameById = senderIds.isEmpty()
+			? Map.of()
+			: userRepository.findAllById(senderIds).stream()
+				.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
+
+		// 차단 매핑 — PERSONAL 방에서만 적용
+		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
 
 		List<ChatMessageResponse> responses = messages.stream()
-			.map(ChatMessageResponse::from)
+			.map(m -> ChatMessageResponse.from(
+				m,
+				nicknameById.get(m.getSenderId()),
+				isMessageBlocked(m, blockedSinceBySenderId)
+			))
 			.toList();
 
 		return ChatMessageListResponse.of(responses, size);
+	}
+
+	/**
+	 * PERSONAL 방에서 본인이 차단한 발신자별 차단 시점 매핑.
+	 * GROUP 방이거나 비인증 호출이면 빈 맵 반환 → 차단 필터 자동 비활성.
+	 */
+	private Map<String, LocalDateTime> resolveBlockedSinceForRoom(ChatRoom room, String currentUserId) {
+		if (room.getType() != ChatRoomType.PERSONAL
+			|| currentUserId == null || currentUserId.isBlank()) {
+			return Map.of();
+		}
+		return chatBlockRepository.findByBlockerIdOrderByCreatedAtDesc(currentUserId).stream()
+			.collect(Collectors.toMap(ChatBlock::getBlockedId, ChatBlock::getCreatedAt));
+	}
+
+	/** 메시지 발신자가 차단되어 있고, 메시지가 차단 시점 이후에 작성되었는지. */
+	private boolean isMessageBlocked(ChatMessage message, Map<String, LocalDateTime> blockedSinceBySenderId) {
+		if (blockedSinceBySenderId.isEmpty()) {
+			return false;
+		}
+		LocalDateTime blockedSince = blockedSinceBySenderId.get(message.getSenderId());
+		return blockedSince != null && blockedSince.isBefore(message.getCreatedAt());
 	}
 
 	/**
@@ -360,8 +470,24 @@ public class ChatService {
 	}
 
 	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request, String currentUserId) {
-		findRoomOrThrow(roomId);
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
+
+		// PERSONAL 방은 메시지 전송 시점에도 차단 검증 — createPersonalRoom 만 막으면
+		// 차단 이전에 존재하던 방으로는 계속 메시지를 보낼 수 있는 반쪽짜리 차단이 됨.
+		if (room.getType() == ChatRoomType.PERSONAL && currentUserId != null) {
+			String partnerId = chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+				.map(ChatRoomMember::getUserId)
+				.filter(uid -> !Objects.equals(uid, currentUserId))
+				.findFirst()
+				.orElse(null);
+			if (partnerId != null && chatBlockRepository.existsBetween(currentUserId, partnerId)) {
+				throw new BusinessException(ErrorCode.CHAT_BLOCKED_BETWEEN_USERS);
+			}
+		}
+
+		String authorName = currentUserId == null ? null
+			: userRepository.findById(currentUserId).map(UserEntity::getNickname).orElse(null);
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
@@ -369,7 +495,7 @@ public class ChatService {
 			.content(request.getContent())
 			.build();
 
-		ChatMessageResponse response = ChatMessageResponse.from(chatMessageRepository.save(message));
+		ChatMessageResponse response = ChatMessageResponse.from(chatMessageRepository.save(message), authorName, false);
 
 		// 트랜잭션 커밋 이후에 SSE 브로드캐스트 (phantom message 방지)
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -463,6 +589,11 @@ public class ChatService {
 		return chatRoomRepository.findById(roomId)
 			.filter(r -> !r.isDeleted())
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+	}
+
+	/** Controller 에서 SSE 구독 전 멤버십 선검증 용도로 호출. */
+	public void assertMembershipPublic(Long roomId, String currentUserId) {
+		assertMembership(roomId, currentUserId);
 	}
 
 	private void assertMembership(Long roomId, String currentUserId) {
@@ -579,5 +710,85 @@ public class ChatService {
 			return null;
 		}
 		return userRepository.findById(currentUserId).orElse(null);
+	}
+
+	// ─────────────────────────────────────────────
+	// 차단 (Block)
+	// ─────────────────────────────────────────────
+
+	/**
+	 * 본인이 차단한 유저 목록을 최신순으로 반환.
+	 * 닉네임은 함께 조회되어 응답에 채워진다 (deleted user 는 null).
+	 */
+	@Transactional(readOnly = true)
+	public List<ChatBlockResponse> getBlocks(String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		List<ChatBlock> blocks = chatBlockRepository.findByBlockerIdOrderByCreatedAtDesc(currentUserId);
+		if (blocks.isEmpty()) {
+			return List.of();
+		}
+		Set<String> blockedIds = blocks.stream().map(ChatBlock::getBlockedId).collect(Collectors.toSet());
+		Map<String, UserEntity> usersById = userRepository.findAllById(blockedIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		return blocks.stream()
+			.map(b -> ChatBlockResponse.from(b, usersById.get(b.getBlockedId())))
+			.toList();
+	}
+
+	/**
+	 * 유저를 차단. 멱등 — 이미 차단된 상태면 기존 row 를 반환한다.
+	 *
+	 * <p>차단 효과:
+	 * <ul>
+	 *   <li>이 호출 이후 보내진 메시지부터 PERSONAL 방에서 placeholder 로 가려진다 (Q2 정책).</li>
+	 *   <li>새 PERSONAL 방 시작 시 양방향 검증으로 막힌다 ({@link #createPersonalRoom}).</li>
+	 *   <li>GROUP 방 메시지는 영향 없음 (Q5 정책).</li>
+	 * </ul>
+	 */
+	public ChatBlockResponse blockUser(String currentUserId, String targetUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		if (targetUserId == null || targetUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.CHAT_BLOCK_TARGET_NOT_FOUND);
+		}
+		if (Objects.equals(currentUserId, targetUserId)) {
+			throw new BusinessException(ErrorCode.CHAT_SELF_BLOCK_NOT_ALLOWED);
+		}
+
+		UserEntity target = userRepository.findById(targetUserId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_BLOCK_TARGET_NOT_FOUND));
+
+		ChatBlock block = chatBlockRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId)
+			.orElseGet(() -> {
+				try {
+					return chatBlockRepository.save(
+						ChatBlock.builder()
+							.blockerId(currentUserId)
+							.blockedId(targetUserId)
+							.build()
+					);
+				} catch (DataIntegrityViolationException race) {
+					// 동시 차단 — UNIQUE (blocker, blocked) 가 잡고, 안전망으로 재조회.
+					return chatBlockRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId)
+						.orElseThrow(() -> race);
+				}
+			});
+		return ChatBlockResponse.from(block, target);
+	}
+
+	/**
+	 * 차단 해제. 차단한 적 없는 유저를 해제해도 멱등 no-op (200 OK).
+	 */
+	public void unblockUser(String currentUserId, String targetUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		if (targetUserId == null || targetUserId.isBlank()) {
+			return;
+		}
+		chatBlockRepository.deleteByBlockerIdAndBlockedId(currentUserId, targetUserId);
 	}
 }
