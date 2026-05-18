@@ -440,11 +440,19 @@ public class ChatService {
 			.findByChatRoomIdAndUserId(roomId, userId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED));
 		boolean advanced = member.markRead(messageId);
-		if (advanced) {
-			// dirty checking 으로 자동 update. 명시적 save 는 trace 가독성 ↑.
-			chatRoomMemberRepository.save(member);
-			sseEmitterService.broadcastRead(roomId, userId, messageId);
+		if (!advanced) {
+			return;
 		}
+		// dirty checking 으로 자동 update. 명시적 save 는 trace 가독성 ↑.
+		chatRoomMemberRepository.save(member);
+		// 트랜잭션 커밋 이후에 SSE broadcast — commit 실패 시 구독자가 DB 미반영 상태의
+		// read 영수증을 받는 phantom 을 방지 (sendMessage 와 동일 규약).
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				sseEmitterService.broadcastRead(roomId, userId, messageId);
+			}
+		});
 	}
 
 	// ─────────────────────────────────────────────

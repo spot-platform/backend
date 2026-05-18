@@ -170,8 +170,9 @@ public class ChatController {
 	@Operation(
 		summary = "특정 메시지까지 읽음 처리",
 		description = "클라이언트가 \"여기까지 봤어요\" 를 명시적으로 보고합니다. "
-			+ "lastReadMessageId 는 단조 증가 — 더 작은 messageId 호출은 무시됩니다. "
-			+ "성공 시 SSE READ 이벤트가 동일 방 구독자에게 lastReadMessageId 와 함께 브로드캐스트됩니다."
+			+ "lastReadMessageId 는 단조 증가 — 더 작은 messageId 호출은 무시됩니다 (멱등). "
+			+ "lastReadMessageId 가 실제로 전진한 경우에만 SSE READ 이벤트가 동일 방 구독자에게 "
+			+ "lastReadMessageId 와 함께 브로드캐스트됩니다. 중복/순서 어긋난 호출에서는 broadcast 가 생략됩니다."
 	)
 	@PostMapping("/rooms/{roomId}/messages/{messageId}/read")
 	public ResponseEntity<ApiResponse<Void>> markMessageAsRead(
