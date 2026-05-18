@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import backend.notification.dto.NotificationResponse;
 import backend.notification.entity.Notification;
 import backend.notification.event.NotificationCreatedEvent;
@@ -40,7 +42,7 @@ public class NotificationService {
 
 	public void markAsRead(String userId, String notificationId) {
 		Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
-			.orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다. id=" + notificationId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND));
 		notification.markAsRead();
 	}
 }

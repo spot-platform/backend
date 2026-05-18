@@ -44,6 +44,12 @@ public enum ErrorCode {
 	CHAT_PERSONAL_SELF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH005", "Cannot start a personal chat with yourself"),
 	CHAT_PERSONAL_REQUIRES_PARTNER(HttpStatus.BAD_REQUEST, "CH006", "Personal chat requires a partnerId"),
 
+	// Post
+	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "Post not found"),
+
+	// Notification
+	NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N001", "Notification not found"),
+
 	// User
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),
 	EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "U002", "Email already exists"),

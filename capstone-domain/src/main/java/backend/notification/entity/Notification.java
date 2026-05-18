@@ -11,6 +11,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "notifications")
+@Table(
+	name = "notifications",
+	indexes = {
+		@Index(name = "idx_notification_user_created", columnList = "user_id, created_at")
+	}
+)
 public class Notification {
 
 	@Id
