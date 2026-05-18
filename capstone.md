@@ -67,6 +67,34 @@
 
 ---
 
+## 🤝 7. PR 워크플로우 (Pull Request Workflow)
+모든 PR 생성 시 아래를 **자동으로** 적용한다. AI 작업자는 PR 만든 직후 즉시 수행.
+
+### 작업자 ↔ GitHub 매핑
+본 프로젝트의 작업자는 3 명. AI 가 매번 ask 하지 않도록 매핑을 명시:
+
+| 이름 | GitHub login |
+|---|---|
+| 황호찬 (소유자) | `hoTan35` |
+| 이성찬 | `ca5tlechan` |
+| 김동현 | `ThonApple` |
+
+### 룰
+
+1. **CodeRabbit Full Review 요청**:
+   - PR 생성 직후 `@coderabbitai full review` 코멘트를 단다.
+   - 한도 초과 (`Rate limit exceeded`) 메시지를 받으면 사용자에게 즉시 보고하고, 댓글 안에 명시된 **언제 풀리는지** (예: "59 minutes and 55 seconds") 와 함께 알린다.
+   - 한도가 풀린 후에는 사용자가 별도 명령하지 않아도 다시 `@coderabbitai full review` 를 트리거한다.
+2. **리뷰어 자동 지정 (본인 제외)**:
+   - 모든 PR 은 **3 명의 작업자 중 본인을 제외한 두 명** 을 reviewer 로 자동 등록한다.
+   - 작업 시작 시 General Rules #1 에 따라 확인한 현재 사용자 (=PR 작성자) 를 위 매핑에서 빼고 나머지 두 명을 `--reviewer` 인자로 넣는다.
+   - 예: 김동현이 PR 만들면 → `--reviewer "hoTan35,ca5tlechan"`. 이성찬이면 → `--reviewer "hoTan35,ThonApple"`.
+   - 둘 중 **한 명 이상의 approve** 가 머지 조건.
+3. **재리뷰 트리거**:
+   - CodeRabbit fix 커밋을 push 한 후엔 다시 `@coderabbitai review` (증분) 또는 `full review` (전체) 를 명시적으로 트리거한다 — push 직후 시점에 따라 이전 리뷰가 fix 전 코드를 본 경우 누락될 수 있음.
+
+---
+
 ## 📝 작업 로그 (Work Log)
 - 황호찬 2026-04-10 14:00에 `UIBackendSpec.md` 기반으로 `Post`, `FeedItem`, `Spot` 엔티티와 Enum을 작성함.
 - 황호찬 2026-04-10 14:30에 `GET /feeds` 피드 목록 조회 API를 작성함.
