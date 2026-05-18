@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Feed API", description = "피드 관련 API")
 @RestController
-@RequestMapping("/api/feeds")
+@RequestMapping("/api/v1/feeds")
 @RequiredArgsConstructor
 public class FeedController {
 
@@ -50,7 +50,7 @@ public class FeedController {
 	}
 
 	@Operation(summary = "피드 신청")
-	@PostMapping("/{feedId}/apply")
+	@PostMapping("/{feedId}/applications")
 	public ApiResponse<FeedApplicationResponse> applyToFeed(
 			@PathVariable String feedId,
 			@RequestBody FeedApplyRequest request) {
@@ -61,10 +61,24 @@ public class FeedController {
 	}
 
 	@Operation(summary = "피드 신청 취소")
-	@DeleteMapping("/{feedId}/apply")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void cancelApplication(@PathVariable String feedId) {
+	@DeleteMapping("/{feedId}/applications/me")
+	public ApiResponse<?> cancelApplication(@PathVariable String feedId) {
 		feedItemService.cancelApplication(feedId, "dummy-user-id");
+		return ApiResponse.success();
+	}
+
+	@Operation(summary = "피드 북마크 추가")
+	@PostMapping("/{feedId}/bookmark")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void addBookmark(@PathVariable String feedId) {
+		// TODO: bookmark service
+	}
+
+	@Operation(summary = "피드 북마크 제거")
+	@DeleteMapping("/{feedId}/bookmark")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeBookmark(@PathVariable String feedId) {
+		// TODO: bookmark service
 	}
 
 	@Operation(summary = "신청 수락 (작성자 전용) — 펀딩 목표 달성 시 Spot 자동 생성")

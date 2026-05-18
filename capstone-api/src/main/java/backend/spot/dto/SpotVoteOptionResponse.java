@@ -1,5 +1,7 @@
 package backend.spot.dto;
 
+import java.util.List;
+
 import backend.spot.entity.SpotVoteOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -19,16 +21,29 @@ public class SpotVoteOptionResponse {
 	private Long id;
 
 	@Schema(description = "선택지 내용", example = "여의도 한강공원")
-	private String content;
+	private String label;
 
 	@Schema(description = "득표 수", example = "3")
 	private Integer voteCount;
 
+	@Schema(description = "투표한 유저 ID 목록")
+	private List<String> voterIds;
+
 	public static SpotVoteOptionResponse from(SpotVoteOption option) {
 		return SpotVoteOptionResponse.builder()
 			.id(option.getId())
-			.content(option.getContent())
+			.label(option.getContent())
 			.voteCount(option.getVoteCount())
+			.voterIds(List.of())
+			.build();
+	}
+
+	public static SpotVoteOptionResponse of(SpotVoteOption option, List<String> voterIds) {
+		return SpotVoteOptionResponse.builder()
+			.id(option.getId())
+			.label(option.getContent())
+			.voteCount(option.getVoteCount())
+			.voterIds(voterIds)
 			.build();
 	}
 }

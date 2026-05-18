@@ -23,6 +23,8 @@ public class FeedApplicationResponse {
 	private String userId;
 	private String proposal;
 	private FeedApplicationStatus status;
+	private String appliedRole;
+	private Integer deposit;
 	private LocalDateTime createdAt;
 
 	public static FeedApplicationResponse from(FeedApplication application) {

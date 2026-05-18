@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Spot API", description = "스팟 관리 API")
 @RestController
-@RequestMapping("/api/spots")
+@RequestMapping("/api/v1/spots")
 @RequiredArgsConstructor
 public class SpotController {
 
@@ -52,6 +52,30 @@ public class SpotController {
 	@Operation(summary = "스팟 목록 조회")
 	@GetMapping
 	public ResponseEntity<ApiResponse<SpotListResponse>> getSpots(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
+	}
+
+	@Operation(summary = "지도 마커용 스팟 목록", description = "bounds 파라미터로 필터링. TODO: SpotMapItem DTO 구현 후 연결")
+	@GetMapping("/map")
+	public ResponseEntity<ApiResponse<List<SpotResponse>>> getSpotMap(
+		@RequestParam(required = false) Double swLat,
+		@RequestParam(required = false) Double swLng,
+		@RequestParam(required = false) Double neLat,
+		@RequestParam(required = false) Double neLng,
+		@RequestParam(required = false) String category,
+		@RequestParam(required = false) String type,
+		@RequestParam(required = false) String status
+	) {
+		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(0, 100).getData()));
+	}
+
+	@Operation(summary = "스팟 검색")
+	@GetMapping("/search")
+	public ResponseEntity<ApiResponse<SpotListResponse>> searchSpots(
+		@RequestParam String q,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {

@@ -21,10 +21,10 @@ public class SpotChecklistResponse {
 	private Long id;
 
 	@Schema(description = "항목 내용", example = "돗자리 준비")
-	private String content;
+	private String text;
 
 	@Schema(description = "완료 여부", example = "false")
-	private Boolean isDone;
+	private Boolean completed;
 
 	@Schema(description = "등록 일시")
 	private LocalDateTime createdAt;
@@ -32,8 +32,8 @@ public class SpotChecklistResponse {
 	public static SpotChecklistResponse from(SpotChecklist checklist) {
 		return SpotChecklistResponse.builder()
 			.id(checklist.getId())
-			.content(checklist.getContent())
-			.isDone(checklist.getIsDone())
+			.text(checklist.getContent())
+			.completed(checklist.getIsDone())
 			.createdAt(checklist.getCreatedAt())
 			.build();
 	}

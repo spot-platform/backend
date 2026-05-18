@@ -14,4 +14,10 @@ public class FeedApplyRequest {
 
 	@Schema(description = "신청 메시지", example = "저는 공예 경험이 5년 있습니다.")
 	private String proposal;
+
+	@Schema(description = "신청 역할 (SUPPORTER | PARTNER)", example = "SUPPORTER")
+	private String role;
+
+	@Schema(description = "보증금", example = "10000")
+	private Integer deposit;
 }
