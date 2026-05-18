@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "FeedItem 상세 응답 DTO")
+@Schema(description = "FeedItem 상세 응답 DTO", allOf = {FeedItemResponse.class})
 public class FeedDetailResponse extends FeedItemResponse {
 
 	@Schema(description = "계획")
