@@ -48,15 +48,28 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 	 * <p>본인이 보낸 메시지는 unread 에서 제외한다 — 메시지를 보낸 직후 본인 방의
 	 * unreadCount 가 1 로 뜨는 카운트 오작동 방지. read 마커는 클라이언트가 read 엔드포인트를
 	 * 호출할 때만 advance 하지만, 그 사이에도 본인 메시지가 자기 자신에게 unread 로 잡혀선 안 됨.
+	 *
+	 * <p>차단 필터: PERSONAL 방에 한해, 차단 row 의 createdAt 이후 메시지는 unread 카운트에서 제외한다.
+	 * GROUP 방은 차단 정책 외 — 차단 row 가 있어도 메시지는 정상 카운트된다.
 	 */
 	@Query("""
 		select m.chatRoomId, count(m.id)
-		from ChatMessage m, ChatRoomMember mb
+		from ChatMessage m, ChatRoomMember mb, ChatRoom r
 		where mb.userId = :userId
 			and mb.chatRoomId = m.chatRoomId
+			and r.id = m.chatRoomId
 			and m.chatRoomId in :roomIds
 			and m.id > coalesce(mb.lastReadMessageId, 0)
 			and m.senderId <> :userId
+			and not (
+				r.type = backend.chat.entity.ChatRoomType.PERSONAL
+				and exists (
+					select 1 from ChatBlock b
+					where b.blockerId = :userId
+						and b.blockedId = m.senderId
+						and b.createdAt < m.createdAt
+				)
+			)
 		group by m.chatRoomId
 		""")
 	List<Object[]> countUnreadByUserAndRoomIds(

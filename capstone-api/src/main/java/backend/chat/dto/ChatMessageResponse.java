@@ -30,19 +30,34 @@ public class ChatMessageResponse {
 	@Schema(description = "메시지 분류 (USER / SYSTEM). SYSTEM 은 \"OO 님이 나갔습니다\" 등 서버 생성 안내", example = "USER")
 	private ChatMessageType type;
 
-	@Schema(description = "메시지 내용")
+	@Schema(description = "메시지 내용. 차단된 발신자의 메시지는 placeholder 로 대체됨", example = "안녕하세요")
 	private String content;
+
+	@Schema(description = "본 메시지가 차단된 발신자의 메시지인지 여부. true 면 content 는 placeholder", example = "false")
+	private Boolean blocked;
 
 	@Schema(description = "전송 일시")
 	private LocalDateTime createdAt;
 
+	private static final String BLOCKED_PLACEHOLDER = "차단한 사용자의 메시지입니다.";
+
 	public static ChatMessageResponse from(ChatMessage message) {
+		return from(message, false);
+	}
+
+	/**
+	 * 차단 여부를 반영해 응답을 빌드. blocked=true 면 content 를 placeholder 로 갈아치우고
+	 * {@code blocked} 플래그를 true 로 설정한다. senderId/type/createdAt 은 원본 그대로 유지하여
+	 * 클라이언트가 흐름 (시간 위치, 누가 보냈는지) 을 끊지 않고 렌더할 수 있도록 한다.
+	 */
+	public static ChatMessageResponse from(ChatMessage message, boolean blocked) {
 		return ChatMessageResponse.builder()
 			.id(message.getId())
 			.chatRoomId(message.getChatRoomId())
 			.senderId(message.getSenderId())
 			.type(message.getType())
-			.content(message.getContent())
+			.content(blocked ? BLOCKED_PLACEHOLDER : message.getContent())
+			.blocked(blocked)
 			.createdAt(message.getCreatedAt())
 			.build();
 	}

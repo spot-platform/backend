@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
+import backend.chat.dto.CreateChatBlockRequest;
 import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
@@ -198,6 +200,48 @@ public class ChatController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		chatService.leaveRoom(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	// ─── 차단 (Block) ─────────────────────────────
+
+	@Operation(
+		summary = "내가 차단한 유저 목록",
+		description = "본인이 차단한 유저 목록을 최신순으로 반환합니다. 닉네임이 함께 제공됩니다."
+	)
+	@GetMapping("/blocks")
+	public ResponseEntity<ApiResponse<List<ChatBlockResponse>>> getBlocks(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getBlocks(currentUserId(userDetails))));
+	}
+
+	@Operation(
+		summary = "유저 차단",
+		description = "지정한 유저를 차단합니다 (멱등 — 이미 차단된 경우 기존 row 반환). "
+			+ "차단 후 PERSONAL 방의 새 메시지는 placeholder 로 가려지고, 두 유저 간 새 PERSONAL 방 시작은 차단됩니다 (CH009). "
+			+ "GROUP 방 메시지는 영향 없음."
+	)
+	@PostMapping("/blocks")
+	public ResponseEntity<ApiResponse<ChatBlockResponse>> blockUser(
+		@Valid @RequestBody CreateChatBlockRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.blockUser(currentUserId(userDetails), request.getUserId())
+		));
+	}
+
+	@Operation(
+		summary = "유저 차단 해제",
+		description = "차단을 해제합니다. 차단한 적 없는 유저를 해제해도 멱등 no-op (200)."
+	)
+	@DeleteMapping("/blocks/{userId}")
+	public ResponseEntity<ApiResponse<Void>> unblockUser(
+		@PathVariable String userId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.unblockUser(currentUserId(userDetails), userId);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 

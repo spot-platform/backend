@@ -45,6 +45,9 @@ public enum ErrorCode {
 	CHAT_PERSONAL_REQUIRES_PARTNER(HttpStatus.BAD_REQUEST, "CH006", "Personal chat requires a partnerId"),
 	CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CH007", "Chat message not found"),
 	CHAT_MESSAGE_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "CH008", "Message does not belong to this chat room"),
+	CHAT_BLOCKED_BETWEEN_USERS(HttpStatus.FORBIDDEN, "CH009", "Personal chat is blocked between the two users"),
+	CHAT_BLOCK_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "CH010", "Block target user not found"),
+	CHAT_SELF_BLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH011", "Cannot block yourself"),
 
 	// User
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),

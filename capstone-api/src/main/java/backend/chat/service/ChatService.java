@@ -1,5 +1,6 @@
 package backend.chat.service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
@@ -28,6 +30,8 @@ import backend.chat.entity.ChatMessageType;
 import backend.chat.entity.ChatRoom;
 import backend.chat.entity.ChatRoomMember;
 import backend.chat.entity.ChatRoomType;
+import backend.chat.entity.ChatBlock;
+import backend.chat.repository.ChatBlockRepository;
 import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatRoomRepository;
@@ -47,6 +51,7 @@ public class ChatService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final ChatRoomMemberRepository chatRoomMemberRepository;
+	private final ChatBlockRepository chatBlockRepository;
 	private final SseEmitterService sseEmitterService;
 	private final SpotRepository spotRepository;
 	private final UserRepository userRepository;
@@ -132,6 +137,12 @@ public class ChatService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		UserEntity partner = userRepository.findById(partnerId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_PARTNER_NOT_FOUND));
+
+		// 양방향 차단 검증 — 한쪽이라도 차단 중이면 1:1 시작 불가.
+		// 이미 존재하는 방에 다시 접근하는 경우도 막아, 차단 상태에서 새 메시지를 보낼 수 없도록 한다.
+		if (chatBlockRepository.existsBetween(me.getId(), partner.getId())) {
+			throw new BusinessException(ErrorCode.CHAT_BLOCKED_BETWEEN_USERS);
+		}
 
 		ChatRoom room = lookupPersonalRoom(me.getId(), partner.getId());
 		if (room == null) {
@@ -391,7 +402,7 @@ public class ChatService {
 
 	@Transactional(readOnly = true)
 	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size, String currentUserId) {
-		findRoomOrThrow(roomId);
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
 
 		PageRequest pageRequest = PageRequest.of(0, size + 1); // +1 로 hasMore 판단
@@ -403,11 +414,37 @@ public class ChatService {
 			messages = chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(roomId, cursor, pageRequest);
 		}
 
+		// 차단 매핑 — PERSONAL 방에서만 본인 시점의 차단 정보를 적용 (Q2/Q5 정책).
+		// 메시지 row 자체는 그대로 두고 응답 DTO 에서 placeholder 로 가린다 (cursor 무결성 보존).
+		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
+
 		List<ChatMessageResponse> responses = messages.stream()
-			.map(ChatMessageResponse::from)
+			.map(m -> ChatMessageResponse.from(m, isMessageBlocked(m, blockedSinceBySenderId)))
 			.toList();
 
 		return ChatMessageListResponse.of(responses, size);
+	}
+
+	/**
+	 * PERSONAL 방에서 본인이 차단한 발신자별 차단 시점 매핑.
+	 * GROUP 방이거나 비인증 호출이면 빈 맵 반환 → 차단 필터 자동 비활성.
+	 */
+	private Map<String, LocalDateTime> resolveBlockedSinceForRoom(ChatRoom room, String currentUserId) {
+		if (room.getType() != ChatRoomType.PERSONAL
+			|| currentUserId == null || currentUserId.isBlank()) {
+			return Map.of();
+		}
+		return chatBlockRepository.findByBlockerIdOrderByCreatedAtDesc(currentUserId).stream()
+			.collect(Collectors.toMap(ChatBlock::getBlockedId, ChatBlock::getCreatedAt));
+	}
+
+	/** 메시지 발신자가 차단되어 있고, 메시지가 차단 시점 이후에 작성되었는지. */
+	private boolean isMessageBlocked(ChatMessage message, Map<String, LocalDateTime> blockedSinceBySenderId) {
+		if (blockedSinceBySenderId.isEmpty()) {
+			return false;
+		}
+		LocalDateTime blockedSince = blockedSinceBySenderId.get(message.getSenderId());
+		return blockedSince != null && blockedSince.isBefore(message.getCreatedAt());
 	}
 
 	/**
@@ -640,5 +677,85 @@ public class ChatService {
 			return null;
 		}
 		return userRepository.findById(currentUserId).orElse(null);
+	}
+
+	// ─────────────────────────────────────────────
+	// 차단 (Block)
+	// ─────────────────────────────────────────────
+
+	/**
+	 * 본인이 차단한 유저 목록을 최신순으로 반환.
+	 * 닉네임은 함께 조회되어 응답에 채워진다 (deleted user 는 null).
+	 */
+	@Transactional(readOnly = true)
+	public List<ChatBlockResponse> getBlocks(String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		List<ChatBlock> blocks = chatBlockRepository.findByBlockerIdOrderByCreatedAtDesc(currentUserId);
+		if (blocks.isEmpty()) {
+			return List.of();
+		}
+		Set<String> blockedIds = blocks.stream().map(ChatBlock::getBlockedId).collect(Collectors.toSet());
+		Map<String, UserEntity> usersById = userRepository.findAllById(blockedIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		return blocks.stream()
+			.map(b -> ChatBlockResponse.from(b, usersById.get(b.getBlockedId())))
+			.toList();
+	}
+
+	/**
+	 * 유저를 차단. 멱등 — 이미 차단된 상태면 기존 row 를 반환한다.
+	 *
+	 * <p>차단 효과:
+	 * <ul>
+	 *   <li>이 호출 이후 보내진 메시지부터 PERSONAL 방에서 placeholder 로 가려진다 (Q2 정책).</li>
+	 *   <li>새 PERSONAL 방 시작 시 양방향 검증으로 막힌다 ({@link #createPersonalRoom}).</li>
+	 *   <li>GROUP 방 메시지는 영향 없음 (Q5 정책).</li>
+	 * </ul>
+	 */
+	public ChatBlockResponse blockUser(String currentUserId, String targetUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		if (targetUserId == null || targetUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.CHAT_BLOCK_TARGET_NOT_FOUND);
+		}
+		if (Objects.equals(currentUserId, targetUserId)) {
+			throw new BusinessException(ErrorCode.CHAT_SELF_BLOCK_NOT_ALLOWED);
+		}
+
+		UserEntity target = userRepository.findById(targetUserId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_BLOCK_TARGET_NOT_FOUND));
+
+		ChatBlock block = chatBlockRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId)
+			.orElseGet(() -> {
+				try {
+					return chatBlockRepository.save(
+						ChatBlock.builder()
+							.blockerId(currentUserId)
+							.blockedId(targetUserId)
+							.build()
+					);
+				} catch (DataIntegrityViolationException race) {
+					// 동시 차단 — UNIQUE (blocker, blocked) 가 잡고, 안전망으로 재조회.
+					return chatBlockRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId)
+						.orElseThrow(() -> race);
+				}
+			});
+		return ChatBlockResponse.from(block, target);
+	}
+
+	/**
+	 * 차단 해제. 차단한 적 없는 유저를 해제해도 멱등 no-op (200 OK).
+	 */
+	public void unblockUser(String currentUserId, String targetUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		if (targetUserId == null || targetUserId.isBlank()) {
+			return;
+		}
+		chatBlockRepository.deleteByBlockerIdAndBlockedId(currentUserId, targetUserId);
 	}
 }
