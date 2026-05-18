@@ -310,10 +310,13 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 		ChatRoom room = findRoomOrThrow(roomId);
-		assertMembership(roomId, currentUserId);
 
-		// 멤버 row 제거 — UNIQUE (room, user) 라 한 row 만 영향받음
-		chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+		// delete 반환값으로 멤버십 검증 — assertMembership 선행 후 delete 하는 패턴은
+		// concurrent leave 시 두 요청이 모두 assert 를 통과해 SYSTEM 메시지를 이중 발사함.
+		long deleted = chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+		if (deleted == 0) {
+			throw new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED);
+		}
 
 		if (room.getType() == ChatRoomType.GROUP) {
 			broadcastLeaveSystemMessage(room, currentUserId);
@@ -458,8 +461,21 @@ public class ChatService {
 	}
 
 	public ChatMessageResponse sendMessage(Long roomId, SendMessageRequest request, String currentUserId) {
-		findRoomOrThrow(roomId);
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
+
+		// PERSONAL 방은 메시지 전송 시점에도 차단 검증 — createPersonalRoom 만 막으면
+		// 차단 이전에 존재하던 방으로는 계속 메시지를 보낼 수 있는 반쪽짜리 차단이 됨.
+		if (room.getType() == ChatRoomType.PERSONAL && currentUserId != null) {
+			String partnerId = chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+				.map(ChatRoomMember::getUserId)
+				.filter(uid -> !Objects.equals(uid, currentUserId))
+				.findFirst()
+				.orElse(null);
+			if (partnerId != null && chatBlockRepository.existsBetween(currentUserId, partnerId)) {
+				throw new BusinessException(ErrorCode.CHAT_BLOCKED_BETWEEN_USERS);
+			}
+		}
 
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
