@@ -48,6 +48,7 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
+	// SSE 연결 타임아웃은 클라이언트가 이미 연결을 끊은 정상 종료 시그널 — 응답 불필요
 	@ExceptionHandler(AsyncRequestTimeoutException.class)
 	protected void handleAsyncRequestTimeout() {
 	}

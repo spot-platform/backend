@@ -136,13 +136,13 @@ public class PostService {
 	@Transactional(readOnly = true)
 	public PostResponse getPost(String postId) {
 		Post post = postRepository.findByIdAndDeletedFalse(postId)
-				.orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. id=" + postId));
+				.orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 		return PostResponse.from(post);
 	}
 
 	public void deletePost(String postId) {
 		Post post = postRepository.findByIdAndDeletedFalse(postId)
-				.orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. id=" + postId));
+				.orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
 		post.softDelete();
 
