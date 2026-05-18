@@ -132,4 +132,6 @@
 
 - 김동현 2026-05-14 에 Spot/Chat 도메인 잔여 dummy-user-id 5곳(createSpot, uploadFile, createNote, sendMessage 등)을 `@AuthenticationPrincipal` 기반 currentUserId 로 일괄 교체하고, PR #15 caveat 였던 SpotVoteAnswer unique constraint 마이그레이션을 처리함. `(vote_id, user_id) → (vote_id, user_id, option_id)` 로 의미를 변경하여 multiSelect 투표를 실제로 동작하게 하였으며, `castVote` 에 단일선택/다중선택 분기 로직(단일선택 시 이전 답변 삭제 + 카운트 원자적 감소 → 표 변경 가능)과 `decrementVoteCount` 음수 가드를 추가함. PostgreSQL 수동 마이그레이션 스크립트(`docs/migrations/2026-05-14_spot_vote_answer_multiselect.sql`) 동반. ChatRoomMember 엔티티 도입(진짜 unreadCount, PERSONAL 방 partner, 차단/나가기)은 다음 PR.
 
-*마지막 업데이트: 2026-05-14 (김동현)*
+- 황호찬 2026-05-18 에 `GlobalExceptionHandler`에 `IllegalArgumentException`(404)·`IllegalStateException`(400) 핸들러를 추가하여 feed apply 500 버그를 수정, `FeedDetailResponse`에 `@Schema(allOf = {FeedItemResponse.class})`를 추가하여 Swagger 상세 조회 스키마에 부모 클래스 필드가 누락되던 문제를 해결함. FE 핸드오프를 위한 FeedItem DTO 신규 필드(`isRentable`, `myApplicationRole`, `myApplicationDeposit`) 추가 작업을 해야 됨.
+
+*마지막 업데이트: 2026-05-18 (황호찬)*
