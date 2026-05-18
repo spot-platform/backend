@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,6 +29,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "chat_messages")
 public class ChatMessage {
 
+	/**
+	 * SYSTEM 메시지가 사용하는 고정 senderId.
+	 * senderId 컬럼은 NOT NULL 이므로 실제 유저 ID 대신 본 sentinel 값을 저장한다.
+	 * 응답 DTO 는 {@link #type} 으로 분기 — senderId 자체를 검사하지 않아도 된다.
+	 */
+	public static final String SYSTEM_SENDER_ID = "SYSTEM";
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -36,6 +45,11 @@ public class ChatMessage {
 
 	@Column(nullable = false)
 	private String senderId;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	@Builder.Default
+	private ChatMessageType type = ChatMessageType.USER;
 
 	@Column(columnDefinition = "TEXT", nullable = false)
 	private String content;
