@@ -1,6 +1,7 @@
 package backend.post.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import backend.global.common.response.ApiResponse;
+import backend.global.security.CustomUserDetails;
 import backend.post.dto.CreateOfferPostRequest;
 import backend.post.dto.CreateRequestPostRequest;
 import backend.post.dto.PostCompletionResponse;
@@ -41,11 +44,17 @@ public class PostController {
 		postService.deletePost(postId);
 	}
 
-	@Operation(summary = "게시글 매칭 처리 (Spot 생성)", description = "펀딩 목표 달성 시 호출. 게시글을 MATCHED 상태로 변경하고 Spot을 생성합니다.")
+	@Operation(summary = "게시글 매칭 처리 (Spot 생성)", description = "게시글 작성자만 호출 가능. 게시글을 MATCHED 상태로 변경하고 Spot을 생성합니다.")
 	@PostMapping("/{postId}/match")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void matchPost(@PathVariable String postId) {
-		postService.convertToSpot(postId);
+	public void matchPost(
+		@PathVariable String postId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		if (userDetails == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		postService.convertToSpot(postId, userDetails.getUserId());
 	}
 
 	@Operation(summary = "Offer 게시글 등록")

@@ -7,6 +7,8 @@ import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import backend.notification.service.NotificationService;
 import backend.post.dto.CreateOfferPostRequest;
 import backend.post.dto.CreateRequestPostRequest;
@@ -17,7 +19,9 @@ import backend.post.repository.PostRepository;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -148,17 +152,37 @@ public class PostService {
 		}
 	}
 
-	// FeedItemService에서 펀딩 목표 달성 시 호출
+	// FeedItemService에서 펀딩 목표 달성 시 시스템 내부 호출용
 	public void convertToSpot(String postId) {
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. id=" + postId));
+		executeConvertToSpot(post);
+	}
 
+	// 사용자 요청에 의한 호출 — 작성자 본인만 실행 가능
+	public void convertToSpot(String postId, String requesterId) {
+		Post post = postRepository.findById(postId)
+				.orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. id=" + postId));
+
+		if (!post.getAuthorId().equals(requesterId)) {
+			throw new BusinessException(ErrorCode.FORBIDDEN);
+		}
+
+		executeConvertToSpot(post);
+	}
+
+	private void executeConvertToSpot(Post post) {
 		if (post.getStatus() == FeedItemStatus.MATCHED) {
-			return; // 이미 처리됨 (중복 방지)
+			return;
 		}
 
 		post.match();
 		spotRepository.save(Spot.fromPost(post, post.getTitle(), post.getContent(), post.getPointCost()));
-		notificationService.send(post.getAuthorId(), "게시글 '" + post.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
+
+		try {
+			notificationService.send(post.getAuthorId(), "게시글 '" + post.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
+		} catch (Exception e) {
+			log.warn("[notification] Spot 생성 후 알림 전송 실패 - postId={}, error={}", post.getId(), e.getMessage());
+		}
 	}
 }
