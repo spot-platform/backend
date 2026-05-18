@@ -107,8 +107,6 @@ public class SpotService {
 		Spot saved = spotRepository.save(spot);
 
 		// 작성자를 AUTHOR role 의 참가자로 동시 등록.
-		// 이후 matchSpot 이 spot_participants 를 그대로 사용해 채팅 멤버를 채울 수 있도록 일관된
-		// 데이터 모델을 보장한다 (이전에는 author 가 별도 union 으로 합쳐져야 했음).
 		spotParticipantRepository.save(
 			SpotParticipant.builder()
 				.spotId(saved.getId())
@@ -117,6 +115,11 @@ public class SpotService {
 				.state(ParticipantState.ACTIVE)
 				.build()
 		);
+
+		// SPOT 생성 시점(OPEN)에 GROUP 채팅방을 즉시 개설하고 작성자를 첫 멤버로 등록.
+		// 기존에는 MATCHED 전환 시 채팅방을 열었으나, OPEN 상태에서도 토론·조율이 필요하므로
+		// 생성 즉시 채팅방을 보장한다. matchSpot 은 신규 참가자 가입만 처리.
+		chatService.ensureGroupRoomForSpot(saved.getId(), Set.of(authorId));
 
 		return toSpotResponse(saved);
 	}
@@ -165,17 +168,14 @@ public class SpotService {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.match();
 
-		// 매칭 시 GROUP 채팅방을 보장하고 author + 참가자를 자동 가입.
-		// (현재 createSpot 이 author 를 spot_participants 에 자동 등록하지 않으므로
-		//  author 를 별도로 합쳐서 누락을 막는다. 향후 별도 PR 에서
-		//  createSpot 단계에서 author 를 OWNER 로 등록하도록 정리.)
+		// 채팅방은 createSpot 시점에 이미 개설됨. matchSpot 에서는 신규 참가자를 기존 방에 추가만 함.
 		Set<String> memberUserIds = new HashSet<>();
 		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
 			memberUserIds.add(spot.getAuthorId());
 		}
 		spotParticipantRepository.findBySpotId(spotId).stream()
 			.filter(p -> p.getState() == ParticipantState.ACTIVE)
-			.map(p -> p.getUserId())
+			.map(SpotParticipant::getUserId)
 			.filter(uid -> uid != null && !uid.isBlank())
 			.forEach(memberUserIds::add);
 		chatService.ensureGroupRoomForSpot(spotId, memberUserIds);
