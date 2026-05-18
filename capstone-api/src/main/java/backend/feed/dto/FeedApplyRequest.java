@@ -1,5 +1,6 @@
 package backend.feed.dto;
 
+import backend.feed.entity.FeedApplicationRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class FeedApplyRequest {
 	private String proposal;
 
 	@Schema(description = "신청 역할 (SUPPORTER | PARTNER)", example = "SUPPORTER")
-	private String role;
+	private FeedApplicationRole role;
 
 	@Schema(description = "보증금", example = "10000")
 	private Integer deposit;

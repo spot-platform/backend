@@ -50,11 +50,11 @@ public class SpotVoteResponse {
 	private LocalDateTime createdAt;
 
 	public static SpotVoteResponse of(SpotVote vote, List<SpotVoteOptionResponse> options) {
-		return of(vote, options, null, null);
+		return of(vote, options, null, vote.getSpotId());
 	}
 
 	public static SpotVoteResponse of(SpotVote vote, List<SpotVoteOptionResponse> options, List<Long> myVotedOptionIds) {
-		return of(vote, options, myVotedOptionIds, null);
+		return of(vote, options, myVotedOptionIds, vote.getSpotId());
 	}
 
 	public static SpotVoteResponse of(

@@ -80,6 +80,10 @@ public class SpotService {
 	private static final String FALLBACK_USER_ID = "dummy-user-id";
 	private static final String FALLBACK_NICKNAME = "테스트유저";
 
+	private static String resolveUserId(String currentUserId) {
+		return (currentUserId != null && !currentUserId.isBlank()) ? currentUserId : FALLBACK_USER_ID;
+	}
+
 	// ─────────────────────────────────────────────
 	// Spot 기본 CRUD
 	// ─────────────────────────────────────────────
@@ -294,7 +298,7 @@ public class SpotService {
 
 		SpotVote vote = SpotVote.builder()
 			.spotId(spotId)
-			.creatorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.creatorId(resolveUserId(currentUserId))
 			.question(request.getQuestion())
 			.multiSelect(request.isMultiSelect())
 			.build();
@@ -355,7 +359,7 @@ public class SpotService {
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
-		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+		String userId = resolveUserId(currentUserId);
 
 		List<SpotVoteAnswer> myAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
 		Optional<SpotVoteAnswer> existingOnSameOption = myAnswers.stream()
@@ -457,7 +461,7 @@ public class SpotService {
 			}
 		}
 
-		String userId = currentUserId != null && !currentUserId.isBlank() ? currentUserId : FALLBACK_USER_ID;
+		String userId = resolveUserId(currentUserId);
 
 		List<SpotVoteAnswer> currentAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
 		Set<Long> currentOptionIds = currentAnswers.stream()
@@ -575,7 +579,7 @@ public class SpotService {
 	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
-		String uploaderId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+		String uploaderId = resolveUserId(currentUserId);
 		SpotFile file = SpotFile.builder()
 			.spotId(spotId)
 			.uploaderId(uploaderId)
@@ -626,7 +630,7 @@ public class SpotService {
 	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
-		String authorId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+		String authorId = resolveUserId(currentUserId);
 		SpotNote note = SpotNote.builder()
 			.spotId(spotId)
 			.authorId(authorId)

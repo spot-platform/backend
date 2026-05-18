@@ -63,11 +63,12 @@ public class NotificationController {
 		notificationService.markAsRead(currentUserId(userDetails), notificationId);
 	}
 
-	@Operation(summary = "전체 알림 읽음 처리")
+	@Operation(summary = "전체 알림 읽음 처리 (미구현)")
 	@PostMapping("/read-all")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void markAllAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
-		// TODO: implement markAllAsRead in NotificationService
+		currentUserId(userDetails);
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"전체 알림 읽음 처리는 아직 구현되지 않았습니다.");
 	}
 
 	private String currentUserId(CustomUserDetails userDetails) {

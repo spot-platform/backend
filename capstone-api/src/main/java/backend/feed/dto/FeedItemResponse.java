@@ -1,5 +1,6 @@
 package backend.feed.dto;
 
+import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedCategory;
@@ -69,6 +70,15 @@ public class FeedItemResponse {
 
 	@Schema(description = "내 신청 상태")
 	private FeedApplicationStatus myApplicationStatus;
+
+	@Schema(description = "내 신청 역할 (SUPPORTER | PARTNER)")
+	private FeedApplicationRole myApplicationRole;
+
+	@Schema(description = "내 신청 보증금")
+	private Integer myApplicationDeposit;
+
+	@Schema(description = "대여 가능 여부", example = "false")
+	private Boolean isRentable;
 
 	@Schema(description = "작성자 프로필")
 	private FeedAuthorProfile authorProfile;

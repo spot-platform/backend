@@ -135,6 +135,8 @@ public class FeedItemService {
 				.userId(userId)
 				.userNickname(userNickname)
 				.proposal(request.getProposal())
+				.appliedRole(request.getRole())
+				.deposit(request.getDeposit())
 				.build();
 
 		return FeedApplicationResponse.from(feedApplicationRepository.save(application));

@@ -2,8 +2,10 @@ package backend.spot.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -58,7 +60,7 @@ public class SpotController {
 		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
 	}
 
-	@Operation(summary = "지도 마커용 스팟 목록", description = "bounds 파라미터로 필터링. TODO: SpotMapItem DTO 구현 후 연결")
+	@Operation(summary = "지도 마커용 스팟 목록 (미구현)", description = "bounds/필터 파라미터 처리는 추후 구현 예정")
 	@GetMapping("/map")
 	public ResponseEntity<ApiResponse<List<SpotResponse>>> getSpotMap(
 		@RequestParam(required = false) Double swLat,
@@ -69,17 +71,19 @@ public class SpotController {
 		@RequestParam(required = false) String type,
 		@RequestParam(required = false) String status
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(0, 100).getData()));
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"지도 bounds 기반 조회는 아직 구현되지 않았습니다.");
 	}
 
-	@Operation(summary = "스팟 검색")
+	@Operation(summary = "스팟 검색 (미구현)")
 	@GetMapping("/search")
 	public ResponseEntity<ApiResponse<SpotListResponse>> searchSpots(
 		@RequestParam String q,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"스팟 검색은 아직 구현되지 않았습니다.");
 	}
 
 	@Operation(summary = "스팟 생성")

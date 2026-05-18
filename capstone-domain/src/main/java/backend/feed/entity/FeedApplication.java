@@ -48,6 +48,13 @@ public class FeedApplication {
 	private String proposal;
 
 	@Enumerated(EnumType.STRING)
+	@Column
+	private FeedApplicationRole appliedRole;
+
+	@Column
+	private Integer deposit;
+
+	@Enumerated(EnumType.STRING)
 	@Builder.Default
 	@Column(nullable = false)
 	private FeedApplicationStatus status = FeedApplicationStatus.APPLIED;
