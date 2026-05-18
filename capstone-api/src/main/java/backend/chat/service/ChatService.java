@@ -299,10 +299,14 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 		ChatRoom room = findRoomOrThrow(roomId);
-		assertMembership(roomId, currentUserId);
 
-		// 멤버 row 제거 — UNIQUE (room, user) 라 한 row 만 영향받음
-		chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+		// delete 자체가 멤버십 검증을 겸한다 — 비멤버면 0 row 삭제됨.
+		// assertMembership 선행 후 delete 하는 패턴은 concurrent leave 시 두 요청이
+		// 모두 assert 를 통과한 뒤 SYSTEM 메시지를 이중 발사하는 race condition 을 유발하므로 제거.
+		long deleted = chatRoomMemberRepository.deleteByChatRoomIdAndUserId(roomId, currentUserId);
+		if (deleted == 0) {
+			throw new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED);
+		}
 
 		if (room.getType() == ChatRoomType.GROUP) {
 			broadcastLeaveSystemMessage(room, currentUserId);
