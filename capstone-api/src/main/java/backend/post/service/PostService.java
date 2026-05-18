@@ -154,14 +154,14 @@ public class PostService {
 
 	// FeedItemService에서 펀딩 목표 달성 시 시스템 내부 호출용
 	public void convertToSpot(String postId) {
-		Post post = postRepository.findById(postId)
+		Post post = postRepository.findByIdAndDeletedFalseWithLock(postId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 		executeConvertToSpot(post);
 	}
 
 	// 사용자 요청에 의한 호출 — 작성자 본인만 실행 가능
 	public void convertToSpot(String postId, String requesterId) {
-		Post post = postRepository.findById(postId)
+		Post post = postRepository.findByIdAndDeletedFalseWithLock(postId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
 		if (!post.getAuthorId().equals(requesterId)) {
