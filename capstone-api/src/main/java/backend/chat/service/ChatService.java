@@ -399,30 +399,39 @@ public class ChatService {
 	 * 채팅방의 메시지를 커서 기반 페이지네이션으로 조회합니다. 멤버만 가능.
 	 */
 	@Transactional(readOnly = true)
-	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size) {
+	public ChatMessageListResponse.Result getMessages(Long roomId, Long cursor, int size) {
 		return getMessages(roomId, cursor, size, null);
 	}
 
 	@Transactional(readOnly = true)
-	public ChatMessageListResponse getMessages(Long roomId, Long cursor, int size, String currentUserId) {
+	public ChatMessageListResponse.Result getMessages(Long roomId, Long cursor, int size, String currentUserId) {
 		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
 
-		PageRequest pageRequest = PageRequest.of(0, size + 1); // +1 로 hasMore 판단
-		List<ChatMessage> messages;
+		PageRequest pageRequest = PageRequest.of(0, size + 1);
+		List<ChatMessage> messages = cursor == null
+			? chatMessageRepository.findByChatRoomIdOrderByIdDesc(roomId, pageRequest)
+			: chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(roomId, cursor, pageRequest);
 
-		if (cursor == null) {
-			messages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(roomId, pageRequest);
-		} else {
-			messages = chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(roomId, cursor, pageRequest);
-		}
+		// 발신자 닉네임 배치 조회 — FRONTEND.md 계약: authorName 필드 필요
+		Set<String> senderIds = messages.stream()
+			.map(ChatMessage::getSenderId)
+			.filter(id -> id != null && !ChatMessage.SYSTEM_SENDER_ID.equals(id))
+			.collect(Collectors.toSet());
+		Map<String, String> nicknameById = senderIds.isEmpty()
+			? Map.of()
+			: userRepository.findAllById(senderIds).stream()
+				.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
 
-		// 차단 매핑 — PERSONAL 방에서만 본인 시점의 차단 정보를 적용 (Q2/Q5 정책).
-		// 메시지 row 자체는 그대로 두고 응답 DTO 에서 placeholder 로 가린다 (cursor 무결성 보존).
+		// 차단 매핑 — PERSONAL 방에서만 적용
 		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
 
 		List<ChatMessageResponse> responses = messages.stream()
-			.map(m -> ChatMessageResponse.from(m, isMessageBlocked(m, blockedSinceBySenderId)))
+			.map(m -> ChatMessageResponse.from(
+				m,
+				nicknameById.get(m.getSenderId()),
+				isMessageBlocked(m, blockedSinceBySenderId)
+			))
 			.toList();
 
 		return ChatMessageListResponse.of(responses, size);
@@ -477,13 +486,16 @@ public class ChatService {
 			}
 		}
 
+		String authorName = currentUserId == null ? null
+			: userRepository.findById(currentUserId).map(UserEntity::getNickname).orElse(null);
+
 		ChatMessage message = ChatMessage.builder()
 			.chatRoomId(roomId)
 			.senderId(currentUserId)
 			.content(request.getContent())
 			.build();
 
-		ChatMessageResponse response = ChatMessageResponse.from(chatMessageRepository.save(message));
+		ChatMessageResponse response = ChatMessageResponse.from(chatMessageRepository.save(message), authorName, false);
 
 		// 트랜잭션 커밋 이후에 SSE 브로드캐스트 (phantom message 방지)
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -577,6 +589,11 @@ public class ChatService {
 		return chatRoomRepository.findById(roomId)
 			.filter(r -> !r.isDeleted())
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+	}
+
+	/** Controller 에서 SSE 구독 전 멤버십 선검증 용도로 호출. */
+	public void assertMembershipPublic(Long roomId, String currentUserId) {
+		assertMembership(roomId, currentUserId);
 	}
 
 	private void assertMembership(Long roomId, String currentUserId) {

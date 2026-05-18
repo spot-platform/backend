@@ -9,43 +9,52 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * FRONTEND.md 계약:
+ * GET /chat/rooms/{roomId}/messages
+ *   response: { data: ChatMessage[], meta: { nextCursor?: string, hasNext: boolean } }
+ *
+ * ApiResponse.success(messages, meta) 형태로 반환하므로 이 DTO 는 meta 전용.
+ * 메시지 배열 자체는 List<ChatMessageResponse> 로 직접 ApiResponse.data 에 들어간다.
+ */
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "채팅 메시지 목록 응답 DTO (커서 기반 페이지네이션)")
+@Schema(description = "채팅 메시지 목록 커서 메타")
 public class ChatMessageListResponse {
 
-	@Schema(description = "메시지 목록 (최신순 → 오래된 순으로 정렬하여 렌더링)")
-	private List<ChatMessageResponse> messages;
-
-	@Schema(description = "다음 페이지 조회용 커서 (마지막 메시지 ID, 없으면 null)")
-	private Long nextCursor;
+	@Schema(description = "다음 페이지 조회용 커서 (마지막 메시지 ID 문자열, 더 없으면 null)", example = "\"42\"")
+	private String nextCursor;
 
 	@Schema(description = "이전 메시지가 더 있는지 여부")
-	private boolean hasMore;
+	private boolean hasNext;
 
 	/**
-	 * N+1 패턴으로 hasMore 를 정확히 판단합니다.
-	 * ChatService 는 size+1 개를 조회하고, 여기서 size 개를 초과하면 hasMore=true 로 확정합니다.
-	 * 정확히 size 개만 왔을 경우 마지막 페이지로 판단하여 불필요한 round-trip 을 방지합니다.
+	 * size+1 개 조회 결과에서 hasNext 판단 후 meta 생성.
+	 * 실제 메시지 목록(result)은 별도로 반환.
 	 *
-	 * @param messages      실제 조회된 메시지 목록 (최대 size+1 개)
-	 * @param requestedSize 클라이언트가 요청한 페이지 크기
+	 * @param messages      service 에서 size+1 개 조회한 전체 결과
+	 * @param requestedSize 클라이언트 요청 크기
+	 * @return [trimmedMessages, meta] 형태로 쌍 반환
 	 */
-	public static ChatMessageListResponse of(List<ChatMessageResponse> messages, int requestedSize) {
-		boolean hasMore = messages.size() > requestedSize;
-
-		List<ChatMessageResponse> result = hasMore
+	public static Result of(List<ChatMessageResponse> messages, int requestedSize) {
+		boolean hasNext = messages.size() > requestedSize;
+		List<ChatMessageResponse> data = hasNext
 			? messages.subList(0, requestedSize)
 			: messages;
+		String nextCursor = hasNext
+			? String.valueOf(data.get(data.size() - 1).getId())
+			: null;
 
-		Long nextCursor = hasMore ? result.get(result.size() - 1).getId() : null;
-
-		return ChatMessageListResponse.builder()
-			.messages(result)
+		ChatMessageListResponse meta = ChatMessageListResponse.builder()
 			.nextCursor(nextCursor)
-			.hasMore(hasMore)
+			.hasNext(hasNext)
 			.build();
+
+		return new Result(data, meta);
+	}
+
+	public record Result(List<ChatMessageResponse> data, ChatMessageListResponse meta) {
 	}
 }

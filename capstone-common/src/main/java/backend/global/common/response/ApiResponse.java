@@ -10,6 +10,7 @@ public class ApiResponse<T> {
 	private int status;
 	private String message;
 	private T data;
+	private Object meta;
 
 	private ApiResponse(int status, String message, T data) {
 		this.status = status;
@@ -17,8 +18,19 @@ public class ApiResponse<T> {
 		this.data = data;
 	}
 
+	private ApiResponse(int status, String message, T data, Object meta) {
+		this.status = status;
+		this.message = message;
+		this.data = data;
+		this.meta = meta;
+	}
+
 	public static <T> ApiResponse<T> success(T data) {
 		return new ApiResponse<>(200, "Success", data);
+	}
+
+	public static <T> ApiResponse<T> success(T data, Object meta) {
+		return new ApiResponse<>(200, "Success", data, meta);
 	}
 
 	public static ApiResponse<Void> success() {

@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Chat API", description = "채팅 API")
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/v1/chat")
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -48,11 +48,13 @@ public class ChatController {
 		summary = "SSE 구독 연결",
 		description = "특정 채팅방에 SSE 실시간 연결을 맺습니다. 연결 후 해당 방에 새 메시지가 오면 즉시 수신됩니다."
 	)
-	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "/rooms/{roomId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter connect(
 		@Parameter(description = "구독할 채팅방 ID", required = true)
-		@RequestParam Long roomId
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
 		return sseEmitterService.subscribe(roomId);
 	}
 
@@ -129,16 +131,16 @@ public class ChatController {
 		description = "cursor 없으면 최신 메시지부터, cursor 있으면 해당 ID 이전 메시지를 size 개 반환합니다."
 	)
 	@GetMapping("/rooms/{roomId}/messages")
-	public ResponseEntity<ApiResponse<ChatMessageListResponse>> getMessages(
+	public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
 		@PathVariable Long roomId,
-		@Parameter(description = "커서 (마지막 메시지 ID, 최초 조회 시 생략)")
+		@Parameter(description = "커서 (마지막 메시지 ID 문자열, 최초 조회 시 생략)")
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "30") int size,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails))
-		));
+		ChatMessageListResponse.Result result =
+			chatService.getMessages(roomId, cursor, size, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(result.data(), result.meta()));
 	}
 
 	@Operation(
