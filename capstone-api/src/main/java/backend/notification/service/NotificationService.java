@@ -43,4 +43,9 @@ public class NotificationService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND));
 		notification.markAsRead();
 	}
+
+	public void markAllAsRead(String userId) {
+		notificationRepository.findByUserIdAndIsReadFalse(userId)
+			.forEach(Notification::markAsRead);
+	}
 }
