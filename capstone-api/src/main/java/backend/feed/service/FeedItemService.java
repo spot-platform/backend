@@ -102,9 +102,13 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void deleteFeedItem(String feedId) {
+	public void deleteFeedItem(String feedId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+
+		if (!feedItem.getAuthorId().equals(requesterId)) {
+			throw new IllegalStateException("게시글 작성자만 삭제할 수 있습니다.");
+		}
 
 		feedItem.softDelete();
 

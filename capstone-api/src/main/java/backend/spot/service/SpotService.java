@@ -77,37 +77,25 @@ public class SpotService {
 	private final UserRepository userRepository;
 	private final ChatService chatService;
 
-	private static final String FALLBACK_USER_ID = "dummy-user-id";
-	private static final String FALLBACK_NICKNAME = "테스트유저";
-
 	private static String resolveUserId(String currentUserId) {
-		return (currentUserId != null && !currentUserId.isBlank()) ? currentUserId : FALLBACK_USER_ID;
+		return currentUserId;
 	}
 
 	// ─────────────────────────────────────────────
 	// Spot 기본 CRUD
 	// ─────────────────────────────────────────────
 
-	/**
-	 * 스팟을 생성합니다.
-	 *
-	 * <p>인증된 유저의 userId 와 nickname 을 작성자 정보로 저장합니다.
-	 * 미인증 호출(인증 미적용 단계)에는 fallback 더미 값을 사용합니다.
-	 * authorNickname 은 스냅샷이라 작성 시점 닉네임을 보존합니다.
-	 */
 	public SpotResponse createSpot(CreateSpotRequest request, String currentUserId) {
-		UserEntity author = currentUserId == null ? null : userRepository.findById(currentUserId).orElse(null);
+		UserEntity author = userRepository.findById(currentUserId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-		// authorId/authorNickname 을 항상 같은 source(author 객체) 에서 도출.
-		// userRepository.findById 가 miss 했을 때 한쪽만 실제 ID 가 들어가는 불일치를 방지.
-		String authorId = author != null ? author.getId() : FALLBACK_USER_ID;
 		Spot spot = Spot.builder()
 			.type(request.getType())
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.pointCost(request.getPointCost())
-			.authorId(authorId)
-			.authorNickname(author != null ? author.getNickname() : FALLBACK_NICKNAME)
+			.authorId(author.getId())
+			.authorNickname(author.getNickname())
 			.build();
 
 		Spot saved = spotRepository.save(spot);
@@ -116,16 +104,14 @@ public class SpotService {
 		spotParticipantRepository.save(
 			SpotParticipant.builder()
 				.spotId(saved.getId())
-				.userId(authorId)
+				.userId(author.getId())
 				.role(ParticipantRole.AUTHOR)
 				.state(ParticipantState.ACTIVE)
 				.build()
 		);
 
 		// SPOT 생성 시점(OPEN)에 GROUP 채팅방을 즉시 개설하고 작성자를 첫 멤버로 등록.
-		// 기존에는 MATCHED 전환 시 채팅방을 열었으나, OPEN 상태에서도 토론·조율이 필요하므로
-		// 생성 즉시 채팅방을 보장한다. matchSpot 은 신규 참가자 가입만 처리.
-		chatService.ensureGroupRoomForSpot(saved.getId(), Set.of(authorId));
+		chatService.ensureGroupRoomForSpot(saved.getId(), Set.of(author.getId()));
 
 		return toSpotResponse(saved);
 	}

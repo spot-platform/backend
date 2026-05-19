@@ -59,13 +59,25 @@ public class PostController {
 
 	@Operation(summary = "Offer 게시글 등록")
 	@PostMapping("/offer")
-	public ApiResponse<PostCompletionResponse> createOfferPost(@RequestBody CreateOfferPostRequest request) {
-		return ApiResponse.success(postService.createOfferPost(request));
+	public ApiResponse<PostCompletionResponse> createOfferPost(
+		@RequestBody CreateOfferPostRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		if (userDetails == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return ApiResponse.success(postService.createOfferPost(request, userDetails.getUserId(), userDetails.getNickname()));
 	}
 
 	@Operation(summary = "Request 게시글 등록")
 	@PostMapping("/request")
-	public ApiResponse<PostCompletionResponse> createRequestPost(@RequestBody CreateRequestPostRequest request) {
-		return ApiResponse.success(postService.createRequestPost(request));
+	public ApiResponse<PostCompletionResponse> createRequestPost(
+		@RequestBody CreateRequestPostRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		if (userDetails == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return ApiResponse.success(postService.createRequestPost(request, userDetails.getUserId(), userDetails.getNickname()));
 	}
 }

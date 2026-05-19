@@ -2,6 +2,7 @@ package backend.chat.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import backend.chat.dto.ChatBlockResponse;
@@ -247,11 +249,10 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	/**
-	 * @AuthenticationPrincipal 으로 받은 CustomUserDetails 에서 userId 를 꺼낸다.
-	 * 비인증 (Anonymous 토큰) 의 경우 Spring 이 null 을 주입하므로 null 안전.
-	 */
 	private String currentUserId(CustomUserDetails userDetails) {
-		return userDetails == null ? null : userDetails.getUserId();
+		if (userDetails == null || userDetails.getUserId() == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return userDetails.getUserId();
 	}
 }

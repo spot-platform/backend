@@ -32,11 +32,11 @@ public class PostService {
 	private final SpotRepository spotRepository;
 	private final NotificationService notificationService;
 
-	public PostCompletionResponse createOfferPost(CreateOfferPostRequest request) {
+	public PostCompletionResponse createOfferPost(CreateOfferPostRequest request, String authorId, String authorNickname) {
 		Post post = Post.builder()
 				.type(PostType.OFFER)
-				.authorId("dummy-user-id")
-				.authorNickname("황호찬")
+				.authorId(authorId)
+				.authorNickname(authorNickname)
 				.spotName(request.getSpotName())
 				.title(request.getTitle())
 				.content(request.getContent())
@@ -83,11 +83,11 @@ public class PostService {
 				.build();
 	}
 
-	public PostCompletionResponse createRequestPost(CreateRequestPostRequest request) {
+	public PostCompletionResponse createRequestPost(CreateRequestPostRequest request, String authorId, String authorNickname) {
 		Post post = Post.builder()
 				.type(PostType.REQUEST)
-				.authorId("dummy-user-id")
-				.authorNickname("황호찬")
+				.authorId(authorId)
+				.authorNickname(authorNickname)
 				.spotName(request.getSpotName())
 				.title(request.getTitle())
 				.content(request.getContent())

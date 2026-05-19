@@ -21,6 +21,10 @@ public class CustomUserDetails implements UserDetails {
 		return userEntity.getId();
 	}
 
+	public String getNickname() {
+		return userEntity.getNickname();
+	}
+
 	public String getRole() {
 		return userEntity.getRoleType().name();
 	}
