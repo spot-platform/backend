@@ -25,6 +25,9 @@ public class SpotParticipantResponse {
 	@Schema(description = "유저 ID", example = "user-uuid-string")
 	private String userId;
 
+	@Schema(description = "유저 닉네임", example = "홍길동")
+	private String nickname;
+
 	@Schema(description = "역할 (AUTHOR: 작성자, PARTICIPANT: 참여자)", example = "PARTICIPANT")
 	private ParticipantRole role;
 
@@ -38,6 +41,18 @@ public class SpotParticipantResponse {
 		return SpotParticipantResponse.builder()
 			.id(participant.getId())
 			.userId(participant.getUserId())
+			.nickname(null)
+			.role(participant.getRole())
+			.state(participant.getState())
+			.joinedAt(participant.getJoinedAt())
+			.build();
+	}
+
+	public static SpotParticipantResponse of(SpotParticipant participant, String nickname) {
+		return SpotParticipantResponse.builder()
+			.id(participant.getId())
+			.userId(participant.getUserId())
+			.nickname(nickname)
 			.role(participant.getRole())
 			.state(participant.getState())
 			.joinedAt(participant.getJoinedAt())

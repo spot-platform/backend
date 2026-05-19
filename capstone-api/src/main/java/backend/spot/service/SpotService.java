@@ -2,8 +2,10 @@ package backend.spot.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,10 +38,10 @@ import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
-import backend.spot.entity.SpotParticipant;
 import backend.spot.entity.SpotChecklist;
 import backend.spot.entity.SpotFile;
 import backend.spot.entity.SpotNote;
+import backend.spot.entity.SpotParticipant;
 import backend.spot.entity.SpotSchedule;
 import backend.spot.entity.SpotVote;
 import backend.spot.entity.SpotVoteAnswer;
@@ -77,6 +79,10 @@ public class SpotService {
 
 	private static final String FALLBACK_USER_ID = "dummy-user-id";
 	private static final String FALLBACK_NICKNAME = "테스트유저";
+
+	private static String resolveUserId(String currentUserId) {
+		return (currentUserId != null && !currentUserId.isBlank()) ? currentUserId : FALLBACK_USER_ID;
+	}
 
 	// ─────────────────────────────────────────────
 	// Spot 기본 CRUD
@@ -212,9 +218,12 @@ public class SpotService {
 	public List<SpotParticipantResponse> getParticipants(String spotId) {
 		validateSpotExists(spotId);
 
-		return spotParticipantRepository.findBySpotId(spotId)
-			.stream()
-			.map(SpotParticipantResponse::from)
+		List<SpotParticipant> participants = spotParticipantRepository.findBySpotId(spotId);
+		List<String> userIds = participants.stream().map(SpotParticipant::getUserId).toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(userIds).stream()
+			.collect(Collectors.toMap(u -> u.getId(), u -> u.getNickname()));
+		return participants.stream()
+			.map(p -> SpotParticipantResponse.of(p, nicknameMap.getOrDefault(p.getUserId(), p.getUserId())))
 			.toList();
 	}
 
@@ -264,9 +273,16 @@ public class SpotService {
 		return spotVoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId)
 			.stream()
 			.map(vote -> {
+				List<SpotVoteAnswer> allAnswers = spotVoteAnswerRepository.findByVoteId(vote.getId());
 				List<SpotVoteOptionResponse> options = spotVoteOptionRepository.findByVoteId(vote.getId())
 					.stream()
-					.map(SpotVoteOptionResponse::from)
+					.map(opt -> {
+						List<String> voterIds = allAnswers.stream()
+							.filter(a -> a.getOptionId().equals(opt.getId()))
+							.map(SpotVoteAnswer::getUserId)
+							.toList();
+						return SpotVoteOptionResponse.of(opt, voterIds);
+					})
 					.toList();
 				return SpotVoteResponse.of(vote, options, getMyVotedOptionIds(vote.getId(), currentUserId));
 			})
@@ -282,7 +298,7 @@ public class SpotService {
 
 		SpotVote vote = SpotVote.builder()
 			.spotId(spotId)
-			.creatorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.creatorId(resolveUserId(currentUserId))
 			.question(request.getQuestion())
 			.multiSelect(request.isMultiSelect())
 			.build();
@@ -299,7 +315,7 @@ public class SpotService {
 		List<SpotVoteOption> savedOptions = spotVoteOptionRepository.saveAll(options);
 
 		List<SpotVoteOptionResponse> optionResponses = savedOptions.stream()
-			.map(SpotVoteOptionResponse::from)
+			.map(opt -> SpotVoteOptionResponse.of(opt, List.of()))
 			.toList();
 
 		return SpotVoteResponse.of(savedVote, optionResponses, getMyVotedOptionIds(savedVote.getId(), currentUserId));
@@ -343,7 +359,7 @@ public class SpotService {
 			.filter(o -> o.getVoteId().equals(voteId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
 
-		String userId = currentUserId != null ? currentUserId : FALLBACK_USER_ID;
+		String userId = resolveUserId(currentUserId);
 
 		List<SpotVoteAnswer> myAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
 		Optional<SpotVoteAnswer> existingOnSameOption = myAnswers.stream()
@@ -372,9 +388,16 @@ public class SpotService {
 			spotVoteOptionRepository.incrementVoteCount(optionId);
 		}
 
+		List<SpotVoteAnswer> allAnswers = spotVoteAnswerRepository.findByVoteId(voteId);
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
 			.stream()
-			.map(SpotVoteOptionResponse::from)
+			.map(opt -> {
+				List<String> voterIds = allAnswers.stream()
+					.filter(a -> a.getOptionId().equals(opt.getId()))
+					.map(SpotVoteAnswer::getUserId)
+					.toList();
+				return SpotVoteOptionResponse.of(opt, voterIds);
+			})
 			.toList();
 
 		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
@@ -438,7 +461,7 @@ public class SpotService {
 			}
 		}
 
-		String userId = currentUserId != null && !currentUserId.isBlank() ? currentUserId : FALLBACK_USER_ID;
+		String userId = resolveUserId(currentUserId);
 
 		List<SpotVoteAnswer> currentAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
 		Set<Long> currentOptionIds = currentAnswers.stream()
@@ -471,9 +494,16 @@ public class SpotService {
 			spotVoteOptionRepository.incrementVoteCount(optionId);
 		}
 
+		List<SpotVoteAnswer> allAnswersAfter = spotVoteAnswerRepository.findByVoteId(voteId);
 		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
 			.stream()
-			.map(SpotVoteOptionResponse::from)
+			.map(opt -> {
+				List<String> voterIds = allAnswersAfter.stream()
+					.filter(a -> a.getOptionId().equals(opt.getId()))
+					.map(SpotVoteAnswer::getUserId)
+					.toList();
+				return SpotVoteOptionResponse.of(opt, voterIds);
+			})
 			.toList();
 
 		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
@@ -534,9 +564,12 @@ public class SpotService {
 	public List<SpotFileResponse> getFiles(String spotId) {
 		validateSpotExists(spotId);
 
-		return spotFileRepository.findBySpotIdOrderByUploadedAtDesc(spotId)
-			.stream()
-			.map(SpotFileResponse::from)
+		List<SpotFile> files = spotFileRepository.findBySpotIdOrderByUploadedAtDesc(spotId);
+		List<String> uploaderIds = files.stream().map(SpotFile::getUploaderId).toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(uploaderIds).stream()
+			.collect(Collectors.toMap(u -> u.getId(), u -> u.getNickname()));
+		return files.stream()
+			.map(f -> SpotFileResponse.of(f, nicknameMap.getOrDefault(f.getUploaderId(), f.getUploaderId())))
 			.toList();
 	}
 
@@ -546,14 +579,18 @@ public class SpotService {
 	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
+		String uploaderId = resolveUserId(currentUserId);
 		SpotFile file = SpotFile.builder()
 			.spotId(spotId)
-			.uploaderId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.uploaderId(uploaderId)
 			.fileName(request.getFileName())
 			.fileUrl(request.getFileUrl())
+			.sizeBytes(request.getSizeBytes())
 			.build();
 
-		return SpotFileResponse.from(spotFileRepository.save(file));
+		String uploaderNickname = userRepository.findById(uploaderId)
+			.map(u -> u.getNickname()).orElse(uploaderId);
+		return SpotFileResponse.of(spotFileRepository.save(file), uploaderNickname);
 	}
 
 	/**
@@ -579,9 +616,12 @@ public class SpotService {
 	public List<SpotNoteResponse> getNotes(String spotId) {
 		validateSpotExists(spotId);
 
-		return spotNoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId)
-			.stream()
-			.map(SpotNoteResponse::from)
+		List<SpotNote> notes = spotNoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId);
+		List<String> authorIds = notes.stream().map(SpotNote::getAuthorId).toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(authorIds).stream()
+			.collect(Collectors.toMap(u -> u.getId(), u -> u.getNickname()));
+		return notes.stream()
+			.map(n -> SpotNoteResponse.of(n, nicknameMap.getOrDefault(n.getAuthorId(), n.getAuthorId())))
 			.toList();
 	}
 
@@ -591,13 +631,16 @@ public class SpotService {
 	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
+		String authorId = resolveUserId(currentUserId);
 		SpotNote note = SpotNote.builder()
 			.spotId(spotId)
-			.authorId(currentUserId != null ? currentUserId : FALLBACK_USER_ID)
+			.authorId(authorId)
 			.content(request.getContent())
 			.build();
 
-		return SpotNoteResponse.from(spotNoteRepository.save(note));
+		String authorNickname = userRepository.findById(authorId)
+			.map(u -> u.getNickname()).orElse(authorId);
+		return SpotNoteResponse.of(spotNoteRepository.save(note), authorNickname);
 	}
 
 	// ─────────────────────────────────────────────

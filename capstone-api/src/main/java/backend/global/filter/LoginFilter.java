@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-	private static final String LOGIN_PATH = "/api/auth/login";
+	private static final String LOGIN_PATH = "/api/v1/auth/login";
 
 	private final JWTUtil jwtUtil;
 	private final RefreshRepository refreshRepository;

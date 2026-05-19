@@ -122,17 +122,17 @@ public class SecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.POST,
-					"/api/users/exist",
-					"/api/users",
-					"/api/jwt/exchange"
+					"/api/v1/users/exist",
+					"/api/v1/users",
+					"/api/v1/jwt/exchange"
 				).permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/sim/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/sim/**").permitAll()
 				.requestMatchers(
-					"/api/auth/**",
-					"/api/spots/**",   // TODO: 인증 도입 후 제거
-					"/api/chat/**",    // TODO: 인증 도입 후 제거
-					"/api/feeds/**",   // TODO: 인증 도입 후 제거
-					"/api/posts/**",   // TODO: 인증 도입 후 제거
+					"/api/v1/auth/**",
+					"/api/v1/spots/**",   // TODO: 인증 도입 후 제거
+					"/api/v1/chat/**",    // TODO: 인증 도입 후 제거
+					"/api/v1/feeds/**",   // TODO: 인증 도입 후 제거
+					"/api/v1/posts/**",   // TODO: 인증 도입 후 제거
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html",
@@ -143,7 +143,7 @@ public class SecurityConfig {
 			)
 			.oauth2Login(oauth2 -> oauth2
 				.authorizationEndpoint(endpoint ->
-					endpoint.baseUri("/api/auth/oauth")
+					endpoint.baseUri("/api/v1/auth/oauth")
 				)
 				.redirectionEndpoint(endpoint ->
 					endpoint.baseUri("/login/oauth2/code/*")
@@ -154,7 +154,7 @@ public class SecurityConfig {
 				.successHandler(socialSuccessHandler)
 			)
 			.logout(logout -> logout
-				.logoutUrl("/api/auth/logout")
+				.logoutUrl("/api/v1/auth/logout")
 				.addLogoutHandler(refreshTokenLogoutHandler)
 				.logoutSuccessHandler((request, response, authentication) -> {
 					CookieUtil.clearRefreshCookie(response);

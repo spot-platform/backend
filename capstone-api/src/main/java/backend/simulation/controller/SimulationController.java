@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Simulation API", description = "맵 시뮬레이션 재생 API")
 @RestController
-@RequestMapping("/api/sim/runs")
+@RequestMapping("/api/v1/sim/runs")
 @RequiredArgsConstructor
 public class SimulationController {
 

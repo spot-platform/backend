@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "User", description = "유저 프로필 관련 API")
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -41,7 +41,7 @@ public class UserController {
 			responseCode = "200", description = "이메일 사용 가능 여부 반환"
 		)
 	})
-	@PostMapping("/exist")
+	@PostMapping("/users/exist")
 	public ApiResponse<Boolean> checkEmailExists(
 		@Valid @RequestBody EmailExistRequest request
 	) {
@@ -60,7 +60,7 @@ public class UserController {
 			responseCode = "409", description = "이미 존재하는 이메일"
 		)
 	})
-	@PostMapping
+	@PostMapping("/users")
 	public ApiResponse<Void> join(@Valid @RequestBody JoinRequest request) {
 		userService.join(request);
 		return ApiResponse.success();

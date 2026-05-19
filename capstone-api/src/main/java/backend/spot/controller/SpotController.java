@@ -2,6 +2,7 @@ package backend.spot.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
@@ -41,7 +43,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Spot API", description = "스팟 관리 API")
 @RestController
-@RequestMapping("/api/spots")
+@RequestMapping("/api/v1/spots")
 @RequiredArgsConstructor
 public class SpotController {
 
@@ -56,6 +58,32 @@ public class SpotController {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
+	}
+
+	@Operation(summary = "지도 마커용 스팟 목록 (미구현)", description = "bounds/필터 파라미터 처리는 추후 구현 예정")
+	@GetMapping("/map")
+	public ResponseEntity<ApiResponse<List<SpotResponse>>> getSpotMap(
+		@RequestParam(required = false) Double swLat,
+		@RequestParam(required = false) Double swLng,
+		@RequestParam(required = false) Double neLat,
+		@RequestParam(required = false) Double neLng,
+		@RequestParam(required = false) String category,
+		@RequestParam(required = false) String type,
+		@RequestParam(required = false) String status
+	) {
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"지도 bounds 기반 조회는 아직 구현되지 않았습니다.");
+	}
+
+	@Operation(summary = "스팟 검색 (미구현)")
+	@GetMapping("/search")
+	public ResponseEntity<ApiResponse<SpotListResponse>> searchSpots(
+		@RequestParam String q,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"스팟 검색은 아직 구현되지 않았습니다.");
 	}
 
 	@Operation(summary = "스팟 생성")

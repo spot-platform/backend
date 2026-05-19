@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Post API", description = "게시글 관련 API")
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController {
 

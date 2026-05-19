@@ -20,8 +20,11 @@ public class SpotNoteResponse {
 	@Schema(description = "노트 ID", example = "1")
 	private Long id;
 
-	@Schema(description = "작성자 ID", example = "user-uuid-string")
-	private String authorId;
+	@Schema(description = "스팟 ID", example = "spot-uuid-string")
+	private String spotId;
+
+	@Schema(description = "작성자 닉네임", example = "홍길동")
+	private String authorNickname;
 
 	@Schema(description = "노트 내용")
 	private String content;
@@ -32,7 +35,18 @@ public class SpotNoteResponse {
 	public static SpotNoteResponse from(SpotNote note) {
 		return SpotNoteResponse.builder()
 			.id(note.getId())
-			.authorId(note.getAuthorId())
+			.spotId(note.getSpotId())
+			.authorNickname(null)
+			.content(note.getContent())
+			.createdAt(note.getCreatedAt())
+			.build();
+	}
+
+	public static SpotNoteResponse of(SpotNote note, String authorNickname) {
+		return SpotNoteResponse.builder()
+			.id(note.getId())
+			.spotId(note.getSpotId())
+			.authorNickname(authorNickname)
 			.content(note.getContent())
 			.createdAt(note.getCreatedAt())
 			.build();

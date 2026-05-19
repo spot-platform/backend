@@ -1,7 +1,5 @@
 package backend.feed.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import backend.global.enums.FeedAuthorRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -23,7 +21,6 @@ public class FeedAuthorProfile {
 	@Schema(description = "작성자 닉네임", example = "유저1")
 	private String nickname;
 
-	@JsonProperty("avatar_url")
 	@Schema(description = "작성자 아바타 URL")
 	private String avatarUrl;
 

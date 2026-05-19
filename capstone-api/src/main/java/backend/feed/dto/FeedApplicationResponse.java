@@ -3,6 +3,7 @@ package backend.feed.dto;
 import java.time.LocalDateTime;
 
 import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -23,6 +24,8 @@ public class FeedApplicationResponse {
 	private String userId;
 	private String proposal;
 	private FeedApplicationStatus status;
+	private FeedApplicationRole appliedRole;
+	private Integer deposit;
 	private LocalDateTime createdAt;
 
 	public static FeedApplicationResponse from(FeedApplication application) {
@@ -32,6 +35,8 @@ public class FeedApplicationResponse {
 				.userId(application.getUserId())
 				.proposal(application.getProposal())
 				.status(application.getStatus())
+				.appliedRole(application.getAppliedRole())
+				.deposit(application.getDeposit())
 				.createdAt(application.getCreatedAt())
 				.build();
 	}

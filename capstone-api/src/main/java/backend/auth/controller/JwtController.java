@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Auth", description = "인증 관련 API")
 @RestController
-@RequestMapping("/api/jwt")
+@RequestMapping("/api/v1/jwt")
 @RequiredArgsConstructor
 public class JwtController {
 

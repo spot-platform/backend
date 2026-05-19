@@ -9,9 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -27,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Notification API", description = "알림 API")
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
@@ -53,13 +54,21 @@ public class NotificationController {
 	}
 
 	@Operation(summary = "알림 읽음 처리")
-	@PatchMapping("/{notificationId}/read")
-	public ResponseEntity<ApiResponse<Void>> markAsRead(
+	@PostMapping("/{notificationId}/read")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void markAsRead(
 		@PathVariable String notificationId,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		notificationService.markAsRead(currentUserId(userDetails), notificationId);
-		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(summary = "전체 알림 읽음 처리 (미구현)")
+	@PostMapping("/read-all")
+	public void markAllAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		currentUserId(userDetails);
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+			"전체 알림 읽음 처리는 아직 구현되지 않았습니다.");
 	}
 
 	private String currentUserId(CustomUserDetails userDetails) {

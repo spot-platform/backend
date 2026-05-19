@@ -21,19 +21,28 @@ public class SpotChecklistResponse {
 	private Long id;
 
 	@Schema(description = "항목 내용", example = "돗자리 준비")
-	private String content;
+	private String text;
 
 	@Schema(description = "완료 여부", example = "false")
-	private Boolean isDone;
+	private Boolean completed;
+
+	@Schema(description = "담당자 ID (선택)", nullable = true)
+	private String assigneeId;
+
+	@Schema(description = "담당자 닉네임 (선택)", nullable = true)
+	private String assigneeNickname;
 
 	@Schema(description = "등록 일시")
 	private LocalDateTime createdAt;
 
 	public static SpotChecklistResponse from(SpotChecklist checklist) {
+		// assigneeId, assigneeNickname: 엔티티 컬럼 추가 후 매핑 예정 (별도 PR)
 		return SpotChecklistResponse.builder()
 			.id(checklist.getId())
-			.content(checklist.getContent())
-			.isDone(checklist.getIsDone())
+			.text(checklist.getContent())
+			.completed(checklist.getIsDone())
+			.assigneeId(null)
+			.assigneeNickname(null)
 			.createdAt(checklist.getCreatedAt())
 			.build();
 	}

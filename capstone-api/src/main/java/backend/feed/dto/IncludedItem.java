@@ -17,6 +17,6 @@ public class IncludedItem {
 	@Schema(description = "항목명", example = "재료")
 	private String name;
 
-	@Schema(description = "비고")
-	private String note;
+	@Schema(description = "값/설명", example = "쌀 2kg")
+	private String value;
 }
