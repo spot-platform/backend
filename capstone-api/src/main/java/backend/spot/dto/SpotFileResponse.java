@@ -38,18 +38,6 @@ public class SpotFileResponse {
 	@Schema(description = "업로드 일시")
 	private LocalDateTime uploadedAt;
 
-	public static SpotFileResponse from(SpotFile file) {
-		return SpotFileResponse.builder()
-			.id(file.getId())
-			.spotId(file.getSpotId())
-			.uploaderNickname(null)
-			.name(file.getFileName())
-			.url(file.getFileUrl())
-			.sizeBytes(file.getSizeBytes())
-			.uploadedAt(file.getUploadedAt())
-			.build();
-	}
-
 	public static SpotFileResponse of(SpotFile file, String uploaderNickname) {
 		return SpotFileResponse.builder()
 			.id(file.getId())
