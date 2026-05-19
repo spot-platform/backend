@@ -2,15 +2,16 @@ package backend.feed.dto;
 
 import java.time.LocalDateTime;
 
-import backend.feed.entity.FeedApplication;
-import backend.feed.entity.FeedApplicationRole;
-import backend.feed.entity.FeedApplicationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedApplicationRole;
+import backend.feed.entity.FeedApplicationStatus;
 
 @Getter
 @Builder

@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
 import backend.feed.dto.FeedApplicationResponse;
 import backend.feed.dto.FeedApplyRequest;
 import backend.feed.dto.FeedDetailResponse;
@@ -21,9 +25,6 @@ import backend.feed.dto.FeedListQuery;
 import backend.feed.dto.FeedListResponse;
 import backend.feed.service.FeedItemService;
 import backend.global.common.response.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Feed API", description = "피드 관련 API")
 @RestController
