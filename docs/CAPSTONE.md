@@ -15,7 +15,9 @@
 1. **네이버 핵데이 컨벤션 준수**:
    - 들여쓰기: **Tab (1칸 = 4공백)** 사용.
    - 줄바꿈: **LF (Unix 방식)** 적용.
-   - 임포트: 와일드카드(`.*`) 금지, 구체적 명시. (순서: static → java → javax → org → com → backend)
+   - 임포트: 와일드카드(`.*`) 금지, 구체적 명시.
+     - 그룹 순서: `static` → `java.` → `javax.` / `jakarta.` → `org.` / `net.` → `com.` (외부) → 그 외 (third-party `io.`, `lombok.` 등과 `backend.*` 가 동일 catch-all 그룹, **알파벳 순**)
+     - 즉 `backend.*` 가 `io.*` / `lombok.*` 보다 알파벳순으로 앞이면 위에 위치한다. 이는 `config/checkstyle/checkstyle.xml` 의 ImportOrder 룰(`ordered=true`, catch-all regex)이 실제로 강제하는 규칙이며, 빈 줄로 분리되더라도 같은 그룹으로 취급된다.
 2. **기능별 패키징 (Package by Feature)**:
    - `backend.[feature].entity`, `backend.[feature].service`, `backend.[feature].controller`, `backend.[feature].dto` 구조 유지.
 3. **멀티 모듈 의존성**:
