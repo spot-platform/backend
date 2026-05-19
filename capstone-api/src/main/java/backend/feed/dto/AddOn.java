@@ -24,6 +24,6 @@ public class AddOn {
 	@Schema(description = "과금 방식", example = "FIXED")
 	private AddOnMechanism mechanism;
 
-	@Schema(description = "비고")
-	private String note;
+	@Schema(description = "설명")
+	private String explanation;
 }

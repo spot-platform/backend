@@ -26,6 +26,12 @@ public class SpotChecklistResponse {
 	@Schema(description = "완료 여부", example = "false")
 	private Boolean completed;
 
+	@Schema(description = "담당자 ID (선택)", nullable = true)
+	private String assigneeId;
+
+	@Schema(description = "담당자 닉네임 (선택)", nullable = true)
+	private String assigneeNickname;
+
 	@Schema(description = "등록 일시")
 	private LocalDateTime createdAt;
 

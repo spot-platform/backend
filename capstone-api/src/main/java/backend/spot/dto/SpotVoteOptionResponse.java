@@ -29,15 +29,6 @@ public class SpotVoteOptionResponse {
 	@Schema(description = "투표한 유저 ID 목록")
 	private List<String> voterIds;
 
-	public static SpotVoteOptionResponse from(SpotVoteOption option) {
-		return SpotVoteOptionResponse.builder()
-			.id(option.getId())
-			.label(option.getContent())
-			.voteCount(option.getVoteCount())
-			.voterIds(List.of())
-			.build();
-	}
-
 	public static SpotVoteOptionResponse of(SpotVoteOption option, List<String> voterIds) {
 		return SpotVoteOptionResponse.builder()
 			.id(option.getId())
