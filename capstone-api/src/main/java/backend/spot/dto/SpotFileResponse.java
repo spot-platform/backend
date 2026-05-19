@@ -45,7 +45,7 @@ public class SpotFileResponse {
 			.uploaderNickname(null)
 			.name(file.getFileName())
 			.url(file.getFileUrl())
-			.sizeBytes(null)
+			.sizeBytes(file.getSizeBytes())
 			.uploadedAt(file.getUploadedAt())
 			.build();
 	}
@@ -57,7 +57,7 @@ public class SpotFileResponse {
 			.uploaderNickname(uploaderNickname)
 			.name(file.getFileName())
 			.url(file.getFileUrl())
-			.sizeBytes(null)
+			.sizeBytes(file.getSizeBytes())
 			.uploadedAt(file.getUploadedAt())
 			.build();
 	}

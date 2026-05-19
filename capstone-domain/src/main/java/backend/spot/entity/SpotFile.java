@@ -43,6 +43,9 @@ public class SpotFile {
 	@Column(nullable = false)
 	private String fileUrl;
 
+	@Column(name = "size_bytes")
+	private Long sizeBytes;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime uploadedAt;

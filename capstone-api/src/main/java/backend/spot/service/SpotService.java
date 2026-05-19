@@ -585,6 +585,7 @@ public class SpotService {
 			.uploaderId(uploaderId)
 			.fileName(request.getFileName())
 			.fileUrl(request.getFileUrl())
+			.sizeBytes(request.getSizeBytes())
 			.build();
 
 		String uploaderNickname = userRepository.findById(uploaderId)
