@@ -3,6 +3,7 @@ package backend.feed.controller;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +22,7 @@ import backend.feed.dto.FeedListQuery;
 import backend.feed.dto.FeedListResponse;
 import backend.feed.service.FeedItemService;
 import backend.global.common.response.ApiResponse;
+import backend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +50,10 @@ public class FeedController {
 	@Operation(summary = "피드 삭제 (소프트 딜리트)")
 	@DeleteMapping("/{feedId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteFeedItem(@PathVariable String feedId) {
-		feedItemService.deleteFeedItem(feedId);
+	public void deleteFeedItem(
+			@PathVariable String feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.deleteFeedItem(feedId, requireAuth(userDetails));
 	}
 
 	@Operation(summary = "피드 신청")
@@ -57,17 +61,19 @@ public class FeedController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public ApiResponse<FeedApplicationResponse> applyToFeed(
 			@PathVariable String feedId,
-			@RequestBody FeedApplyRequest request) {
-		// 추후 인증 도입 시 실제 userId, nickname으로 교체
+			@RequestBody FeedApplyRequest request,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.applyToFeed(
-				feedId, "dummy-user-id", "황호찬", request);
+				feedId, requireAuth(userDetails), userDetails.getNickname(), request);
 		return ApiResponse.success(response);
 	}
 
 	@Operation(summary = "피드 신청 취소")
 	@DeleteMapping("/{feedId}/applications/me")
-	public ApiResponse<Map<String, String>> cancelApplication(@PathVariable String feedId) {
-		feedItemService.cancelApplication(feedId, "dummy-user-id");
+	public ApiResponse<Map<String, String>> cancelApplication(
+			@PathVariable String feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.cancelApplication(feedId, requireAuth(userDetails));
 		return ApiResponse.success(Map.of(
 				"feedId", feedId,
 				"status", "CANCELLED"
@@ -92,9 +98,10 @@ public class FeedController {
 	@PatchMapping("/{feedId}/applications/{applicationId}/accept")
 	public ApiResponse<FeedApplicationResponse> acceptApplication(
 			@PathVariable String feedId,
-			@PathVariable String applicationId) {
+			@PathVariable String applicationId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.acceptApplication(
-				feedId, applicationId, "dummy-user-id");
+				feedId, applicationId, requireAuth(userDetails));
 		return ApiResponse.success(response);
 	}
 
@@ -102,10 +109,17 @@ public class FeedController {
 	@PatchMapping("/{feedId}/applications/{applicationId}/reject")
 	public ApiResponse<FeedApplicationResponse> rejectApplication(
 			@PathVariable String feedId,
-			@PathVariable String applicationId) {
+			@PathVariable String applicationId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.rejectApplication(
-				feedId, applicationId, "dummy-user-id");
+				feedId, applicationId, requireAuth(userDetails));
 		return ApiResponse.success(response);
 	}
-}
 
+	private String requireAuth(CustomUserDetails userDetails) {
+		if (userDetails == null || userDetails.getUserId() == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return userDetails.getUserId();
+	}
+}

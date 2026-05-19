@@ -93,7 +93,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createSpot(request, resolveCurrentUserId(userDetails))
+			spotService.createSpot(request, requireAuth(userDetails))
 		));
 	}
 
@@ -157,7 +157,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.getVotes(spotId, resolveCurrentUserId(userDetails))
+			spotService.getVotes(spotId, requireAuth(userDetails))
 		));
 	}
 
@@ -169,7 +169,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createVote(spotId, request, resolveCurrentUserId(userDetails))
+			spotService.createVote(spotId, request, requireAuth(userDetails))
 		));
 	}
 
@@ -187,7 +187,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.castVote(spotId, voteId, request, resolveCurrentUserId(userDetails))
+			spotService.castVote(spotId, voteId, request, requireAuth(userDetails))
 		));
 	}
 
@@ -205,7 +205,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.submitAnswers(spotId, voteId, request, resolveCurrentUserId(userDetails))
+			spotService.submitAnswers(spotId, voteId, request, requireAuth(userDetails))
 		));
 	}
 
@@ -251,7 +251,7 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.uploadFile(spotId, request, resolveCurrentUserId(userDetails))
+			spotService.uploadFile(spotId, request, requireAuth(userDetails))
 		));
 	}
 
@@ -281,16 +281,15 @@ public class SpotController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createNote(spotId, request, resolveCurrentUserId(userDetails))
+			spotService.createNote(spotId, request, requireAuth(userDetails))
 		));
 	}
 
-	/**
-	 * @AuthenticationPrincipal 으로 받은 CustomUserDetails 에서 userId 를 꺼낸다.
-	 * 비인증 (Anonymous 토큰) 의 경우 Spring 이 null 을 주입하므로 null 안전.
-	 */
-	private String resolveCurrentUserId(CustomUserDetails userDetails) {
-		return userDetails == null ? null : userDetails.getUserId();
+	private String requireAuth(CustomUserDetails userDetails) {
+		if (userDetails == null || userDetails.getUserId() == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
+		return userDetails.getUserId();
 	}
 
 	// ─── 리뷰 (Review) - TODO ─────────────────────

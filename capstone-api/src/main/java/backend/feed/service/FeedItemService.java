@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.feed.dto.FeedApplicationResponse;
@@ -102,9 +105,13 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void deleteFeedItem(String feedId) {
+	public void deleteFeedItem(String feedId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+
+		if (!feedItem.getAuthorId().equals(requesterId)) {
+			throw new BusinessException(ErrorCode.FORBIDDEN);
+		}
 
 		feedItem.softDelete();
 
