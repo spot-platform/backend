@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.feed.dto.FeedApplicationResponse;
@@ -107,7 +110,7 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 
 		if (!feedItem.getAuthorId().equals(requesterId)) {
-			throw new IllegalStateException("게시글 작성자만 삭제할 수 있습니다.");
+			throw new BusinessException(ErrorCode.FORBIDDEN);
 		}
 
 		feedItem.softDelete();

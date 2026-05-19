@@ -51,7 +51,7 @@ public class PostController {
 		@PathVariable String postId,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		if (userDetails == null) {
+		if (userDetails == null || userDetails.getUserId() == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
 		}
 		postService.convertToSpot(postId, userDetails.getUserId());
@@ -63,7 +63,7 @@ public class PostController {
 		@RequestBody CreateOfferPostRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		if (userDetails == null) {
+		if (userDetails == null || userDetails.getUserId() == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
 		}
 		return ApiResponse.success(postService.createOfferPost(request, userDetails.getUserId(), userDetails.getNickname()));
@@ -75,7 +75,7 @@ public class PostController {
 		@RequestBody CreateRequestPostRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		if (userDetails == null) {
+		if (userDetails == null || userDetails.getUserId() == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
 		}
 		return ApiResponse.success(postService.createRequestPost(request, userDetails.getUserId(), userDetails.getNickname()));
