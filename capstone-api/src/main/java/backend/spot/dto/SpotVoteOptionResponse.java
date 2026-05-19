@@ -34,7 +34,7 @@ public class SpotVoteOptionResponse {
 			.id(option.getId())
 			.label(option.getContent())
 			.voteCount(option.getVoteCount())
-			.voterIds(voterIds)
+			.voterIds(voterIds == null ? List.of() : List.copyOf(voterIds))
 			.build();
 	}
 }

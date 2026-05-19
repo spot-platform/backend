@@ -119,6 +119,10 @@ public class FeedItemResponse {
 				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
 				.myApplicationStatus(myApplicationStatus)
+				// myApplicationRole/Deposit, isRentable: 현재 인증/대여 모델 미구현으로 null. 별도 PR에서 채움.
+				.myApplicationRole(null)
+				.myApplicationDeposit(null)
+				.isRentable(null)
 				.authorProfile(authorProfile)
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())
