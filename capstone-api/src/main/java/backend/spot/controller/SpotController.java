@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
 import backend.spot.dto.CastVoteRequest;
@@ -41,6 +36,10 @@ import backend.spot.dto.SpotVoteResponse;
 import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.service.SpotService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Spot API", description = "스팟 관리 API")
 @RestController
