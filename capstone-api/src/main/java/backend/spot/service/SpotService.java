@@ -506,24 +506,45 @@ public class SpotService {
 	public List<SpotChecklistResponse> getChecklist(String spotId) {
 		validateSpotExists(spotId);
 
-		return spotChecklistRepository.findBySpotId(spotId)
-			.stream()
-			.map(SpotChecklistResponse::from)
+		List<SpotChecklist> items = spotChecklistRepository.findBySpotId(spotId);
+		List<String> assigneeIds = items.stream()
+			.map(SpotChecklist::getAssigneeId)
+			.filter(id -> id != null)
+			.distinct()
+			.toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(assigneeIds).stream()
+			.collect(Collectors.toMap(u -> u.getId(), u -> u.getNickname()));
+		return items.stream()
+			.map(item -> SpotChecklistResponse.of(item, resolveAssigneeNickname(item, nicknameMap)))
 			.toList();
 	}
 
+	private String resolveAssigneeNickname(SpotChecklist item, Map<String, String> nicknameMap) {
+		if (item.getAssigneeId() == null) {
+			return null;
+		}
+		return nicknameMap.getOrDefault(item.getAssigneeId(), item.getAssigneeId());
+	}
+
 	/**
-	 * 체크리스트 항목을 추가합니다.
+	 * 체크리스트 항목을 추가합니다. 담당자(assigneeId)가 주어지면 참여자인지 검증합니다.
 	 */
 	public SpotChecklistResponse addChecklistItem(String spotId, CreateChecklistRequest request) {
 		validateSpotExists(spotId);
 
+		String assigneeId = request.getAssigneeId();
+		if (assigneeId != null) {
+			validateParticipant(spotId, assigneeId, ErrorCode.CHECKLIST_ASSIGNEE_NOT_PARTICIPANT);
+		}
+
 		SpotChecklist item = SpotChecklist.builder()
 			.spotId(spotId)
 			.content(request.getContent())
+			.assigneeId(assigneeId)
 			.build();
 
-		return SpotChecklistResponse.from(spotChecklistRepository.save(item));
+		SpotChecklist saved = spotChecklistRepository.save(item);
+		return SpotChecklistResponse.of(saved, lookupNickname(assigneeId));
 	}
 
 	/**
@@ -536,7 +557,41 @@ public class SpotService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
 
 		item.toggleDone();
-		return SpotChecklistResponse.from(item);
+		return SpotChecklistResponse.of(item, lookupNickname(item.getAssigneeId()));
+	}
+
+	/**
+	 * 체크리스트 항목의 담당자를 지정하거나 해제합니다.
+	 * 요청자는 스팟 참여자여야 하며, 지정 대상도 참여자여야 합니다. (assigneeId=null 이면 해제)
+	 */
+	public SpotChecklistResponse assignChecklistItem(
+		String spotId, Long itemId, String assigneeId, String currentUserId
+	) {
+		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
+
+		SpotChecklist item = spotChecklistRepository.findById(itemId)
+			.filter(i -> i.getSpotId().equals(spotId))
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
+
+		if (assigneeId != null) {
+			validateParticipant(spotId, assigneeId, ErrorCode.CHECKLIST_ASSIGNEE_NOT_PARTICIPANT);
+		}
+
+		item.assignTo(assigneeId);
+		return SpotChecklistResponse.of(item, lookupNickname(assigneeId));
+	}
+
+	private void validateParticipant(String spotId, String userId, ErrorCode errorCode) {
+		if (!spotParticipantRepository.existsBySpotIdAndUserId(spotId, userId)) {
+			throw new BusinessException(errorCode);
+		}
+	}
+
+	private String lookupNickname(String userId) {
+		if (userId == null) {
+			return null;
+		}
+		return userRepository.findById(userId).map(u -> u.getNickname()).orElse(userId);
 	}
 
 	// ─────────────────────────────────────────────

@@ -13,4 +13,7 @@ public class CreateChecklistRequest {
 	@NotBlank
 	@Schema(description = "항목 내용", example = "돗자리 준비")
 	private String content;
+
+	@Schema(description = "담당자 user id (선택)", nullable = true, example = "user-uuid-string")
+	private String assigneeId;
 }

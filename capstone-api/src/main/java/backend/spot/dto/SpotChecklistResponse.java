@@ -36,13 +36,16 @@ public class SpotChecklistResponse {
 	private LocalDateTime createdAt;
 
 	public static SpotChecklistResponse from(SpotChecklist checklist) {
-		// assigneeId, assigneeNickname: 엔티티 컬럼 추가 후 매핑 예정 (별도 PR)
+		return of(checklist, null);
+	}
+
+	public static SpotChecklistResponse of(SpotChecklist checklist, String assigneeNickname) {
 		return SpotChecklistResponse.builder()
 			.id(checklist.getId())
 			.text(checklist.getContent())
 			.completed(checklist.getIsDone())
-			.assigneeId(null)
-			.assigneeNickname(null)
+			.assigneeId(checklist.getAssigneeId())
+			.assigneeNickname(assigneeNickname)
 			.createdAt(checklist.getCreatedAt())
 			.build();
 	}

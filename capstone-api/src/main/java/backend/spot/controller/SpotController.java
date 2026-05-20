@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
+import backend.spot.dto.AssignChecklistRequest;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
@@ -233,6 +234,19 @@ public class SpotController {
 		@PathVariable Long itemId
 	) {
 		return ResponseEntity.ok(ApiResponse.success(spotService.toggleChecklistItem(spotId, itemId)));
+	}
+
+	@Operation(summary = "체크리스트 항목 담당자 지정/해제", description = "assigneeId=null 이면 담당자 해제. 참여자만 가능.")
+	@PatchMapping("/{spotId}/checklist/{itemId}/assignee")
+	public ResponseEntity<ApiResponse<SpotChecklistResponse>> assignChecklistItem(
+		@PathVariable String spotId,
+		@PathVariable Long itemId,
+		@RequestBody AssignChecklistRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.assignChecklistItem(spotId, itemId, request.getAssigneeId(), requireAuth(userDetails))
+		));
 	}
 
 	// ─── 파일 (File) ──────────────────────────────
