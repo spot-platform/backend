@@ -29,6 +29,8 @@ public enum ErrorCode {
 	VOTE_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "S010", "Vote is not active"),
 	SINGLE_SELECT_VOTE_LIMIT(HttpStatus.BAD_REQUEST, "S011", "Single-select vote allows at most one option"),
 	CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "S007", "Checklist item not found"),
+	CHECKLIST_ASSIGNEE_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "S012", "Assignee must be a spot participant"),
+	NOT_SPOT_PARTICIPANT(HttpStatus.FORBIDDEN, "S013", "Only spot participants can perform this action"),
 	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
 

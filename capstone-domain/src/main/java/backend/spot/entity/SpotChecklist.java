@@ -41,6 +41,9 @@ public class SpotChecklist {
 	@Column(nullable = false)
 	private Boolean isDone = false;
 
+	@Column(name = "assignee_id")
+	private String assigneeId;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -57,5 +60,12 @@ public class SpotChecklist {
 	 */
 	public void updateContent(String content) {
 		this.content = content;
+	}
+
+	/**
+	 * 담당자를 지정하거나(userId 전달) 해제합니다(null 전달).
+	 */
+	public void assignTo(String assigneeId) {
+		this.assigneeId = assigneeId;
 	}
 }
