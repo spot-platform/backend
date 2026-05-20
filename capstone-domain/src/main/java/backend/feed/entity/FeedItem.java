@@ -115,6 +115,12 @@ public class FeedItem {
 	private String authorField;
 
 	@Column
+	private Double lat;
+
+	@Column
+	private Double lng;
+
+	@Column
 	private String spotId;
 
 	@Builder.Default

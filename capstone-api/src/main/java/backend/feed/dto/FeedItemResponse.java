@@ -84,6 +84,12 @@ public class FeedItemResponse {
 	@Schema(description = "작성자 프로필")
 	private FeedAuthorProfile authorProfile;
 
+	@Schema(description = "위도", example = "37.2636")
+	private Double lat;
+
+	@Schema(description = "경도", example = "127.0286")
+	private Double lng;
+
 	@Schema(description = "전환된 Spot ID", example = "spot-uuid-string")
 	private String spotId;
 
@@ -124,6 +130,8 @@ public class FeedItemResponse {
 				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
 				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
+				.lat(feedItem.getLat())
+				.lng(feedItem.getLng())
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())
 				.views(feedItem.getViews())

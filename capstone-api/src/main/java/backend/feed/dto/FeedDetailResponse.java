@@ -63,6 +63,8 @@ public class FeedDetailResponse extends FeedItemResponse {
 				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
 				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
+				.lat(feedItem.getLat())
+				.lng(feedItem.getLng())
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())
 				.views(feedItem.getViews())

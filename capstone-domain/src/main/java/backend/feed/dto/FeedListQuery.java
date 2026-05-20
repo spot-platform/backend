@@ -26,6 +26,12 @@ public class FeedListQuery {
 	@Schema(description = "정렬 조건 (latest: 최신순, popular: 인기순)", example = "latest")
 	private String sort;
 
+	@Schema(description = "근처 위도 (제공 시 nearLng 와 함께 반경 5km 필터 적용)", example = "37.2636")
+	private Double nearLat;
+
+	@Schema(description = "근처 경도", example = "127.0286")
+	private Double nearLng;
+
 	@Schema(description = "페이지 번호 (0부터 시작)", example = "0")
 	private int page = 0;
 

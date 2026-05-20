@@ -25,6 +25,9 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 	private final QFeedItem feedItem = QFeedItem.feedItem;
 
+	private static final double RADIUS_KM = 5.0;
+	private static final double KM_PER_DEGREE_LAT = 111.0;
+
 	@Override
 	public Page<FeedItem> findAllByQuery(FeedListQuery query, Pageable pageable) {
 		List<FeedItem> content = queryFactory
@@ -33,7 +36,8 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 						feedItem.deleted.isFalse(),
 						eqType(query.getType()),
 						eqStatus(query.getStatus()),
-						eqCategory(query.getCategory())
+						eqCategory(query.getCategory()),
+						nearLocation(query.getNearLat(), query.getNearLng())
 				)
 				.orderBy(getOrderSpecifier(query.getSort()))
 				.offset(pageable.getOffset())
@@ -47,7 +51,8 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 						feedItem.deleted.isFalse(),
 						eqType(query.getType()),
 						eqStatus(query.getStatus()),
-						eqCategory(query.getCategory())
+						eqCategory(query.getCategory()),
+						nearLocation(query.getNearLat(), query.getNearLng())
 				)
 				.fetchOne();
 
@@ -75,5 +80,16 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 
 	private BooleanExpression eqCategory(FeedCategory category) {
 		return category != null ? feedItem.category.eq(category) : null;
+	}
+
+	private BooleanExpression nearLocation(Double nearLat, Double nearLng) {
+		if (nearLat == null || nearLng == null) {
+			return null;
+		}
+		double latDelta = RADIUS_KM / KM_PER_DEGREE_LAT;
+		double lngDelta = RADIUS_KM / (KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(nearLat)));
+		return feedItem.lat.isNotNull()
+				.and(feedItem.lat.between(nearLat - latDelta, nearLat + latDelta))
+				.and(feedItem.lng.between(nearLng - lngDelta, nearLng + lngDelta));
 	}
 }
