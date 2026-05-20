@@ -27,10 +27,10 @@ public class FeedItemResponse {
 	@Schema(description = "제목", example = "피드 제목")
 	private String title;
 
-	@Schema(description = "설명")
+	@Schema(description = "설명", example = "요리 기초를 함께 배워요")
 	private String description;
 
-	@Schema(description = "카드 이미지 URL")
+	@Schema(description = "카드 이미지 URL", example = "https://example.com/feed-image.jpg")
 	private String imageUrl;
 
 	@Schema(description = "위치", example = "장소 위치")
@@ -48,7 +48,7 @@ public class FeedItemResponse {
 	@Schema(description = "상태", example = "OPEN")
 	private FeedItemStatus status;
 
-	@Schema(description = "카테고리")
+	@Schema(description = "카테고리", example = "요리")
 	private FeedCategory category;
 
 	@Schema(description = "최대 참여자 수", example = "5")
@@ -66,16 +66,16 @@ public class FeedItemResponse {
 	@Schema(description = "신청자 수(REQUEST 전용)", example = "3")
 	private Long applicantCount;
 
-	@Schema(description = "북마크 여부")
+	@Schema(description = "북마크 여부", example = "false")
 	private Boolean isBookmarked;
 
-	@Schema(description = "내 신청 상태")
+	@Schema(description = "내 신청 상태", example = "APPLIED")
 	private FeedApplicationStatus myApplicationStatus;
 
-	@Schema(description = "내 신청 역할 (SUPPORTER | PARTNER)")
+	@Schema(description = "내 신청 역할 (SUPPORTER | PARTNER)", example = "SUPPORTER")
 	private FeedApplicationRole myApplicationRole;
 
-	@Schema(description = "내 신청 보증금")
+	@Schema(description = "내 신청 보증금", example = "10000")
 	private Integer myApplicationDeposit;
 
 	@Schema(description = "대여 가능 여부", example = "false")
@@ -84,7 +84,13 @@ public class FeedItemResponse {
 	@Schema(description = "작성자 프로필")
 	private FeedAuthorProfile authorProfile;
 
-	@Schema(description = "전환된 Spot ID")
+	@Schema(description = "위도", example = "37.2636")
+	private Double lat;
+
+	@Schema(description = "경도", example = "127.0286")
+	private Double lng;
+
+	@Schema(description = "전환된 Spot ID", example = "spot-uuid-string")
 	private String spotId;
 
 	@Schema(description = "AI 합성 피드 여부", example = "false")
@@ -124,6 +130,8 @@ public class FeedItemResponse {
 				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
 				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
+				.lat(feedItem.getLat())
+				.lng(feedItem.getLng())
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())
 				.views(feedItem.getViews())
