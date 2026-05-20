@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload JAR to server
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} mkdir -p ~/app
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} 'mkdir -p ~/app'
           JAR_FILE=$(ls capstone-api/build/libs/capstone-api-*.jar | grep -v plain | head -1)
           scp -i ~/.ssh/id_rsa \
             "$JAR_FILE" \
