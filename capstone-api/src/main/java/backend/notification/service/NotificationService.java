@@ -45,7 +45,6 @@ public class NotificationService {
 	}
 
 	public void markAllAsRead(String userId) {
-		notificationRepository.findByUserIdAndIsReadFalse(userId)
-			.forEach(Notification::markAsRead);
+		notificationRepository.bulkMarkAllAsRead(userId);
 	}
 }
