@@ -1,5 +1,6 @@
 package backend.spot.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,9 @@ import backend.global.error.exception.ErrorCode;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
-import backend.spot.dto.CreateScheduleRequest;
 import backend.spot.dto.CreateSpotRequest;
 import backend.spot.dto.CreateVoteRequest;
+import backend.spot.dto.ScheduleSlotDto;
 import backend.spot.dto.SpotChecklistResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
@@ -37,6 +38,7 @@ import backend.spot.dto.SpotScheduleResponse;
 import backend.spot.dto.SpotVoteOptionResponse;
 import backend.spot.dto.SpotVoteResponse;
 import backend.spot.dto.SubmitVoteAnswersRequest;
+import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.ParticipantState;
@@ -45,7 +47,8 @@ import backend.spot.entity.SpotChecklist;
 import backend.spot.entity.SpotFile;
 import backend.spot.entity.SpotNote;
 import backend.spot.entity.SpotParticipant;
-import backend.spot.entity.SpotSchedule;
+import backend.spot.entity.SpotScheduleAvailability;
+import backend.spot.entity.SpotScheduleSlot;
 import backend.spot.entity.SpotVote;
 import backend.spot.entity.SpotVoteAnswer;
 import backend.spot.entity.SpotVoteOption;
@@ -55,7 +58,8 @@ import backend.spot.repository.SpotFileRepository;
 import backend.spot.repository.SpotNoteRepository;
 import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
-import backend.spot.repository.SpotScheduleRepository;
+import backend.spot.repository.SpotScheduleAvailabilityRepository;
+import backend.spot.repository.SpotScheduleSlotRepository;
 import backend.spot.repository.SpotVoteAnswerRepository;
 import backend.spot.repository.SpotVoteOptionRepository;
 import backend.spot.repository.SpotVoteRepository;
@@ -70,7 +74,8 @@ public class SpotService {
 
 	private final SpotRepository spotRepository;
 	private final SpotParticipantRepository spotParticipantRepository;
-	private final SpotScheduleRepository spotScheduleRepository;
+	private final SpotScheduleSlotRepository spotScheduleSlotRepository;
+	private final SpotScheduleAvailabilityRepository spotScheduleAvailabilityRepository;
 	private final SpotVoteRepository spotVoteRepository;
 	private final SpotVoteOptionRepository spotVoteOptionRepository;
 	private final SpotVoteAnswerRepository spotVoteAnswerRepository;
@@ -285,31 +290,92 @@ public class SpotService {
 	// ─────────────────────────────────────────────
 
 	/**
-	 * 스팟의 일정 목록을 조회합니다.
+	 * 스팟의 일정(제안 슬롯 + 확정 슬롯)을 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotScheduleResponse> getSchedules(String spotId) {
+	public SpotScheduleResponse getSchedule(String spotId) {
 		validateSpotExists(spotId);
 
-		return spotScheduleRepository.findBySpotIdOrderByScheduledAtAsc(spotId)
-			.stream()
-			.map(SpotScheduleResponse::from)
+		List<SpotScheduleSlot> slots = spotScheduleSlotRepository.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
+		Map<Long, List<String>> availabilityBySlot = loadAvailabilities(slots);
+
+		List<ScheduleSlotDto> proposed = slots.stream()
+			.map(slot -> toSlotDto(slot, availabilityBySlot))
 			.toList();
+		ScheduleSlotDto confirmed = slots.stream()
+			.filter(SpotScheduleSlot::isConfirmed)
+			.findFirst()
+			.map(slot -> toSlotDto(slot, availabilityBySlot))
+			.orElse(null);
+
+		return SpotScheduleResponse.builder()
+			.spotId(spotId)
+			.proposedSlots(proposed)
+			.confirmedSlot(confirmed)
+			.build();
 	}
 
 	/**
-	 * 스팟에 일정을 추가합니다.
+	 * 스팟 일정을 전체 교체합니다. (proposedSlots 로 슬롯/가용성 재구성, confirmedSlot 확정)
+	 * confirmedSlot 은 proposedSlots 중 하나여야 합니다.
 	 */
-	public SpotScheduleResponse addSchedule(String spotId, CreateScheduleRequest request) {
+	public SpotScheduleResponse updateSchedule(String spotId, UpdateScheduleRequest request) {
 		validateSpotExists(spotId);
 
-		SpotSchedule schedule = SpotSchedule.builder()
-			.spotId(spotId)
-			.title(request.getTitle())
-			.scheduledAt(request.getScheduledAt())
-			.build();
+		List<ScheduleSlotDto> proposed = request.getProposedSlots();
+		ScheduleSlotDto confirmed = request.getConfirmedSlot();
+		if (confirmed != null && proposed.stream().noneMatch(s -> sameSlot(s, confirmed))) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
 
-		return SpotScheduleResponse.from(spotScheduleRepository.save(schedule));
+		// 전체 교체: 기존 슬롯/가용성 제거
+		List<SpotScheduleSlot> existing = spotScheduleSlotRepository
+			.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
+		if (!existing.isEmpty()) {
+			List<Long> existingIds = existing.stream().map(SpotScheduleSlot::getId).toList();
+			spotScheduleAvailabilityRepository.deleteBySlotIdIn(existingIds);
+			spotScheduleSlotRepository.deleteBySpotId(spotId);
+		}
+
+		for (ScheduleSlotDto dto : proposed) {
+			SpotScheduleSlot slot = spotScheduleSlotRepository.save(SpotScheduleSlot.builder()
+				.spotId(spotId)
+				.slotDate(dto.getDate())
+				.slotHour(dto.getHour())
+				.confirmed(confirmed != null && sameSlot(dto, confirmed))
+				.build());
+
+			dto.getAvailableUserIds().stream().distinct().forEach(userId ->
+				spotScheduleAvailabilityRepository.save(SpotScheduleAvailability.builder()
+					.slotId(slot.getId())
+					.userId(userId)
+					.build()));
+		}
+
+		return getSchedule(spotId);
+	}
+
+	private Map<Long, List<String>> loadAvailabilities(List<SpotScheduleSlot> slots) {
+		if (slots.isEmpty()) {
+			return Map.of();
+		}
+		List<Long> slotIds = slots.stream().map(SpotScheduleSlot::getId).toList();
+		return spotScheduleAvailabilityRepository.findBySlotIdIn(slotIds).stream()
+			.collect(Collectors.groupingBy(
+				SpotScheduleAvailability::getSlotId,
+				Collectors.mapping(SpotScheduleAvailability::getUserId, Collectors.toList())));
+	}
+
+	private ScheduleSlotDto toSlotDto(SpotScheduleSlot slot, Map<Long, List<String>> availabilityBySlot) {
+		return ScheduleSlotDto.builder()
+			.date(slot.getSlotDate())
+			.hour(slot.getSlotHour())
+			.availableUserIds(new ArrayList<>(availabilityBySlot.getOrDefault(slot.getId(), List.of())))
+			.build();
+	}
+
+	private boolean sameSlot(ScheduleSlotDto a, ScheduleSlotDto b) {
+		return a.getDate().equals(b.getDate()) && a.getHour() == b.getHour();
 	}
 
 	// ─────────────────────────────────────────────

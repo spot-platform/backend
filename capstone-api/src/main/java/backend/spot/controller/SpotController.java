@@ -23,7 +23,6 @@ import backend.spot.dto.AssignChecklistRequest;
 import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
-import backend.spot.dto.CreateScheduleRequest;
 import backend.spot.dto.CreateSpotRequest;
 import backend.spot.dto.CreateVoteRequest;
 import backend.spot.dto.SpotChecklistResponse;
@@ -36,6 +35,7 @@ import backend.spot.dto.SpotResponse;
 import backend.spot.dto.SpotScheduleResponse;
 import backend.spot.dto.SpotVoteResponse;
 import backend.spot.dto.SubmitVoteAnswersRequest;
+import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.service.SpotService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -135,19 +135,19 @@ public class SpotController {
 
 	// ─── 일정 (Schedule) ─────────────────────────
 
-	@Operation(summary = "스팟 일정 목록 조회")
+	@Operation(summary = "스팟 일정 조회", description = "제안 슬롯 목록 + 확정 슬롯")
 	@GetMapping("/{spotId}/schedule")
-	public ResponseEntity<ApiResponse<List<SpotScheduleResponse>>> getSchedule(@PathVariable String spotId) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getSchedules(spotId)));
+	public ResponseEntity<ApiResponse<SpotScheduleResponse>> getSchedule(@PathVariable String spotId) {
+		return ResponseEntity.ok(ApiResponse.success(spotService.getSchedule(spotId)));
 	}
 
-	@Operation(summary = "스팟 일정 추가")
+	@Operation(summary = "스팟 일정 저장", description = "proposedSlots 전체 교체 + confirmedSlot 확정")
 	@PutMapping("/{spotId}/schedule")
 	public ResponseEntity<ApiResponse<SpotScheduleResponse>> updateSchedule(
 		@PathVariable String spotId,
-		@Valid @RequestBody CreateScheduleRequest request
+		@Valid @RequestBody UpdateScheduleRequest request
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.addSchedule(spotId, request)));
+		return ResponseEntity.ok(ApiResponse.success(spotService.updateSchedule(spotId, request)));
 	}
 
 	// ─── 투표 (Vote) ──────────────────────────────
