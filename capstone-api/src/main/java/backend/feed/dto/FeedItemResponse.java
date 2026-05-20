@@ -1,5 +1,6 @@
 package backend.feed.dto;
 
+import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
@@ -100,7 +101,7 @@ public class FeedItemResponse {
 	}
 
 	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
-			FeedApplicationStatus myApplicationStatus, FeedAuthorProfile authorProfile) {
+			FeedApplication myApplication, FeedAuthorProfile authorProfile) {
 		return FeedItemResponse.builder()
 				.id(feedItem.getId())
 				.title(feedItem.getTitle())
@@ -118,11 +119,10 @@ public class FeedItemResponse {
 				.progressPercent(feedItem.getType() == PostType.OFFER ? calculateProgressPercent(feedItem) : null)
 				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
-				.myApplicationStatus(myApplicationStatus)
-				// myApplicationRole/Deposit, isRentable: 현재 인증/대여 모델 미구현으로 null. 별도 PR에서 채움.
-				.myApplicationRole(null)
-				.myApplicationDeposit(null)
-				.isRentable(null)
+				.myApplicationStatus(myApplication != null ? myApplication.getStatus() : null)
+				.myApplicationRole(myApplication != null ? myApplication.getAppliedRole() : null)
+				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
+				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())

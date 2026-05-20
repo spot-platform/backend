@@ -2,7 +2,7 @@ package backend.feed.dto;
 
 import java.util.List;
 
-import backend.feed.entity.FeedApplicationStatus;
+import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedItem;
 import backend.global.enums.PostType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,7 +38,7 @@ public class FeedDetailResponse extends FeedItemResponse {
 	private List<FeedParticipantProfile> confirmedPartnerProfiles;
 
 	public static FeedDetailResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
-			FeedApplicationStatus myApplicationStatus, FeedAuthorProfile authorProfile, PlanV3 plan,
+			FeedApplication myApplication, FeedAuthorProfile authorProfile, PlanV3 plan,
 			PriceBreakdown priceBreakdown, Preparation preparation, List<ResolvedPlace> venueAnchors,
 			ResolvedPlace primaryPin, List<FeedParticipantProfile> confirmedPartnerProfiles) {
 		return FeedDetailResponse.builder()
@@ -58,7 +58,10 @@ public class FeedDetailResponse extends FeedItemResponse {
 				.progressPercent(feedItem.getType() == PostType.OFFER ? calculateProgressPercent(feedItem) : null)
 				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
-				.myApplicationStatus(myApplicationStatus)
+				.myApplicationStatus(myApplication != null ? myApplication.getStatus() : null)
+				.myApplicationRole(myApplication != null ? myApplication.getAppliedRole() : null)
+				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
+				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
 				.spotId(feedItem.getSpotId())
 				.isAi(feedItem.isAi())
