@@ -64,6 +64,15 @@ public class Spot {
 	private String authorNickname;
 
 	@Column
+	private String category;
+
+	@Column
+	private Double lat;
+
+	@Column
+	private Double lng;
+
+	@Column
 	private LocalDateTime matchedAt;
 
 	@Column

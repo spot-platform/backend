@@ -29,6 +29,7 @@ import backend.spot.dto.CreateVoteRequest;
 import backend.spot.dto.SpotChecklistResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
+import backend.spot.dto.SpotMapItemResponse;
 import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
@@ -61,9 +62,9 @@ public class SpotController {
 		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
 	}
 
-	@Operation(summary = "지도 마커용 스팟 목록 (미구현)", description = "bounds/필터 파라미터 처리는 추후 구현 예정")
+	@Operation(summary = "지도 마커용 스팟 목록", description = "bounds(sw/ne) 4개 모두 주거나 모두 생략. type/status/category 선택 필터.")
 	@GetMapping("/map")
-	public ResponseEntity<ApiResponse<List<SpotResponse>>> getSpotMap(
+	public ResponseEntity<ApiResponse<List<SpotMapItemResponse>>> getSpotMap(
 		@RequestParam(required = false) Double swLat,
 		@RequestParam(required = false) Double swLng,
 		@RequestParam(required = false) Double neLat,
@@ -72,19 +73,19 @@ public class SpotController {
 		@RequestParam(required = false) String type,
 		@RequestParam(required = false) String status
 	) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
-			"지도 bounds 기반 조회는 아직 구현되지 않았습니다.");
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.getSpotMap(swLat, swLng, neLat, neLng, category, type, status)
+		));
 	}
 
-	@Operation(summary = "스팟 검색 (미구현)")
+	@Operation(summary = "스팟 검색", description = "제목/설명 키워드 부분 일치 검색")
 	@GetMapping("/search")
 	public ResponseEntity<ApiResponse<SpotListResponse>> searchSpots(
 		@RequestParam String q,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
-			"스팟 검색은 아직 구현되지 않았습니다.");
+		return ResponseEntity.ok(ApiResponse.success(spotService.searchSpots(q, page, size)));
 	}
 
 	@Operation(summary = "스팟 생성")

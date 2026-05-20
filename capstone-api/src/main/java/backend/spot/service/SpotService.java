@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
+import backend.global.enums.FeedItemStatus;
+import backend.global.enums.PostType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.spot.dto.CastVoteRequest;
@@ -27,6 +29,7 @@ import backend.spot.dto.CreateVoteRequest;
 import backend.spot.dto.SpotChecklistResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
+import backend.spot.dto.SpotMapItemResponse;
 import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
@@ -96,6 +99,9 @@ public class SpotService {
 			.pointCost(request.getPointCost())
 			.authorId(author.getId())
 			.authorNickname(author.getNickname())
+			.category(request.getCategory())
+			.lat(request.getLat())
+			.lng(request.getLng())
 			.build();
 
 		Spot saved = spotRepository.save(spot);
@@ -143,6 +149,67 @@ public class SpotService {
 			.data(data)
 			.meta(meta)
 			.build();
+	}
+
+	/**
+	 * 지도 마커용 스팟 목록을 조회합니다.
+	 * bounds(sw/ne)는 4개 모두 주어질 때만 적용하며, 일부만 주어지면 400.
+	 * type/status는 enum 문자열, 잘못된 값이면 400.
+	 */
+	@Transactional(readOnly = true)
+	public List<SpotMapItemResponse> getSpotMap(
+		Double swLat, Double swLng, Double neLat, Double neLng,
+		String category, String type, String status
+	) {
+		boolean anyBounds = swLat != null || swLng != null || neLat != null || neLng != null;
+		boolean allBounds = swLat != null && swLng != null && neLat != null && neLng != null;
+		if (anyBounds && !allBounds) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
+
+		PostType typeFilter = parseEnum(PostType.class, type);
+		FeedItemStatus statusFilter = parseEnum(FeedItemStatus.class, status);
+
+		return spotRepository.findMapItems(swLat, swLng, neLat, neLng, typeFilter, statusFilter, category)
+			.stream()
+			.map(SpotMapItemResponse::from)
+			.toList();
+	}
+
+	/**
+	 * 제목/설명 키워드로 스팟을 검색합니다.
+	 */
+	@Transactional(readOnly = true)
+	public SpotListResponse searchSpots(String keyword, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+		Page<Spot> spotPage = spotRepository.searchByKeyword(keyword, pageable);
+
+		List<SpotResponse> data = spotPage.getContent().stream()
+			.map(this::toSpotResponse)
+			.toList();
+
+		ApiResponseMeta meta = ApiResponseMeta.builder()
+			.page(page)
+			.size(size)
+			.total(spotPage.getTotalElements())
+			.hasNext(spotPage.hasNext())
+			.build();
+
+		return SpotListResponse.builder()
+			.data(data)
+			.meta(meta)
+			.build();
+	}
+
+	private static <E extends Enum<E>> E parseEnum(Class<E> enumType, String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		try {
+			return Enum.valueOf(enumType, value);
+		} catch (IllegalArgumentException e) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
 	}
 
 	/**
