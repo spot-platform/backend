@@ -35,9 +35,11 @@ import backend.feed.dto.PlanV3;
 import backend.feed.dto.Preparation;
 import backend.feed.dto.PriceBreakdown;
 import backend.feed.dto.ResolvedPlace;
+import backend.feed.entity.Bookmark;
 import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
+import backend.feed.repository.BookmarkRepository;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
@@ -56,6 +58,7 @@ public class FeedItemService {
 
 	private final FeedItemRepository feedItemRepository;
 	private final FeedApplicationRepository feedApplicationRepository;
+	private final BookmarkRepository bookmarkRepository;
 	private final PostRepository postRepository;
 	private final PostService postService;
 	private final UserRepository userRepository;
@@ -156,6 +159,24 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("취소할 신청 내역이 없습니다."));
 
 		application.cancel();
+	}
+
+	@Transactional
+	public void addBookmark(String feedId, String userId) {
+		feedItemRepository.findByIdAndDeletedFalse(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+		if (!bookmarkRepository.existsByUserIdAndFeedItemId(userId, feedId)) {
+			bookmarkRepository.save(Bookmark.builder()
+					.userId(userId)
+					.feedItemId(feedId)
+					.build());
+		}
+	}
+
+	@Transactional
+	public void removeBookmark(String feedId, String userId) {
+		bookmarkRepository.findByUserIdAndFeedItemId(userId, feedId)
+				.ifPresent(bookmarkRepository::delete);
 	}
 
 	@Transactional
