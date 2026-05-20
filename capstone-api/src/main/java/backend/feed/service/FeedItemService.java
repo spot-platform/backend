@@ -18,9 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import backend.global.error.exception.BusinessException;
-import backend.global.error.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.feed.dto.FeedApplicationResponse;
@@ -41,6 +38,8 @@ import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
+import backend.global.error.exception.BusinessException;
+import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
 import backend.post.entity.Post;
 import backend.post.repository.PostRepository;
