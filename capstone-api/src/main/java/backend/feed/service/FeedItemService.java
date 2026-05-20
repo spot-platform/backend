@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -70,11 +71,19 @@ public class FeedItemService {
 		Page<FeedItem> feedItemPage = feedItemRepository.findAllByQuery(query, pageable);
 		String currentUserId = resolveCurrentUserId().orElse(null);
 
+		List<String> feedIds = feedItemPage.getContent().stream()
+				.map(FeedItem::getId)
+				.collect(Collectors.toList());
+		Set<String> bookmarkedIds = currentUserId == null
+				? Collections.emptySet()
+				: bookmarkRepository.findByUserIdAndFeedItemIdIn(currentUserId, feedIds)
+						.stream().map(Bookmark::getFeedItemId).collect(Collectors.toSet());
+
 		List<FeedItemResponse> content = feedItemPage.getContent().stream()
 				.map(feedItem -> FeedItemResponse.from(
 						feedItem,
 						resolveApplicantCount(feedItem),
-						currentUserId == null ? null : false,
+						currentUserId == null ? null : bookmarkedIds.contains(feedItem.getId()),
 						resolveMyApplicationStatus(feedItem.getId(), currentUserId),
 						FeedItemResponse.buildAuthorProfile(feedItem)))
 				.collect(Collectors.toList());
@@ -97,7 +106,7 @@ public class FeedItemService {
 		return FeedDetailResponse.from(
 				feedItem,
 				resolveApplicantCount(feedItem),
-				currentUserId == null ? null : false,
+				currentUserId == null ? null : bookmarkRepository.existsByUserIdAndFeedItemId(currentUserId, feedItem.getId()),
 				resolveMyApplicationStatus(feedItem.getId(), currentUserId),
 				FeedItemResponse.buildAuthorProfile(feedItem),
 				deserialize(feedItem.getPlanJson(), PlanV3.class),
