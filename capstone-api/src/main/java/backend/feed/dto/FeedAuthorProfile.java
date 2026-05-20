@@ -21,7 +21,7 @@ public class FeedAuthorProfile {
 	@Schema(description = "작성자 닉네임", example = "유저1")
 	private String nickname;
 
-	@Schema(description = "작성자 아바타 URL")
+	@Schema(description = "작성자 아바타 URL", example = "https://example.com/avatar.jpg")
 	private String avatarUrl;
 
 	@Schema(description = "작성자 역할", example = "SUPPORTER")
