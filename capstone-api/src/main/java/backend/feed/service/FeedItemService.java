@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +34,11 @@ import backend.feed.dto.PlanV3;
 import backend.feed.dto.Preparation;
 import backend.feed.dto.PriceBreakdown;
 import backend.feed.dto.ResolvedPlace;
+import backend.feed.entity.Bookmark;
 import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
+import backend.feed.repository.BookmarkRepository;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
@@ -55,6 +59,7 @@ public class FeedItemService {
 
 	private final FeedItemRepository feedItemRepository;
 	private final FeedApplicationRepository feedApplicationRepository;
+	private final BookmarkRepository bookmarkRepository;
 	private final PostRepository postRepository;
 	private final PostService postService;
 	private final UserRepository userRepository;
@@ -65,11 +70,19 @@ public class FeedItemService {
 		Page<FeedItem> feedItemPage = feedItemRepository.findAllByQuery(query, pageable);
 		String currentUserId = resolveCurrentUserId().orElse(null);
 
+		List<String> feedIds = feedItemPage.getContent().stream()
+				.map(FeedItem::getId)
+				.collect(Collectors.toList());
+		Set<String> bookmarkedIds = currentUserId == null
+				? Collections.emptySet()
+				: bookmarkRepository.findByUserIdAndFeedItemIdIn(currentUserId, feedIds)
+						.stream().map(Bookmark::getFeedItemId).collect(Collectors.toSet());
+
 		List<FeedItemResponse> content = feedItemPage.getContent().stream()
 				.map(feedItem -> FeedItemResponse.from(
 						feedItem,
 						resolveApplicantCount(feedItem),
-						currentUserId == null ? null : false,
+						currentUserId == null ? null : bookmarkedIds.contains(feedItem.getId()),
 						resolveMyApplicationStatus(feedItem.getId(), currentUserId),
 						FeedItemResponse.buildAuthorProfile(feedItem)))
 				.collect(Collectors.toList());
@@ -92,7 +105,7 @@ public class FeedItemService {
 		return FeedDetailResponse.from(
 				feedItem,
 				resolveApplicantCount(feedItem),
-				currentUserId == null ? null : false,
+				currentUserId == null ? null : bookmarkRepository.existsByUserIdAndFeedItemId(currentUserId, feedItem.getId()),
 				resolveMyApplicationStatus(feedItem.getId(), currentUserId),
 				FeedItemResponse.buildAuthorProfile(feedItem),
 				deserialize(feedItem.getPlanJson(), PlanV3.class),
@@ -155,6 +168,29 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("취소할 신청 내역이 없습니다."));
 
 		application.cancel();
+	}
+
+	@Transactional
+	public void addBookmark(String feedId, String userId) {
+		feedItemRepository.findByIdAndDeletedFalse(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+		try {
+			bookmarkRepository.saveAndFlush(Bookmark.builder()
+					.userId(userId)
+					.feedItemId(feedId)
+					.build());
+		} catch (DataIntegrityViolationException e) {
+			// UNIQUE(user_id, feed_item_id) 동시 요청 경합은 idempotent no-op 처리
+			if (!bookmarkRepository.existsByUserIdAndFeedItemId(userId, feedId)) {
+				throw e;
+			}
+		}
+	}
+
+	@Transactional
+	public void removeBookmark(String feedId, String userId) {
+		bookmarkRepository.findByUserIdAndFeedItemId(userId, feedId)
+				.ifPresent(bookmarkRepository::delete);
 	}
 
 	@Transactional

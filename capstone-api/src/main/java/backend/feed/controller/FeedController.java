@@ -80,18 +80,22 @@ public class FeedController {
 		));
 	}
 
-	@Operation(summary = "피드 북마크 추가 (미구현)")
+	@Operation(summary = "피드 북마크 추가")
 	@PostMapping("/{feedId}/bookmark")
-	public void addBookmark(@PathVariable String feedId) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
-				"Bookmark API not implemented yet");
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void addBookmark(
+			@PathVariable String feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.addBookmark(feedId, requireAuth(userDetails));
 	}
 
-	@Operation(summary = "피드 북마크 제거 (미구현)")
+	@Operation(summary = "피드 북마크 제거")
 	@DeleteMapping("/{feedId}/bookmark")
-	public void removeBookmark(@PathVariable String feedId) {
-		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
-				"Bookmark API not implemented yet");
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeBookmark(
+			@PathVariable String feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.removeBookmark(feedId, requireAuth(userDetails));
 	}
 
 	@Operation(summary = "신청 수락 (작성자 전용) — 펀딩 목표 달성 시 Spot 자동 생성")
