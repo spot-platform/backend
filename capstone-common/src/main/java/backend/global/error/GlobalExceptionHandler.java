@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.server.ResponseStatusException;
 
 import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.BusinessException;
@@ -60,6 +61,17 @@ public class GlobalExceptionHandler {
 			message
 		);
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	// 컨트롤러/필터가 명시적으로 던진 ResponseStatusException 은 그 상태코드를 보존한다.
+	// (catch-all Exception 핸들러보다 먼저 매칭되어 501/401 등이 500으로 덮어써지는 것을 방지)
+	@ExceptionHandler(ResponseStatusException.class)
+	protected ResponseEntity<ApiResponse<Void>> handleResponseStatusException(ResponseStatusException exception) {
+		log.warn("handleResponseStatusException: {} {}", exception.getStatusCode(), exception.getReason());
+		HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
+		String message = exception.getReason() != null ? exception.getReason() : status.getReasonPhrase();
+		ApiResponse<Void> response = ApiResponse.error(status.value(), message);
+		return new ResponseEntity<>(response, status);
 	}
 
 	// SSE 연결 타임아웃은 클라이언트가 이미 연결을 끊은 정상 종료 시그널 — 응답 불필요
