@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -165,11 +166,16 @@ public class FeedItemService {
 	public void addBookmark(String feedId, String userId) {
 		feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
-		if (!bookmarkRepository.existsByUserIdAndFeedItemId(userId, feedId)) {
-			bookmarkRepository.save(Bookmark.builder()
+		try {
+			bookmarkRepository.saveAndFlush(Bookmark.builder()
 					.userId(userId)
 					.feedItemId(feedId)
 					.build());
+		} catch (DataIntegrityViolationException e) {
+			// UNIQUE(user_id, feed_item_id) 동시 요청 경합은 idempotent no-op 처리
+			if (!bookmarkRepository.existsByUserIdAndFeedItemId(userId, feedId)) {
+				throw e;
+			}
 		}
 	}
 
