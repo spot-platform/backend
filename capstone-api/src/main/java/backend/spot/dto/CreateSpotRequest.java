@@ -2,6 +2,8 @@ package backend.spot.dto;
 
 import backend.global.enums.PostType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -36,4 +38,15 @@ public class CreateSpotRequest {
 	@Schema(description = "포인트 비용", example = "5000",
 		requiredMode = Schema.RequiredMode.REQUIRED)
 	private Integer pointCost;
+
+	@Schema(description = "카테고리 (선택)", example = "요리", nullable = true)
+	private String category;
+
+	@DecimalMin(value = "-90.0") @DecimalMax(value = "90.0")
+	@Schema(description = "위도 (선택, 지도 마커용)", example = "37.5283", nullable = true)
+	private Double lat;
+
+	@DecimalMin(value = "-180.0") @DecimalMax(value = "180.0")
+	@Schema(description = "경도 (선택, 지도 마커용)", example = "126.9294", nullable = true)
+	private Double lng;
 }
