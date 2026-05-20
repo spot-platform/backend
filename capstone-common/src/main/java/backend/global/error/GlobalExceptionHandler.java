@@ -69,7 +69,8 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ApiResponse<Void>> handleResponseStatusException(ResponseStatusException exception) {
 		log.warn("handleResponseStatusException: {} {}", exception.getStatusCode(), exception.getReason());
 		HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
-		ApiResponse<Void> response = ApiResponse.error(status.value(), exception.getReason());
+		String message = exception.getReason() != null ? exception.getReason() : status.getReasonPhrase();
+		ApiResponse<Void> response = ApiResponse.error(status.value(), message);
 		return new ResponseEntity<>(response, status);
 	}
 
