@@ -86,8 +86,15 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 		if (nearLat == null || nearLng == null) {
 			return null;
 		}
+		if (!Double.isFinite(nearLat) || !Double.isFinite(nearLng)
+				|| nearLat < -90.0 || nearLat > 90.0
+				|| nearLng < -180.0 || nearLng > 180.0) {
+			throw new IllegalArgumentException("nearLat/nearLng out of range");
+		}
 		double latDelta = RADIUS_KM / KM_PER_DEGREE_LAT;
-		double lngDelta = RADIUS_KM / (KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(nearLat)));
+		double cosLat = Math.cos(Math.toRadians(nearLat));
+		double safeCosLat = Math.max(Math.abs(cosLat), 1e-6);
+		double lngDelta = RADIUS_KM / (KM_PER_DEGREE_LAT * safeCosLat);
 		return feedItem.lat.isNotNull()
 				.and(feedItem.lat.between(nearLat - latDelta, nearLat + latDelta))
 				.and(feedItem.lng.between(nearLng - lngDelta, nearLng + lngDelta));
