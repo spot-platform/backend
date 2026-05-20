@@ -77,13 +77,14 @@ public class FeedItemService {
 				? Collections.emptySet()
 				: bookmarkRepository.findByUserIdAndFeedItemIdIn(currentUserId, feedIds)
 						.stream().map(Bookmark::getFeedItemId).collect(Collectors.toSet());
+		Map<String, FeedApplication> myApplicationByFeedId = resolveMyApplicationsBatch(feedIds, currentUserId);
 
 		List<FeedItemResponse> content = feedItemPage.getContent().stream()
 				.map(feedItem -> FeedItemResponse.from(
 						feedItem,
 						resolveApplicantCount(feedItem),
 						currentUserId == null ? null : bookmarkedIds.contains(feedItem.getId()),
-						resolveMyApplicationStatus(feedItem.getId(), currentUserId),
+						myApplicationByFeedId.get(feedItem.getId()),
 						FeedItemResponse.buildAuthorProfile(feedItem)))
 				.collect(Collectors.toList());
 
@@ -106,7 +107,7 @@ public class FeedItemService {
 				feedItem,
 				resolveApplicantCount(feedItem),
 				currentUserId == null ? null : bookmarkRepository.existsByUserIdAndFeedItemId(currentUserId, feedItem.getId()),
-				resolveMyApplicationStatus(feedItem.getId(), currentUserId),
+				resolveMyApplication(feedId, currentUserId),
 				FeedItemResponse.buildAuthorProfile(feedItem),
 				deserialize(feedItem.getPlanJson(), PlanV3.class),
 				deserialize(feedItem.getPriceBreakdownJson(), PriceBreakdown.class),
@@ -241,14 +242,25 @@ public class FeedItemService {
 		return feedApplicationRepository.countByFeedItemIdAndStatus(feedItem.getId(), FeedApplicationStatus.APPLIED);
 	}
 
-	private FeedApplicationStatus resolveMyApplicationStatus(String feedItemId, String currentUserId) {
+	private FeedApplication resolveMyApplication(String feedItemId, String currentUserId) {
 		if (currentUserId == null) {
 			return null;
 		}
 		return feedApplicationRepository
 				.findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(feedItemId, currentUserId)
-				.map(FeedApplication::getStatus)
 				.orElse(null);
+	}
+
+	private Map<String, FeedApplication> resolveMyApplicationsBatch(List<String> feedItemIds, String currentUserId) {
+		if (currentUserId == null || feedItemIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		return feedApplicationRepository.findAllByFeedItemIdInAndUserId(feedItemIds, currentUserId)
+				.stream()
+				.collect(Collectors.toMap(
+						FeedApplication::getFeedItemId,
+						a -> a,
+						(a, b) -> a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b));
 	}
 
 	private Optional<String> resolveCurrentUserId() {

@@ -22,5 +22,7 @@ public interface FeedApplicationRepository extends JpaRepository<FeedApplication
 	Optional<FeedApplication> findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(String feedItemId, String userId);
 
 	List<FeedApplication> findAllByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
+
+	List<FeedApplication> findAllByFeedItemIdInAndUserId(List<String> feedItemIds, String userId);
 }
 
