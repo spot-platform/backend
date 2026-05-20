@@ -44,14 +44,4 @@ jobs:
 
       - name: Restart application
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} bash << 'EOF'
-            # 포트 8080 점유 프로세스 강제 종료 (수동 배포된 이름이 다른 JAR도 처리)
-            fuser -k 8080/tcp 2>/dev/null || true
-            pkill -f '\.jar' 2>/dev/null || true
-            sleep 5
-            nohup java -jar ~/app/app.jar \
-              --spring.config.additional-location=file:$HOME/app/ \
-              > ~/app/app.log 2>&1 &
-            disown
-            echo "Deploy complete — PID $!"
-          EOF
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} 'sudo systemctl restart capstone.service'
