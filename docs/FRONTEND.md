@@ -1235,8 +1235,8 @@ responses:
 #### GET `/spots/search`
 
 - **사용 위치:** 지도/상단 검색창.
-- **하는 일:** 검색어와 일치하는 스팟을 찾는다.
-- **프론트 액션:** 검색어 입력 후 결과 리스트/자동완성/지도 이동에 사용한다.
+- **하는 일:** 검색어와 일치하는 스팟을 찾는다. `scope`로 검색 범위(제목/설명/둘다)를 지정한다.
+- **프론트 액션:** 검색어 입력 후 결과 리스트/자동완성/지도 이동에 사용한다. 디시인사이드식 "제목만 / 내용만 / 제목+내용" 토글에 `scope` 매핑.
 
 
 ```yaml
@@ -1244,6 +1244,7 @@ summary: 스팟 검색
 parameters:
     query:
         q: string
+        scope?: ALL | TITLE | CONTENT   # 기본 ALL(제목+설명), TITLE(제목만), CONTENT(설명만)
         page?: number
         size?: number
 responses:

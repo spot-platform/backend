@@ -40,12 +40,15 @@ public interface SpotRepository extends JpaRepository<Spot, String> {
 	);
 
 	/**
-	 * 제목/설명 부분 일치 검색 (대소문자 무시).
+	 * 검색 범위(scope)에 따라 부분 일치 검색 (대소문자 무시).
+	 * scope: TITLE(제목만) / CONTENT(설명만) / ALL(제목+설명).
 	 */
 	@Query("""
 		SELECT s FROM Spot s
-		WHERE LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
-			OR LOWER(s.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		WHERE (:scope = 'TITLE'   AND LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+			OR (:scope = 'CONTENT' AND LOWER(s.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
+			OR (:scope = 'ALL'     AND (LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+									 OR LOWER(s.description) LIKE LOWER(CONCAT('%', :keyword, '%'))))
 		""")
-	Page<Spot> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+	Page<Spot> searchByKeyword(@Param("keyword") String keyword, @Param("scope") String scope, Pageable pageable);
 }
