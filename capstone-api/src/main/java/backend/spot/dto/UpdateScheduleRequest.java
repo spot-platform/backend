@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 public class UpdateScheduleRequest {
 
 	@NotNull
-	@Valid
-	@Schema(description = "제안 슬롯 목록 (전체 교체)")
-	private List<ScheduleSlotDto> proposedSlots;
+	@Schema(description = "제안 슬롯 목록 (전체 교체, null 요소 불가)")
+	private List<@NotNull @Valid ScheduleSlotDto> proposedSlots;
 
 	@Valid
 	@Schema(description = "확정 슬롯 (proposedSlots 중 하나여야 함, 없으면 null)", nullable = true)

@@ -319,8 +319,10 @@ public class SpotService {
 	 * 스팟 일정을 전체 교체합니다. (proposedSlots 로 슬롯/가용성 재구성, confirmedSlot 확정)
 	 * confirmedSlot 은 proposedSlots 중 하나여야 합니다.
 	 */
-	public SpotScheduleResponse updateSchedule(String spotId, UpdateScheduleRequest request) {
+	@Transactional
+	public SpotScheduleResponse updateSchedule(String spotId, UpdateScheduleRequest request, String currentUserId) {
 		validateSpotExists(spotId);
+		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
 
 		List<ScheduleSlotDto> proposed = request.getProposedSlots();
 		ScheduleSlotDto confirmed = request.getConfirmedSlot();
@@ -345,11 +347,14 @@ public class SpotService {
 				.confirmed(confirmed != null && sameSlot(dto, confirmed))
 				.build());
 
-			dto.getAvailableUserIds().stream().distinct().forEach(userId ->
-				spotScheduleAvailabilityRepository.save(SpotScheduleAvailability.builder()
+			List<SpotScheduleAvailability> availabilities = dto.getAvailableUserIds().stream()
+				.distinct()
+				.map(userId -> SpotScheduleAvailability.builder()
 					.slotId(slot.getId())
 					.userId(userId)
-					.build()));
+					.build())
+				.toList();
+			spotScheduleAvailabilityRepository.saveAll(availabilities);
 		}
 
 		return getSchedule(spotId);
@@ -374,8 +379,8 @@ public class SpotService {
 			.build();
 	}
 
-	private boolean sameSlot(ScheduleSlotDto a, ScheduleSlotDto b) {
-		return a.getDate().equals(b.getDate()) && a.getHour() == b.getHour();
+	private boolean sameSlot(ScheduleSlotDto left, ScheduleSlotDto right) {
+		return left.getDate().equals(right.getDate()) && left.getHour().equals(right.getHour());
 	}
 
 	// ─────────────────────────────────────────────

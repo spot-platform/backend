@@ -141,13 +141,16 @@ public class SpotController {
 		return ResponseEntity.ok(ApiResponse.success(spotService.getSchedule(spotId)));
 	}
 
-	@Operation(summary = "스팟 일정 저장", description = "proposedSlots 전체 교체 + confirmedSlot 확정")
+	@Operation(summary = "스팟 일정 저장", description = "proposedSlots 전체 교체 + confirmedSlot 확정 (참여자만)")
 	@PutMapping("/{spotId}/schedule")
 	public ResponseEntity<ApiResponse<SpotScheduleResponse>> updateSchedule(
 		@PathVariable String spotId,
-		@Valid @RequestBody UpdateScheduleRequest request
+		@Valid @RequestBody UpdateScheduleRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.updateSchedule(spotId, request)));
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.updateSchedule(spotId, request, requireAuth(userDetails))
+		));
 	}
 
 	// ─── 투표 (Vote) ──────────────────────────────

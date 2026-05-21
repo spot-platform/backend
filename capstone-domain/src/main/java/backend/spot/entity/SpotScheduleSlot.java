@@ -56,8 +56,4 @@ public class SpotScheduleSlot {
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
-
-	public void confirm() {
-		this.confirmed = true;
-	}
 }

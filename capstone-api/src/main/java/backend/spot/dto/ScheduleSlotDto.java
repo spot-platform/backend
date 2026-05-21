@@ -24,10 +24,11 @@ public class ScheduleSlotDto {
 	@Schema(description = "날짜 (YYYY-MM-DD)", example = "2026-05-01")
 	private LocalDate date;
 
+	@NotNull
 	@Min(0)
 	@Max(23)
 	@Schema(description = "시각 (0-23)", example = "14")
-	private int hour;
+	private Integer hour;
 
 	@Builder.Default
 	@Schema(description = "이 슬롯에 가능한 사용자 ID 목록")
