@@ -58,15 +58,22 @@ public class SpotResponse {
 	@Schema(description = "수정 일시", example = "2024-04-10T12:00:00")
 	private LocalDateTime updatedAt;
 
+	@Schema(description = "현재 인증 사용자가 권한자(작성자 또는 참여자)인지 여부. 비인증 시 false", example = "false")
+	private boolean isOwner;
+
 	/**
 	 * Spot 엔티티 → SpotResponse DTO 변환 팩토리 메서드
 	 * Controller/Service에서 SpotResponse.from(spot) 으로 사용
 	 */
 	public static SpotResponse from(Spot spot) {
-		return from(spot, 0);
+		return from(spot, 0, false);
 	}
 
 	public static SpotResponse from(Spot spot, int participantCount) {
+		return from(spot, participantCount, false);
+	}
+
+	public static SpotResponse from(Spot spot, int participantCount, boolean isOwner) {
 		return SpotResponse.builder()
 			.id(spot.getId())
 			.type(spot.getType())
@@ -81,6 +88,7 @@ public class SpotResponse {
 			.closedAt(spot.getClosedAt())
 			.createdAt(spot.getCreatedAt())
 			.updatedAt(spot.getUpdatedAt())
+			.isOwner(isOwner)
 			.build();
 	}
 }

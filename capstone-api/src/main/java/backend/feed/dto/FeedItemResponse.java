@@ -1,18 +1,12 @@
 package backend.feed.dto;
 
-import java.util.List;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.FeedType;
+import backend.global.enums.PostType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,7 +43,7 @@ public class FeedItemResponse {
 	private Integer price;
 
 	@Schema(description = "피드 타입", example = "OFFER")
-	private FeedType type;
+	private PostType type;
 
 	@Schema(description = "상태", example = "OPEN")
 	private FeedItemStatus status;
@@ -108,30 +102,20 @@ public class FeedItemResponse {
 	@Schema(description = "좋아요수", example = "0")
 	private Integer likes;
 
-	@Schema(description = "스팟 명칭", example = "한강 공원 명당 자리")
-	private String spotName;
-
-	@Schema(description = "상세 설명", example = "돗자리·그늘막 포함, 바베큐 가능 구역입니다.")
-	private String detailDescription;
-
-	@Schema(description = "서포터 사진 URL (OFFER 전용)", example = "https://example.com/supporter.jpg")
-	private String supporterPhotoUrl;
-
-	@Schema(description = "서비스 스타일 사진 URL (REQUEST 전용)", example = "https://example.com/style.jpg")
-	private String serviceStylePhotoUrl;
-
-	@Schema(description = "카테고리 목록", example = "[\"음악\", \"운동\"]")
-	private List<String> categories;
-
-	@Schema(description = "사진 URL 목록", example = "[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
-	private List<String> photoUrls;
+	@Schema(description = "현재 인증 사용자가 권한자(작성자 또는 수락된 신청자)인지 여부. 비인증 시 false", example = "false")
+	private boolean isOwner;
 
 	public static FeedItemResponse from(FeedItem feedItem) {
-		return from(feedItem, null, null, null, buildAuthorProfile(feedItem));
+		return from(feedItem, null, null, null, buildAuthorProfile(feedItem), null);
 	}
 
 	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
 			FeedApplication myApplication, FeedAuthorProfile authorProfile) {
+		return from(feedItem, applicantCount, isBookmarked, myApplication, authorProfile, null);
+	}
+
+	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
+			FeedApplication myApplication, FeedAuthorProfile authorProfile, String currentUserId) {
 		return FeedItemResponse.builder()
 				.id(feedItem.getId())
 				.title(feedItem.getTitle())
@@ -145,14 +129,14 @@ public class FeedItemResponse {
 				.category(feedItem.getCategory())
 				.maxParticipants(feedItem.getMaxParticipants())
 				.deadline(feedItem.getDeadline())
-				.partnerCount(feedItem.getType() == FeedType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
-				.progressPercent(feedItem.getType() == FeedType.OFFER ? calculateProgressPercent(feedItem) : null)
-				.applicantCount(feedItem.getType() == FeedType.REQUEST ? applicantCount : null)
+				.partnerCount(feedItem.getType() == PostType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
+				.progressPercent(feedItem.getType() == PostType.OFFER ? calculateProgressPercent(feedItem) : null)
+				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
 				.myApplicationStatus(myApplication != null ? myApplication.getStatus() : null)
 				.myApplicationRole(myApplication != null ? myApplication.getAppliedRole() : null)
 				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
-				.isRentable(feedItem.getType() == FeedType.RENT)
+				.isRentable(feedItem.getType() == PostType.RENT)
 				.authorProfile(authorProfile)
 				.lat(feedItem.getLat())
 				.lng(feedItem.getLng())
@@ -160,13 +144,18 @@ public class FeedItemResponse {
 				.isAi(feedItem.isAi())
 				.views(feedItem.getViews())
 				.likes(feedItem.getLikes())
-				.spotName(feedItem.getSpotName())
-				.detailDescription(feedItem.getDetailDescription())
-				.supporterPhotoUrl(feedItem.getSupporterPhotoUrl())
-				.serviceStylePhotoUrl(feedItem.getServiceStylePhotoUrl())
-				.categories(parseJsonList(feedItem.getCategoriesJson()))
-				.photoUrls(parseJsonList(feedItem.getPhotoUrlsJson()))
+				.isOwner(resolveIsOwner(feedItem, myApplication, currentUserId))
 				.build();
+	}
+
+	protected static boolean resolveIsOwner(FeedItem feedItem, FeedApplication myApplication, String currentUserId) {
+		if (currentUserId == null) {
+			return false;
+		}
+		boolean isAuthor = currentUserId.equals(feedItem.getAuthorId());
+		boolean isAcceptedPartner = myApplication != null
+				&& myApplication.getStatus() == FeedApplicationStatus.ACCEPTED;
+		return isAuthor || isAcceptedPartner;
 	}
 
 	public static FeedAuthorProfile buildAuthorProfile(FeedItem feedItem) {
@@ -190,18 +179,5 @@ public class FeedItemResponse {
 		}
 		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
 		return (int) ((long) fundedAmount * 100L / fundingGoal);
-	}
-
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-	static List<String> parseJsonList(String json) {
-		if (json == null || json.isBlank()) {
-			return null;
-		}
-		try {
-			return OBJECT_MAPPER.readValue(json, new TypeReference<List<String>>() {});
-		} catch (JsonProcessingException e) {
-			return null;
-		}
 	}
 }

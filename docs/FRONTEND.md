@@ -219,6 +219,7 @@ type Spot = {
     authorNickname: string;
     createdAt: string;
     updatedAt: string;
+    isOwner: boolean; // 현재 인증 사용자가 권한자(작성자 또는 참여자)인지. 비인증 시 false
     forfeitPool?: {
         toPool: number;
         toPlatformFee: number;
@@ -391,6 +392,7 @@ type FeedItem = {
     myApplicationStatus?: FeedApplicationStatus;
     myApplicationRole?: FeedApplicationRole;
     myApplicationDeposit?: number;
+    isOwner?: boolean; // 현재 인증 사용자가 권한자(작성자 또는 수락된 신청자)인지. 비인증 시 false
     spotId?: string;
     isAi?: boolean;
 };

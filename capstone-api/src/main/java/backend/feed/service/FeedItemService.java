@@ -102,7 +102,8 @@ public class FeedItemService {
 						resolveApplicantCount(feedItem),
 						currentUserId == null ? null : bookmarkedIds.contains(feedItem.getId()),
 						myApplicationByFeedId.get(feedItem.getId()),
-						FeedItemResponse.buildAuthorProfile(feedItem)))
+						FeedItemResponse.buildAuthorProfile(feedItem),
+						currentUserId))
 				.collect(Collectors.toList());
 
 		return FeedListResponse.builder()
@@ -131,7 +132,8 @@ public class FeedItemService {
 				deserialize(feedItem.getPreparationJson(), Preparation.class),
 				deserializeList(feedItem.getVenueAnchorsJson()),
 				deserialize(feedItem.getPrimaryPinJson(), ResolvedPlace.class),
-				resolveConfirmedPartnerProfiles(feedItem.getId()));
+				resolveConfirmedPartnerProfiles(feedItem.getId()),
+				currentUserId);
 	}
 
 	@Transactional
