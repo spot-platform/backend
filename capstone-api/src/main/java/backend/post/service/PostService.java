@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedItemRepository;
+import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
 import backend.global.error.exception.BusinessException;
@@ -18,6 +19,8 @@ import backend.post.entity.Post;
 import backend.post.repository.PostRepository;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
+import backend.user.entity.UserEntity;
+import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +34,19 @@ public class PostService {
 	private final FeedItemRepository feedItemRepository;
 	private final SpotRepository spotRepository;
 	private final NotificationService notificationService;
+	private final UserRepository userRepository;
+
+	/**
+	 * 작성자 역할 매핑. 페르소나 엔티티가 없는 현재, 글 타입으로 매핑한다
+	 * (OFFER=SUPPORTER 제공, REQUEST=PARTNER 요청). TODO: UserPersona 도입 시 실제 role 로 교체.
+	 */
+	private FeedAuthorRole authorRoleOf(PostType type) {
+		return (type == PostType.REQUEST) ? FeedAuthorRole.PARTNER : FeedAuthorRole.SUPPORTER;
+	}
+
+	private String authorAvatarOf(String authorId) {
+		return userRepository.findById(authorId).map(UserEntity::getAvatarUrl).orElse(null);
+	}
 
 	public PostCompletionResponse createOfferPost(CreateOfferPostRequest request, String authorId, String authorNickname) {
 		Post post = Post.builder()
@@ -70,6 +86,8 @@ public class PostService {
 				.fundingGoal(fundingGoal)
 				.maxParticipants(request.getMaxPartnerCount())
 				.deadline(request.getDeadline())
+				.authorRole(authorRoleOf(PostType.OFFER))
+				.authorAvatarUrl(authorAvatarOf(savedPost.getAuthorId()))
 				.build();
 
 		FeedItem savedFeedItem = feedItemRepository.save(feedItem);
@@ -120,6 +138,8 @@ public class PostService {
 				.fundingGoal(fundingGoal)
 				.maxParticipants(request.getMaxPartnerCount())
 				.deadline(request.getDeadline())
+				.authorRole(authorRoleOf(PostType.REQUEST))
+				.authorAvatarUrl(authorAvatarOf(savedPost.getAuthorId()))
 				.build();
 
 		FeedItem savedFeedItem = feedItemRepository.save(feedItem);
