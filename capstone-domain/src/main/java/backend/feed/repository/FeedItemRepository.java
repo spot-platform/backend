@@ -25,4 +25,6 @@ public interface FeedItemRepository extends JpaRepository<FeedItem, Long>,
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT f FROM FeedItem f WHERE f.id = :id AND f.deleted = false")
 	Optional<FeedItem> findByIdAndDeletedFalseForUpdate(Long id);
+
+	boolean existsByIsAi(boolean isAi);
 }

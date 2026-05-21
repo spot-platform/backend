@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SimulationDataInitializer implements CommandLineRunner {
 
-	private static final String RUN_ID = "demo_run_001";
+	private static final String RUN_ID = "sim_run_peer_v1";
 	private static final String BASE_PATH = "simulation/";
 
 	private final SimulationRunRepository runRepository;
@@ -45,7 +45,7 @@ public class SimulationDataInitializer implements CommandLineRunner {
 		if (agentRepository.existsByRunId(RUN_ID)) {
 			return;
 		}
-		JsonNode manifest = readJson(BASE_PATH + "demo_run_001.manifest.json");
+		JsonNode manifest = readJson(BASE_PATH + "sim_run_peer_v1.manifest.json");
 		seedRun(manifest);
 		seedAgents(manifest, RUN_ID);
 		seedPlaces(manifest, RUN_ID);
@@ -109,7 +109,7 @@ public class SimulationDataInitializer implements CommandLineRunner {
 	}
 
 	private void seedMovements(String runId) throws IOException {
-		JsonNode root = readJson(BASE_PATH + "demo_run_001.movements.json");
+		JsonNode root = readJson(BASE_PATH + "sim_run_peer_v1.movements.json");
 		List<SimulationMovement> movements = new ArrayList<>();
 		for (JsonNode node : root) {
 			movements.add(SimulationMovement.builder()
@@ -127,7 +127,7 @@ public class SimulationDataInitializer implements CommandLineRunner {
 	}
 
 	private void seedLifecycleEvents(String runId) throws IOException {
-		JsonNode root = readJson(BASE_PATH + "demo_run_001.lifecycle.json");
+		JsonNode root = readJson(BASE_PATH + "sim_run_peer_v1.lifecycle.json");
 		List<SimulationLifecycleEvent> events = new ArrayList<>();
 		for (JsonNode node : root) {
 			events.add(SimulationLifecycleEvent.builder()
