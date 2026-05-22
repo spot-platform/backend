@@ -1,5 +1,7 @@
 package backend.chat.service;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ public class ChatRedisSubscriber implements MessageListener {
 
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
-		String channel = new String(message.getChannel());
+		String channel = new String(message.getChannel(), StandardCharsets.UTF_8);
 		try {
 			ChatSseEvent event = objectMapper.readValue(message.getBody(), ChatSseEvent.class);
 			if (channel.startsWith(ChatEventPublisher.ROOM_CHANNEL_PREFIX)) {
