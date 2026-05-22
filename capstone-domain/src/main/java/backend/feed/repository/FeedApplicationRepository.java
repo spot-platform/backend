@@ -24,5 +24,8 @@ public interface FeedApplicationRepository extends JpaRepository<FeedApplication
 	List<FeedApplication> findAllByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
 
 	List<FeedApplication> findAllByFeedItemIdInAndUserId(List<String> feedItemIds, String userId);
+
+	/** 내가 신청한 전체 내역 (최신순). 마이페이지 "신청한 목록" 용. */
+	List<FeedApplication> findAllByUserIdOrderByCreatedAtDesc(String userId);
 }
 

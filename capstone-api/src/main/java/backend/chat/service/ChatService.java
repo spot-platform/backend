@@ -106,6 +106,12 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.GROUP_CHAT_REQUIRES_SPOT);
 		}
 
+		// GROUP 생성 시 spotId 실존 검증 — 없는 Spot이면 404
+		if (request.getType() == ChatRoomType.GROUP
+				&& !spotRepository.existsById(request.getSpotId())) {
+			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
+		}
+
 		// 동일 spot 의 활성 GROUP 방 idempotent 재사용 (concurrent-safe)
 		ChatRoom room = findOrCreateGroupRoomForSpot(request.getSpotId());
 
@@ -358,6 +364,50 @@ public class ChatService {
 		ChatRoom room = findOrCreateGroupRoomForSpot(spotId);
 		if (participantUserIds != null) {
 			for (String userId : participantUserIds) {
+				ensureMember(room.getId(), userId);
+			}
+		}
+		return room;
+	}
+
+	/**
+	 * Feed(Post) 단계에서 GROUP 채팅방을 미리 생성합니다.
+	 * postId로 방을 추적하며, Spot 전환 전까지 spotId는 null로 유지됩니다.
+	 * 이미 방이 있으면 idempotent하게 멤버만 추가합니다.
+	 */
+	public ChatRoom ensureGroupRoomForPost(String postId, Collection<String> memberUserIds) {
+		ChatRoom room = chatRoomRepository
+			.findFirstByPostIdAndTypeAndIsDeletedFalse(postId, ChatRoomType.GROUP)
+			.orElseGet(() -> chatRoomRepository.save(
+				ChatRoom.builder()
+					.postId(postId)
+					.type(ChatRoomType.GROUP)
+					.isDeleted(false)
+					.build()
+			));
+		if (memberUserIds != null) {
+			for (String userId : memberUserIds) {
+				ensureMember(room.getId(), userId);
+			}
+		}
+		return room;
+	}
+
+	/**
+	 * Feed → Spot 전환 시 기존 postId 기반 GROUP 방의 spotId를 연결합니다.
+	 * 채팅 내역과 기존 멤버를 그대로 유지하면서 Spot 맥락으로 승격됩니다.
+	 * postId 기반 방이 없으면 spotId로 신규 GROUP 방을 생성합니다.
+	 */
+	public ChatRoom linkGroupRoomToSpot(String postId, String spotId, Collection<String> allMemberIds) {
+		ChatRoom room = chatRoomRepository
+			.findFirstByPostIdAndTypeAndIsDeletedFalse(postId, ChatRoomType.GROUP)
+			.map(existing -> {
+				existing.linkSpot(spotId);
+				return chatRoomRepository.save(existing);
+			})
+			.orElseGet(() -> findOrCreateGroupRoomForSpot(spotId));
+		if (allMemberIds != null) {
+			for (String userId : allMemberIds) {
 				ensureMember(room.getId(), userId);
 			}
 		}

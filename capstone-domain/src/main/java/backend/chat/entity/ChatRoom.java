@@ -60,4 +60,9 @@ public class ChatRoom {
 	public void markDeleted() {
 		this.isDeleted = true;
 	}
+
+	/** Feed → Spot 전환 시 호출. 채팅 내역을 유지하면서 spotId를 연결한다. */
+	public void linkSpot(String spotId) {
+		this.spotId = spotId;
+	}
 }
