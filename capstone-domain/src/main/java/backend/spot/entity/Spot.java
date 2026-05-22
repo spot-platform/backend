@@ -7,9 +7,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
-import backend.post.entity.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -123,18 +123,19 @@ public class Spot {
 	}
 
 	/**
-	 * Post 데이터를 기반으로 Spot을 생성하는 정적 팩토리 메서드
+	 * FeedItem 데이터를 기반으로 Spot을 생성하는 정적 팩토리 메서드.
+	 * 펀딩 목표 달성(신청 수락) 시 피드를 스팟으로 전환할 때 호출.
 	 */
-	public static Spot fromPost(Post post, String title, String description, Integer pointCost) {
+	public static Spot fromFeedItem(FeedItem feedItem) {
 		return Spot.builder()
-				.type(post.getType())
-				.status(FeedItemStatus.MATCHED) // 매칭된 상태로 생성
-				.matchedAt(LocalDateTime.now()) // MATCHED 팩토리 경로에서도 라이프사이클 시각 stamp
-				.title(title)
-				.description(description)
-				.pointCost(pointCost)
-				.authorId(post.getAuthorId())
-				.authorNickname(post.getAuthorNickname())
+				.type(feedItem.getType())
+				.status(FeedItemStatus.MATCHED)
+				.matchedAt(LocalDateTime.now())
+				.title(feedItem.getTitle())
+				.description(feedItem.getDescription())
+				.pointCost(feedItem.getPrice())
+				.authorId(feedItem.getAuthorId())
+				.authorNickname(feedItem.getAuthorNickname())
 				.build();
 	}
 }
