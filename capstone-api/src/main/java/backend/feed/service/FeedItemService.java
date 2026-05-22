@@ -301,6 +301,8 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
 		application.accept();
+		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
+		chatService.ensureGroupRoomForPost(feedId, Set.of(application.getUserId()));
 		feedItem.accumulateFunding(feedItem.getPrice());
 
 		if (feedItem.isFundingGoalMet()) {
