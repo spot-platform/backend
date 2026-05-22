@@ -378,13 +378,22 @@ public class ChatService {
 	public ChatRoom ensureGroupRoomForPost(String postId, Collection<String> memberUserIds) {
 		ChatRoom room = chatRoomRepository
 			.findFirstByPostIdAndTypeAndIsDeletedFalse(postId, ChatRoomType.GROUP)
-			.orElseGet(() -> chatRoomRepository.save(
-				ChatRoom.builder()
-					.postId(postId)
-					.type(ChatRoomType.GROUP)
-					.isDeleted(false)
-					.build()
-			));
+			.orElseGet(() -> {
+				try {
+					return chatRoomRepository.save(
+						ChatRoom.builder()
+							.postId(postId)
+							.type(ChatRoomType.GROUP)
+							.isDeleted(false)
+							.build()
+					);
+				} catch (DataIntegrityViolationException race) {
+					// 동시 요청이 먼저 생성 — partial unique index (post_id, type) WHERE is_deleted=false 가 막음.
+					return chatRoomRepository
+						.findFirstByPostIdAndTypeAndIsDeletedFalse(postId, ChatRoomType.GROUP)
+						.orElseThrow(() -> race);
+				}
+			});
 		if (memberUserIds != null) {
 			for (String userId : memberUserIds) {
 				ensureMember(room.getId(), userId);

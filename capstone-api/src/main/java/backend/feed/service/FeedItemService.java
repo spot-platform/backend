@@ -307,12 +307,7 @@ public class FeedItemService {
 			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
-			try {
-				chatService.linkGroupRoomToSpot(feedId, spot.getId(), participantIds);
-			} catch (Exception e) {
-				log.warn("[chat] Spot 전환 시 채팅방 연결 실패 - feedId={}, spotId={}, error={}",
-						feedId, spot.getId(), e.getMessage());
-			}
+			chatService.linkGroupRoomToSpot(feedId, spot.getId(), participantIds);
 			try {
 				notificationService.send(
 						feedItem.getAuthorId(),
@@ -359,14 +354,13 @@ public class FeedItemService {
 			.findAllByFeedItemIdAndStatus(feedItem.getId(), FeedApplicationStatus.ACCEPTED);
 		for (FeedApplication app : accepted) {
 			String uid = app.getUserId();
-			if (uid != null && !uid.equals(feedItem.getAuthorId())) {
+			if (uid != null && participantIds.add(uid)) {
 				participants.add(SpotParticipant.builder()
 					.spotId(spot.getId())
 					.userId(uid)
 					.role(ParticipantRole.PARTICIPANT)
 					.state(ParticipantState.ACTIVE)
 					.build());
-				participantIds.add(uid);
 			}
 		}
 		spotParticipantRepository.saveAll(participants);

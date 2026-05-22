@@ -166,7 +166,7 @@ public class UserService implements UserDetailsService {
 	public List<MyParticipatingSpotResponse> getMyParticipatingSpots(String email) {
 		UserEntity user = findActiveUserByEmail(email);
 		List<SpotParticipant> participations =
-			spotParticipantRepository.findByUserId(user.getId());
+			spotParticipantRepository.findByUserIdOrderByJoinedAtDesc(user.getId());
 
 		Set<String> spotIds = participations.stream()
 			.map(SpotParticipant::getSpotId)
