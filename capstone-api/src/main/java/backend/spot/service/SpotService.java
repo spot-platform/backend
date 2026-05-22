@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
+import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
@@ -169,8 +170,9 @@ public class SpotService {
 
 		FeedType typeFilter = parseEnum(FeedType.class, type);
 		FeedItemStatus statusFilter = parseEnum(FeedItemStatus.class, status);
+		FeedCategory categoryFilter = parseEnum(FeedCategory.class, category);
 
-		return spotRepository.findMapItems(swLat, swLng, neLat, neLng, typeFilter, statusFilter, category)
+		return spotRepository.findMapItems(swLat, swLng, neLat, neLng, typeFilter, statusFilter, categoryFilter)
 			.stream()
 			.map(SpotMapItemResponse::from)
 			.toList();

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import backend.feed.entity.FeedItem;
+import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import jakarta.persistence.Column;
@@ -63,8 +64,9 @@ public class Spot {
 	@Column(nullable = false)
 	private String authorNickname;
 
+	@Enumerated(EnumType.STRING)
 	@Column
-	private String category;
+	private FeedCategory category;
 
 	@Column
 	private Double lat;
@@ -138,7 +140,7 @@ public class Spot {
 				.pointCost(feedItem.getPrice())
 				.authorId(feedItem.getAuthorId())
 				.authorNickname(feedItem.getAuthorNickname())
-				.category(feedItem.getCategory() != null ? feedItem.getCategory().name() : null)
+				.category(feedItem.getCategory())
 				.lat(feedItem.getLat())
 				.lng(feedItem.getLng())
 				.build();
