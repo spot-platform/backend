@@ -54,6 +54,8 @@ import backend.global.security.CustomUserDetails;
 import backend.post.entity.Post;
 import backend.post.repository.PostRepository;
 import backend.post.service.PostService;
+import backend.spot.entity.Spot;
+import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,7 @@ public class FeedItemService {
 	private final BookmarkRepository bookmarkRepository;
 	private final PostRepository postRepository;
 	private final PostService postService;
+	private final SpotRepository spotRepository;
 	private final UserRepository userRepository;
 	private final ObjectMapper objectMapper;
 
@@ -295,8 +298,8 @@ public class FeedItemService {
 		application.accept();
 		feedItem.accumulateFunding(feedItem.getPrice());
 
-		if (feedItem.isFundingGoalMet() && feedItem.getPostId() != null) {
-			postService.convertToSpot(feedItem.getPostId());
+		if (feedItem.isFundingGoalMet()) {
+			spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 		}
 
