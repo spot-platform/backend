@@ -52,9 +52,6 @@ import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
 import backend.notification.service.NotificationService;
-import backend.post.entity.Post;
-import backend.post.repository.PostRepository;
-import backend.post.service.PostService;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
@@ -71,8 +68,6 @@ public class FeedItemService {
 	private final FeedItemRepository feedItemRepository;
 	private final FeedApplicationRepository feedApplicationRepository;
 	private final BookmarkRepository bookmarkRepository;
-	private final PostRepository postRepository;
-	private final PostService postService;
 	private final SpotRepository spotRepository;
 	private final NotificationService notificationService;
 	private final UserRepository userRepository;
@@ -140,11 +135,6 @@ public class FeedItemService {
 		}
 
 		feedItem.softDelete();
-
-		if (feedItem.getPostId() != null) {
-			postRepository.findByIdAndDeletedFalse(feedItem.getPostId())
-					.ifPresent(Post::softDelete);
-		}
 	}
 
 	@Transactional
