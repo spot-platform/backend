@@ -54,9 +54,11 @@ public class CreateRequestFeedRequest {
 	@Schema(description = "서비스 스타일 사진 URL", example = "https://example.com/style.jpg")
 	private String serviceStylePhotoUrl;
 
+	@Positive
 	@Schema(description = "최대 파트너 수", example = "4")
 	private Integer maxPartnerCount;
 
+	@Positive
 	@Schema(description = "1인당 최대 금액", example = "150000")
 	private Integer priceCapPerPerson;
 
