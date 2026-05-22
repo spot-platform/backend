@@ -87,14 +87,14 @@ public class FeedItemService {
 		Page<FeedItem> feedItemPage = feedItemRepository.findAllByQuery(query, pageable);
 		String currentUserId = resolveCurrentUserId().orElse(null);
 
-		List<String> feedIds = feedItemPage.getContent().stream()
+		List<Long> feedIds = feedItemPage.getContent().stream()
 				.map(FeedItem::getId)
 				.collect(Collectors.toList());
-		Set<String> bookmarkedIds = currentUserId == null
+		Set<Long> bookmarkedIds = currentUserId == null
 				? Collections.emptySet()
 				: bookmarkRepository.findByUserIdAndFeedItemIdIn(currentUserId, feedIds)
 						.stream().map(Bookmark::getFeedItemId).collect(Collectors.toSet());
-		Map<String, FeedApplication> myApplicationByFeedId = resolveMyApplicationsBatch(feedIds, currentUserId);
+		Map<Long, FeedApplication> myApplicationByFeedId = resolveMyApplicationsBatch(feedIds, currentUserId);
 
 		List<FeedItemResponse> content = feedItemPage.getContent().stream()
 				.map(feedItem -> FeedItemResponse.from(
@@ -116,7 +116,7 @@ public class FeedItemService {
 				.build();
 	}
 
-	public FeedDetailResponse getFeedItem(String feedId) {
+	public FeedDetailResponse getFeedItem(Long feedId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 		String currentUserId = resolveCurrentUserId().orElse(null);
@@ -135,7 +135,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void deleteFeedItem(String feedId, String requesterId) {
+	public void deleteFeedItem(Long feedId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 
@@ -147,7 +147,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public FeedApplicationResponse applyToFeed(String feedId, String userId, String userNickname,
+	public FeedApplicationResponse applyToFeed(Long feedId, String userId, String userNickname,
 			FeedApplyRequest request) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
@@ -175,7 +175,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void cancelApplication(String feedId, String userId) {
+	public void cancelApplication(Long feedId, String userId) {
 		FeedApplication application = feedApplicationRepository
 				.findByFeedItemIdAndUserIdAndStatus(feedId, userId, FeedApplicationStatus.APPLIED)
 				.orElseThrow(() -> new IllegalArgumentException("취소할 신청 내역이 없습니다."));
@@ -184,7 +184,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void addBookmark(String feedId, String userId) {
+	public void addBookmark(Long feedId, String userId) {
 		feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 		try {
@@ -201,7 +201,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public void removeBookmark(String feedId, String userId) {
+	public void removeBookmark(Long feedId, String userId) {
 		bookmarkRepository.findByUserIdAndFeedItemId(userId, feedId)
 				.ifPresent(bookmarkRepository::delete);
 	}
@@ -288,7 +288,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public FeedApplicationResponse acceptApplication(String feedId, String applicationId, String requesterId) {
+	public FeedApplicationResponse acceptApplication(Long feedId, String applicationId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 
@@ -324,7 +324,7 @@ public class FeedItemService {
 	}
 
 	@Transactional
-	public FeedApplicationResponse rejectApplication(String feedId, String applicationId, String requesterId) {
+	public FeedApplicationResponse rejectApplication(Long feedId, String applicationId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 
@@ -376,7 +376,7 @@ public class FeedItemService {
 		return feedApplicationRepository.countByFeedItemIdAndStatus(feedItem.getId(), FeedApplicationStatus.APPLIED);
 	}
 
-	private FeedApplication resolveMyApplication(String feedItemId, String currentUserId) {
+	private FeedApplication resolveMyApplication(Long feedItemId, String currentUserId) {
 		if (currentUserId == null) {
 			return null;
 		}
@@ -385,7 +385,7 @@ public class FeedItemService {
 				.orElse(null);
 	}
 
-	private Map<String, FeedApplication> resolveMyApplicationsBatch(List<String> feedItemIds, String currentUserId) {
+	private Map<Long, FeedApplication> resolveMyApplicationsBatch(List<Long> feedItemIds, String currentUserId) {
 		if (currentUserId == null || feedItemIds.isEmpty()) {
 			return Collections.emptyMap();
 		}
@@ -410,7 +410,7 @@ public class FeedItemService {
 		return Optional.empty();
 	}
 
-	private List<FeedParticipantProfile> resolveConfirmedPartnerProfiles(String feedItemId) {
+	private List<FeedParticipantProfile> resolveConfirmedPartnerProfiles(Long feedItemId) {
 		List<FeedApplication> applications = feedApplicationRepository.findAllByFeedItemIdAndStatus(
 				feedItemId, FeedApplicationStatus.ACCEPTED);
 		if (applications.isEmpty()) {

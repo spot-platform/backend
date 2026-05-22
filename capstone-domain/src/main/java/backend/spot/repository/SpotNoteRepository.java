@@ -8,7 +8,7 @@ import backend.spot.entity.SpotNote;
 
 public interface SpotNoteRepository extends JpaRepository<SpotNote, Long> {
 
-	List<SpotNote> findBySpotId(String spotId);
+	List<SpotNote> findBySpotId(Long spotId);
 
-	List<SpotNote> findBySpotIdOrderByCreatedAtDesc(String spotId);
+	List<SpotNote> findBySpotIdOrderByCreatedAtDesc(Long spotId);
 }

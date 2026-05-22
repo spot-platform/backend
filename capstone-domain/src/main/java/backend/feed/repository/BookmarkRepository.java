@@ -11,9 +11,9 @@ import backend.feed.entity.Bookmark;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, String> {
 
-	Optional<Bookmark> findByUserIdAndFeedItemId(String userId, String feedItemId);
+	Optional<Bookmark> findByUserIdAndFeedItemId(String userId, Long feedItemId);
 
-	boolean existsByUserIdAndFeedItemId(String userId, String feedItemId);
+	boolean existsByUserIdAndFeedItemId(String userId, Long feedItemId);
 
-	List<Bookmark> findByUserIdAndFeedItemIdIn(String userId, List<String> feedItemIds);
+	List<Bookmark> findByUserIdAndFeedItemIdIn(String userId, List<Long> feedItemIds);
 }

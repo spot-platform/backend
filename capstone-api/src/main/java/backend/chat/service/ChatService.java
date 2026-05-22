@@ -683,11 +683,12 @@ public class ChatService {
 				.stream()
 				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
 
-		Set<String> spotIds = rooms.stream()
+		Set<Long> spotIds = rooms.stream()
 			.map(ChatRoom::getSpotId)
 			.filter(spotId -> spotId != null && !spotId.isBlank())
+			.map(Long::parseLong)
 			.collect(Collectors.toSet());
-		Map<String, Spot> spotsById = spotIds.isEmpty()
+		Map<Long, Spot> spotsById = spotIds.isEmpty()
 			? Map.of()
 			: spotRepository.findAllById(spotIds)
 				.stream()
@@ -704,7 +705,7 @@ public class ChatService {
 				ChatRoom::getId,
 				room -> ChatRoomEnrichment.builder()
 					.lastMessage(lastMessagesByRoomId.get(room.getId()))
-					.spot(room.getSpotId() == null ? null : spotsById.get(room.getSpotId()))
+					.spot(room.getSpotId() == null ? null : spotsById.get(Long.parseLong(room.getSpotId())))
 					.currentUser(currentUser)
 					.partner(partnerByRoomId.get(room.getId()))
 					.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))

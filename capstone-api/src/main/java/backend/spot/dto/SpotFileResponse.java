@@ -20,8 +20,8 @@ public class SpotFileResponse {
 	@Schema(description = "파일 ID", example = "1")
 	private Long id;
 
-	@Schema(description = "스팟 ID", example = "spot-uuid-string")
-	private String spotId;
+	@Schema(description = "스팟 ID", example = "1")
+	private Long spotId;
 
 	@Schema(description = "업로더 닉네임", example = "홍길동")
 	private String uploaderNickname;

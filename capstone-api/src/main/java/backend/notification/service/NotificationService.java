@@ -38,7 +38,7 @@ public class NotificationService {
 			.map(NotificationResponse::from);
 	}
 
-	public void markAsRead(String userId, String notificationId) {
+	public void markAsRead(String userId, Long notificationId) {
 		Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND));
 		notification.markAsRead();

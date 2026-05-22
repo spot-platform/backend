@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "지도 마커용 경량 스팟 응답 DTO")
 public class SpotMapItemResponse {
 
-	@Schema(description = "스팟 ID", example = "spot-uuid-string")
-	private String id;
+	@Schema(description = "스팟 ID", example = "1")
+	private Long id;
 
 	@Schema(description = "스팟 타입", example = "OFFER")
 	private FeedType type;

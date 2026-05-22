@@ -41,7 +41,7 @@ public class Bookmark {
 	private String userId;
 
 	@Column(name = "feed_item_id", nullable = false)
-	private String feedItemId;
+	private Long feedItemId;
 
 	@CreatedDate
 	@Column(nullable = false, updatable = false)

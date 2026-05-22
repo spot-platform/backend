@@ -2,7 +2,6 @@ package backend.feed.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,6 +16,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -35,10 +35,8 @@ import lombok.NoArgsConstructor;
 public class FeedItem {
 
 	@Id
-	@GeneratedValue(generator = "uuid2")
-	@GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@Column(columnDefinition = "VARCHAR(36)")
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column
 	private String authorId;
@@ -123,7 +121,7 @@ public class FeedItem {
 	 * 이 컬럼을 채우지 않는다. 전환 후 FeedItem은 소프트 딜리트 처리된다.
 	 */
 	@Column
-	private String spotId;
+	private Long spotId;
 
 	@Builder.Default
 	@Column(columnDefinition = "BOOLEAN NOT NULL DEFAULT FALSE")

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 import backend.feed.entity.FeedItem;
 
 @Repository
-public interface FeedItemRepository extends JpaRepository<FeedItem, String>,
+public interface FeedItemRepository extends JpaRepository<FeedItem, Long>,
 		JpaSpecificationExecutor<FeedItem>,
 		FeedItemRepositoryCustom {
 
-	Optional<FeedItem> findByIdAndDeletedFalse(String id);
+	Optional<FeedItem> findByIdAndDeletedFalse(Long id);
 }

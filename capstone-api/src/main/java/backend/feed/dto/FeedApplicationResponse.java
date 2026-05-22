@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class FeedApplicationResponse {
 
 	private String id;
-	private String feedId;
+	private Long feedId;
 	private String userId;
 	private String proposal;
 	private FeedApplicationStatus status;

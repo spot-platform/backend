@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "피드 생성 완료 응답")
 public class FeedCreateResponse {
 
-	@Schema(description = "생성된 피드 ID", example = "abc123-uuid")
-	private String id;
+	@Schema(description = "생성된 피드 ID", example = "1")
+	private Long id;
 
 	@Schema(description = "피드 타입", example = "OFFER")
 	private FeedType type;

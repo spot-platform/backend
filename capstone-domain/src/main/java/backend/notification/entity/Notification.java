@@ -34,9 +34,8 @@ import lombok.NoArgsConstructor;
 public class Notification {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	@Column(columnDefinition = "VARCHAR(36)")
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column(nullable = false)
 	private String userId;

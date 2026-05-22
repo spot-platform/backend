@@ -27,8 +27,8 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "FeedItem 응답 DTO")
 public class FeedItemResponse {
 
-	@Schema(description = "피드 아이템 ID", example = "uuid-string")
-	private String id;
+	@Schema(description = "피드 아이템 ID", example = "1")
+	private Long id;
 
 	@Schema(description = "제목", example = "피드 제목")
 	private String title;
@@ -96,8 +96,8 @@ public class FeedItemResponse {
 	@Schema(description = "경도", example = "127.0286")
 	private Double lng;
 
-	@Schema(description = "전환된 Spot ID", example = "spot-uuid-string")
-	private String spotId;
+	@Schema(description = "전환된 Spot ID", example = "1")
+	private Long spotId;
 
 	@Schema(description = "AI 합성 피드 여부", example = "false")
 	private boolean isAi;

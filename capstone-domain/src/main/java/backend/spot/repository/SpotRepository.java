@@ -15,7 +15,7 @@ import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
 
 @Repository
-public interface SpotRepository extends JpaRepository<Spot, String> {
+public interface SpotRepository extends JpaRepository<Spot, Long> {
 
 	/**
 	 * 지도 마커용 조회. 좌표가 있는 스팟만 반환하며,

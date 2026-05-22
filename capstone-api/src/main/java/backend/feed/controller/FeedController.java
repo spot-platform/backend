@@ -67,7 +67,7 @@ public class FeedController {
 
 	@Operation(summary = "피드 상세 조회")
 	@GetMapping("/{feedId}")
-	public ApiResponse<FeedDetailResponse> getFeedItem(@PathVariable String feedId) {
+	public ApiResponse<FeedDetailResponse> getFeedItem(@PathVariable Long feedId) {
 		return ApiResponse.success(feedItemService.getFeedItem(feedId));
 	}
 
@@ -75,7 +75,7 @@ public class FeedController {
 	@DeleteMapping("/{feedId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteFeedItem(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		feedItemService.deleteFeedItem(feedId, requireAuth(userDetails));
 	}
@@ -84,7 +84,7 @@ public class FeedController {
 	@PostMapping("/{feedId}/applications")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ApiResponse<FeedApplicationResponse> applyToFeed(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@RequestBody FeedApplyRequest request,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.applyToFeed(
@@ -95,11 +95,11 @@ public class FeedController {
 	@Operation(summary = "피드 신청 취소")
 	@DeleteMapping("/{feedId}/applications/me")
 	public ApiResponse<Map<String, String>> cancelApplication(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		feedItemService.cancelApplication(feedId, requireAuth(userDetails));
 		return ApiResponse.success(Map.of(
-				"feedId", feedId,
+				"feedId", String.valueOf(feedId),
 				"status", "CANCELLED"
 		));
 	}
@@ -108,7 +108,7 @@ public class FeedController {
 	@PostMapping("/{feedId}/bookmark")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void addBookmark(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		feedItemService.addBookmark(feedId, requireAuth(userDetails));
 	}
@@ -117,7 +117,7 @@ public class FeedController {
 	@DeleteMapping("/{feedId}/bookmark")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void removeBookmark(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		feedItemService.removeBookmark(feedId, requireAuth(userDetails));
 	}
@@ -125,7 +125,7 @@ public class FeedController {
 	@Operation(summary = "신청 수락 (작성자 전용) — 펀딩 목표 달성 시 Spot 자동 생성")
 	@PatchMapping("/{feedId}/applications/{applicationId}/accept")
 	public ApiResponse<FeedApplicationResponse> acceptApplication(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@PathVariable String applicationId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.acceptApplication(
@@ -136,7 +136,7 @@ public class FeedController {
 	@Operation(summary = "신청 거절 (작성자 전용)")
 	@PatchMapping("/{feedId}/applications/{applicationId}/reject")
 	public ApiResponse<FeedApplicationResponse> rejectApplication(
-			@PathVariable String feedId,
+			@PathVariable Long feedId,
 			@PathVariable String applicationId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		FeedApplicationResponse response = feedItemService.rejectApplication(

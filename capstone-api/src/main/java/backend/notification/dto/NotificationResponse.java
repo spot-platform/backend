@@ -10,7 +10,7 @@ import lombok.Getter;
 @Builder
 public class NotificationResponse {
 
-	private String id;
+	private Long id;
 	private String message;
 	private Boolean isRead;
 	private LocalDateTime createdAt;
