@@ -68,6 +68,9 @@ public class ChatController {
 	)
 	@GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter connectUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		if (userDetails == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+		}
 		return sseEmitterService.subscribeUser(currentUserId(userDetails));
 	}
 
