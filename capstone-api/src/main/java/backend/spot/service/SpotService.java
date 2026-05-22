@@ -123,7 +123,7 @@ public class SpotService {
 		);
 
 		// SPOT 생성 시점(OPEN)에 GROUP 채팅방을 즉시 개설하고 작성자를 첫 멤버로 등록.
-		chatService.ensureGroupRoomForSpot(saved.getId(), Set.of(author.getId()));
+		chatService.ensureGroupRoomForSpot(saved.getId().toString(), Set.of(author.getId()));
 
 		return toSpotResponse(saved);
 	}
@@ -235,14 +235,14 @@ public class SpotService {
 	 * 스팟 단건 상세 조회를 합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotResponse getSpot(String spotId) {
+	public SpotResponse getSpot(Long spotId) {
 		return toSpotResponse(findSpotOrThrow(spotId));
 	}
 
 	/**
 	 * 스팟을 매칭 상태로 전환합니다. (OPEN → MATCHED)
 	 */
-	public SpotResponse matchSpot(String spotId) {
+	public SpotResponse matchSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.match();
 
@@ -256,7 +256,7 @@ public class SpotService {
 			.map(SpotParticipant::getUserId)
 			.filter(uid -> uid != null && !uid.isBlank())
 			.forEach(memberUserIds::add);
-		chatService.ensureGroupRoomForSpot(spotId, memberUserIds);
+		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
 
 		return toSpotResponse(spot);
 	}
@@ -264,7 +264,7 @@ public class SpotService {
 	/**
 	 * 스팟을 취소합니다. (OPEN → CLOSED)
 	 */
-	public SpotResponse cancelSpot(String spotId) {
+	public SpotResponse cancelSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
 		return toSpotResponse(spot);
@@ -273,7 +273,7 @@ public class SpotService {
 	/**
 	 * 스팟을 완료 처리합니다. (MATCHED → CLOSED)
 	 */
-	public SpotResponse completeSpot(String spotId) {
+	public SpotResponse completeSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
 		return toSpotResponse(spot);
@@ -287,7 +287,7 @@ public class SpotService {
 	 * 스팟에 참여 중인 유저 목록을 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotParticipantResponse> getParticipants(String spotId) {
+	public List<SpotParticipantResponse> getParticipants(Long spotId) {
 		validateSpotExists(spotId);
 
 		List<SpotParticipant> participants = spotParticipantRepository.findBySpotId(spotId);
@@ -307,7 +307,7 @@ public class SpotService {
 	 * 스팟의 일정(제안 슬롯 + 확정 슬롯)을 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotScheduleResponse getSchedule(String spotId) {
+	public SpotScheduleResponse getSchedule(Long spotId) {
 		validateSpotExists(spotId);
 
 		List<SpotScheduleSlot> slots = spotScheduleSlotRepository.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
@@ -334,7 +334,7 @@ public class SpotService {
 	 * confirmedSlot 은 proposedSlots 중 하나여야 합니다.
 	 */
 	@Transactional
-	public SpotScheduleResponse updateSchedule(String spotId, UpdateScheduleRequest request, String currentUserId) {
+	public SpotScheduleResponse updateSchedule(Long spotId, UpdateScheduleRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
 
@@ -423,7 +423,7 @@ public class SpotService {
 	 * 스팟의 투표 목록을 선택지 포함하여 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotVoteResponse> getVotes(String spotId, String currentUserId) {
+	public List<SpotVoteResponse> getVotes(Long spotId, String currentUserId) {
 		validateSpotExists(spotId);
 
 		return spotVoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId)
@@ -449,7 +449,7 @@ public class SpotService {
 	 * 스팟에 투표를 생성합니다.
 	 * TODO: 인증 시스템 도입 후 creatorId 를 실제 로그인 유저 ID로 교체
 	 */
-	public SpotVoteResponse createVote(String spotId, CreateVoteRequest request, String currentUserId) {
+	public SpotVoteResponse createVote(Long spotId, CreateVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotVote vote = SpotVote.builder()
@@ -499,7 +499,7 @@ public class SpotService {
 	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행시켜 unique constraint 충돌 방지</li>
 	 * </ul>
 	 */
-	public SpotVoteResponse castVote(String spotId, Long voteId, CastVoteRequest request, String currentUserId) {
+	public SpotVoteResponse castVote(Long spotId, Long voteId, CastVoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		SpotVote vote = spotVoteRepository.findById(voteId)
@@ -583,7 +583,7 @@ public class SpotService {
 	 * </ul>
 	 */
 	public SpotVoteResponse submitAnswers(
-		String spotId,
+		Long spotId,
 		Long voteId,
 		SubmitVoteAnswersRequest request,
 		String currentUserId
@@ -673,7 +673,7 @@ public class SpotService {
 	 * 스팟의 체크리스트 항목 목록을 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotChecklistResponse> getChecklist(String spotId) {
+	public List<SpotChecklistResponse> getChecklist(Long spotId) {
 		validateSpotExists(spotId);
 
 		List<SpotChecklist> items = spotChecklistRepository.findBySpotId(spotId);
@@ -699,7 +699,7 @@ public class SpotService {
 	/**
 	 * 체크리스트 항목을 추가합니다. 담당자(assigneeId)가 주어지면 참여자인지 검증합니다.
 	 */
-	public SpotChecklistResponse addChecklistItem(String spotId, CreateChecklistRequest request) {
+	public SpotChecklistResponse addChecklistItem(Long spotId, CreateChecklistRequest request) {
 		validateSpotExists(spotId);
 
 		String assigneeId = request.getAssigneeId();
@@ -721,7 +721,7 @@ public class SpotService {
 	 * 체크리스트 항목의 완료 여부를 토글합니다.
 	 * spotId 소속 검증으로 IDOR 를 방지합니다.
 	 */
-	public SpotChecklistResponse toggleChecklistItem(String spotId, Long itemId) {
+	public SpotChecklistResponse toggleChecklistItem(Long spotId, Long itemId) {
 		SpotChecklist item = spotChecklistRepository.findById(itemId)
 			.filter(i -> i.getSpotId().equals(spotId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
@@ -735,7 +735,7 @@ public class SpotService {
 	 * 요청자는 스팟 참여자여야 하며, 지정 대상도 참여자여야 합니다. (assigneeId=null 이면 해제)
 	 */
 	public SpotChecklistResponse assignChecklistItem(
-		String spotId, Long itemId, String assigneeId, String currentUserId
+		Long spotId, Long itemId, String assigneeId, String currentUserId
 	) {
 		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
 
@@ -751,7 +751,7 @@ public class SpotService {
 		return SpotChecklistResponse.of(item, lookupNickname(assigneeId));
 	}
 
-	private void validateParticipant(String spotId, String userId, ErrorCode errorCode) {
+	private void validateParticipant(Long spotId, String userId, ErrorCode errorCode) {
 		if (!spotParticipantRepository.existsBySpotIdAndUserId(spotId, userId)) {
 			throw new BusinessException(errorCode);
 		}
@@ -772,7 +772,7 @@ public class SpotService {
 	 * 스팟에 등록된 파일 목록을 최신순으로 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotFileResponse> getFiles(String spotId) {
+	public List<SpotFileResponse> getFiles(Long spotId) {
 		validateSpotExists(spotId);
 
 		List<SpotFile> files = spotFileRepository.findBySpotIdOrderByUploadedAtDesc(spotId);
@@ -787,7 +787,7 @@ public class SpotService {
 	/**
 	 * 스팟에 파일 정보를 등록합니다. 업로더 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotFileResponse uploadFile(String spotId, UploadFileRequest request, String currentUserId) {
+	public SpotFileResponse uploadFile(Long spotId, UploadFileRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		String uploaderId = resolveUserId(currentUserId);
@@ -808,7 +808,7 @@ public class SpotService {
 	 * 스팟에서 파일을 삭제합니다.
 	 * spotId 소속 검증으로 IDOR 를 방지합니다.
 	 */
-	public void deleteFile(String spotId, Long fileId) {
+	public void deleteFile(Long spotId, Long fileId) {
 		SpotFile file = spotFileRepository.findById(fileId)
 			.filter(f -> f.getSpotId().equals(spotId))
 			.orElseThrow(() -> new BusinessException(ErrorCode.FILE_NOT_FOUND));
@@ -824,7 +824,7 @@ public class SpotService {
 	 * 스팟의 노트 목록을 최신순으로 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public List<SpotNoteResponse> getNotes(String spotId) {
+	public List<SpotNoteResponse> getNotes(Long spotId) {
 		validateSpotExists(spotId);
 
 		List<SpotNote> notes = spotNoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId);
@@ -839,7 +839,7 @@ public class SpotService {
 	/**
 	 * 스팟에 노트를 작성합니다. 작성자 식별은 인증된 유저 ID 를 사용합니다.
 	 */
-	public SpotNoteResponse createNote(String spotId, CreateNoteRequest request, String currentUserId) {
+	public SpotNoteResponse createNote(Long spotId, CreateNoteRequest request, String currentUserId) {
 		validateSpotExists(spotId);
 
 		String authorId = resolveUserId(currentUserId);
@@ -877,12 +877,12 @@ public class SpotService {
 			.toList();
 	}
 
-	private Spot findSpotOrThrow(String spotId) {
+	private Spot findSpotOrThrow(Long spotId) {
 		return spotRepository.findById(spotId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.SPOT_NOT_FOUND));
 	}
 
-	private void validateSpotExists(String spotId) {
+	private void validateSpotExists(Long spotId) {
 		if (!spotRepository.existsById(spotId)) {
 			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}

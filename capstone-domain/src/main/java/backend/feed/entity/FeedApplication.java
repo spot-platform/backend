@@ -36,7 +36,7 @@ public class FeedApplication {
 	private String id;
 
 	@Column(nullable = false)
-	private String feedItemId;
+	private Long feedItemId;
 
 	@Column(nullable = false)
 	private String userId;

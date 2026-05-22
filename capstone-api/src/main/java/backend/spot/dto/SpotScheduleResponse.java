@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "스팟 일정 응답 DTO")
 public class SpotScheduleResponse {
 
-	@Schema(description = "스팟 ID", example = "spot-uuid-string")
-	private String spotId;
+	@Schema(description = "스팟 ID", example = "1")
+	private Long spotId;
 
 	@Builder.Default
 	@Schema(description = "제안된 일정 후보 슬롯")

@@ -32,7 +32,7 @@ public class SpotNote {
 	private Long id;
 
 	@Column(name = "spot_id", nullable = false)
-	private String spotId;
+	private Long spotId;
 
 	@Column(nullable = false)
 	private String authorId;

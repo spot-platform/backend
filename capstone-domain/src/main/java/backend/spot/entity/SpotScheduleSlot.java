@@ -41,7 +41,7 @@ public class SpotScheduleSlot {
 	private Long id;
 
 	@Column(name = "spot_id", nullable = false)
-	private String spotId;
+	private Long spotId;
 
 	@Column(name = "slot_date", nullable = false)
 	private LocalDate slotDate;

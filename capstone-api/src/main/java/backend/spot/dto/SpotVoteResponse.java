@@ -22,8 +22,8 @@ public class SpotVoteResponse {
 	@Schema(description = "투표 ID", example = "1")
 	private Long id;
 
-	@Schema(description = "스팟 ID", example = "spot-uuid-string")
-	private String spotId;
+	@Schema(description = "스팟 ID", example = "1")
+	private Long spotId;
 
 	@Schema(description = "질문", example = "어디서 만날까요?")
 	private String question;
@@ -61,7 +61,7 @@ public class SpotVoteResponse {
 		SpotVote vote,
 		List<SpotVoteOptionResponse> options,
 		List<Long> myVotedOptionIds,
-		String spotId
+		Long spotId
 	) {
 		return SpotVoteResponse.builder()
 			.id(vote.getId())
