@@ -29,7 +29,7 @@ import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
 
@@ -232,7 +232,7 @@ class FeedItemServiceTest {
 				.location("서울")
 				.authorNickname("테스터")
 				.price(price)
-				.type(PostType.OFFER)
+				.type(FeedType.OFFER)
 				.status(status)
 				.fundingGoal(fundingGoal)
 				.fundedAmount(fundedAmount)

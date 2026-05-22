@@ -1,6 +1,6 @@
 package backend.feed.dto;
 
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ public class FeedCreateResponse {
 	private String id;
 
 	@Schema(description = "피드 타입", example = "OFFER")
-	private PostType type;
+	private FeedType type;
 
 	@Schema(description = "피드 제목", example = "한강 공원 명당 제공")
 	private String title;

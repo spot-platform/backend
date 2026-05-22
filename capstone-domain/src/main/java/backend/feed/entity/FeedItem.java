@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -63,7 +63,7 @@ public class FeedItem {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostType type;
+	private FeedType type;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

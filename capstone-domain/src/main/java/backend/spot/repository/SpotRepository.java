@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
 
 @Repository
@@ -34,7 +34,7 @@ public interface SpotRepository extends JpaRepository<Spot, String> {
 		@Param("swLng") Double swLng,
 		@Param("neLat") Double neLat,
 		@Param("neLng") Double neLng,
-		@Param("type") PostType type,
+		@Param("type") FeedType type,
 		@Param("status") FeedItemStatus status,
 		@Param("category") String category
 	);

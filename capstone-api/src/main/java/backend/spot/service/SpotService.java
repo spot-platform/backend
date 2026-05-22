@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.spot.dto.CastVoteRequest;
@@ -167,7 +167,7 @@ public class SpotService {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
 		}
 
-		PostType typeFilter = parseEnum(PostType.class, type);
+		FeedType typeFilter = parseEnum(FeedType.class, type);
 		FeedItemStatus statusFilter = parseEnum(FeedItemStatus.class, status);
 
 		return spotRepository.findMapItems(swLat, swLng, neLat, neLng, typeFilter, statusFilter, category)

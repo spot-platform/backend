@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -41,7 +41,7 @@ public class Spot {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostType type; // OFFER, REQUEST
+	private FeedType type; // OFFER, REQUEST
 
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
