@@ -28,6 +28,7 @@ import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Feed API", description = "피드 관련 API")
@@ -42,7 +43,7 @@ public class FeedController {
 	@PostMapping("/offer")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ApiResponse<FeedCreateResponse> createOfferFeed(
-			@RequestBody CreateOfferFeedRequest request,
+			@Valid @RequestBody CreateOfferFeedRequest request,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return ApiResponse.success(feedItemService.createOfferFeed(
 				request, requireAuth(userDetails), userDetails.getNickname()));
@@ -52,7 +53,7 @@ public class FeedController {
 	@PostMapping("/request")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ApiResponse<FeedCreateResponse> createRequestFeed(
-			@RequestBody CreateRequestFeedRequest request,
+			@Valid @RequestBody CreateRequestFeedRequest request,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return ApiResponse.success(feedItemService.createRequestFeed(
 				request, requireAuth(userDetails), userDetails.getNickname()));

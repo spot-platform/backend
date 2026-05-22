@@ -239,7 +239,9 @@ public class FeedItemService {
 	public FeedCreateResponse createRequestFeed(CreateRequestFeedRequest request, String authorId,
 			String authorNickname) {
 		Integer fundingGoal = (request.getPriceCapPerPerson() != null && request.getMaxPartnerCount() != null)
-				? request.getPriceCapPerPerson() * request.getMaxPartnerCount()
+				? (int) Math.min(
+						(long) request.getPriceCapPerPerson() * request.getMaxPartnerCount(),
+						Integer.MAX_VALUE)
 				: request.getPointCost();
 
 		FeedItem feedItem = FeedItem.builder()

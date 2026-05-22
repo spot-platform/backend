@@ -2,6 +2,9 @@ package backend.feed.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,9 +22,11 @@ public class CreateRequestFeedRequest {
 	@Schema(description = "스팟 명칭", example = "옥상 캠핑 스팟")
 	private String spotName;
 
+	@NotBlank
 	@Schema(description = "제목", example = "옥상에서 캠핑하고 싶어요", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String title;
 
+	@NotBlank
 	@Schema(description = "요약 내용", example = "집 옥상을 캠핑 공간으로 꾸미고 싶습니다.", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String content;
 
@@ -31,9 +36,12 @@ public class CreateRequestFeedRequest {
 	@Schema(description = "사진 URL 목록", example = "[\"https://example.com/photo1.jpg\"]")
 	private List<String> photoUrls;
 
+	@NotNull
+	@Positive
 	@Schema(description = "1인당 포인트 비용", example = "3000", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Integer pointCost;
 
+	@NotBlank
 	@Schema(description = "위치", example = "서울 마포구 합정동", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String location;
 
