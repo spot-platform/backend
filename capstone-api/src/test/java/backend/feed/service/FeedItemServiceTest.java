@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -30,6 +32,7 @@ import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
+import backend.notification.service.NotificationService;
 import backend.spot.entity.Spot;
 import backend.spot.repository.SpotRepository;
 
@@ -44,6 +47,9 @@ class FeedItemServiceTest {
 
 	@Mock
 	private SpotRepository spotRepository;
+
+	@Mock
+	private NotificationService notificationService;
 
 	@InjectMocks
 	private FeedItemService feedItemService;
@@ -156,6 +162,7 @@ class FeedItemServiceTest {
 
 		assertEquals(FeedApplicationStatus.ACCEPTED, response.getStatus());
 		verify(spotRepository, never()).save(any(Spot.class));
+		verify(notificationService, never()).send(anyString(), anyString());
 	}
 
 	// ─────────────────────────────────────────────
@@ -176,6 +183,7 @@ class FeedItemServiceTest {
 		feedItemService.acceptApplication("feed-001", "app-001", "author-id");
 
 		verify(spotRepository, times(1)).save(any(Spot.class));
+		verify(notificationService, times(1)).send(eq("author-id"), anyString());
 		assertTrue(feedItem.isDeleted()); // 스팟 전환 후 피드 소프트 딜리트
 	}
 
