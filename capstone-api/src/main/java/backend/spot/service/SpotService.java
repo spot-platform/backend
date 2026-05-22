@@ -267,6 +267,7 @@ public class SpotService {
 	public SpotResponse cancelSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
+		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
 		return toSpotResponse(spot);
 	}
 
@@ -276,6 +277,7 @@ public class SpotService {
 	public SpotResponse completeSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
+		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
 		return toSpotResponse(spot);
 	}
 

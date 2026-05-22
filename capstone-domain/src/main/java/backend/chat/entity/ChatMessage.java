@@ -54,6 +54,18 @@ public class ChatMessage {
 	@Column(columnDefinition = "TEXT", nullable = false)
 	private String content;
 
+	/** IMAGE / FILE 타입 메시지의 파일 URL. */
+	@Column(name = "file_url")
+	private String fileUrl;
+
+	/** FILE 타입 메시지의 원본 파일명. */
+	@Column(name = "file_name")
+	private String fileName;
+
+	/** FILE 타입 메시지의 파일 크기 (bytes). */
+	@Column(name = "file_size_bytes")
+	private Long fileSizeBytes;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;

@@ -57,6 +57,20 @@ public class ChatSseEvent {
 			.build();
 	}
 
+	/**
+	 * 채팅 목록 화면용 unread 배지 갱신 이벤트. 유저 레벨 SSE 채널로 전달된다.
+	 * 프론트가 현재 방 목록 화면에 있으면 해당 roomId 의 badge 를 unreadCount 로 갱신한다.
+	 */
+	public static ChatSseEvent badgeUpdate(Long roomId, long unreadCount) {
+		Map<String, Object> payload = new LinkedHashMap<>();
+		payload.put("roomId", roomId);
+		payload.put("unreadCount", unreadCount);
+		return builder()
+			.type(ChatSseEventType.BADGE_UPDATE)
+			.data(payload)
+			.build();
+	}
+
 	private static Map<String, Object> roomUserPayload(Long roomId, String userId) {
 		Map<String, Object> payload = new LinkedHashMap<>();
 		payload.put("roomId", roomId);
