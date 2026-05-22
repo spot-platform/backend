@@ -2,7 +2,7 @@ package backend.feed.dto;
 
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ public class FeedListQuery {
 	private String tab;
 
 	@Schema(description = "피드 타입", example = "OFFER")
-	private PostType type;
+	private FeedType type;
 
 	@Schema(description = "피드 상태", example = "OPEN")
 	private FeedItemStatus status;

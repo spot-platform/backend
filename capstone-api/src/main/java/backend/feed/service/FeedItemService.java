@@ -47,7 +47,7 @@ import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
 import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
@@ -211,7 +211,7 @@ public class FeedItemService {
 				.location(request.getLocation())
 				.authorNickname(authorNickname)
 				.price(request.getPointCost())
-				.type(PostType.OFFER)
+				.type(FeedType.OFFER)
 				.status(FeedItemStatus.OPEN)
 				.spotName(request.getSpotName())
 				.detailDescription(request.getDetailDescription())
@@ -253,7 +253,7 @@ public class FeedItemService {
 				.location(request.getLocation())
 				.authorNickname(authorNickname)
 				.price(request.getPointCost())
-				.type(PostType.REQUEST)
+				.type(FeedType.REQUEST)
 				.status(FeedItemStatus.OPEN)
 				.spotName(request.getSpotName())
 				.detailDescription(request.getDetailDescription())
@@ -326,7 +326,7 @@ public class FeedItemService {
 	}
 
 	private Long resolveApplicantCount(FeedItem feedItem) {
-		if (feedItem.getType() != backend.global.enums.PostType.REQUEST) {
+		if (feedItem.getType() != FeedType.REQUEST) {
 			return null;
 		}
 		return feedApplicationRepository.countByFeedItemIdAndStatus(feedItem.getId(), FeedApplicationStatus.APPLIED);

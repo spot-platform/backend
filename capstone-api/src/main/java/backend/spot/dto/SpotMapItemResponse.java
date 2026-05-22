@@ -1,7 +1,7 @@
 package backend.spot.dto;
 
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -21,7 +21,7 @@ public class SpotMapItemResponse {
 	private String id;
 
 	@Schema(description = "스팟 타입", example = "OFFER")
-	private PostType type;
+	private FeedType type;
 
 	@Schema(description = "스팟 상태", example = "OPEN")
 	private FeedItemStatus status;

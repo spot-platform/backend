@@ -3,7 +3,7 @@ package backend.spot.dto;
 import java.time.LocalDateTime;
 
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -23,7 +23,7 @@ public class SpotResponse {
 	private String id;
 
 	@Schema(description = "스팟 타입 (OFFER: 제공, REQUEST: 요청)", example = "OFFER")
-	private PostType type;
+	private FeedType type;
 
 	@Schema(description = "스팟 상태 (OPEN / MATCHED / CLOSED)", example = "OPEN")
 	private FeedItemStatus status;
