@@ -81,7 +81,6 @@ public class FeedItemService {
 	private final ChatService chatService;
 	private final UserRepository userRepository;
 	private final ObjectMapper objectMapper;
-	private final NotificationService notificationService;
 
 	public FeedListResponse getFeedItems(FeedListQuery query) {
 		Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
