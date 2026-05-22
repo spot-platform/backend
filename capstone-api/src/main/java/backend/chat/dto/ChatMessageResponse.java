@@ -79,9 +79,9 @@ public class ChatMessageResponse {
 			.authorName(isSystem ? null : authorName)
 			.content(blocked ? BLOCKED_PLACEHOLDER : message.getContent())
 			.blocked(blocked)
-			.fileUrl(message.getFileUrl())
-			.fileName(message.getFileName())
-			.fileSizeBytes(message.getFileSizeBytes())
+			.fileUrl(blocked ? null : message.getFileUrl())
+			.fileName(blocked ? null : message.getFileName())
+			.fileSizeBytes(blocked ? null : message.getFileSizeBytes())
 			.createdAt(message.getCreatedAt())
 			.build();
 	}

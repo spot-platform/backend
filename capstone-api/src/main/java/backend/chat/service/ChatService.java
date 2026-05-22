@@ -168,6 +168,10 @@ public class ChatService {
 				}
 			});
 
+		// 기존 방 반환 경우에도 멤버십 보장 (멱등 upsert)
+		ensureMember(room.getId(), me.getId());
+		ensureMember(room.getId(), partner.getId());
+
 		return ChatRoomResponse.from(room, buildEnrichment(room, me));
 	}
 
@@ -439,6 +443,16 @@ public class ChatService {
 		}
 
 		ChatMessageType type = request.getType() != null ? request.getType() : ChatMessageType.USER;
+
+		if ((type == ChatMessageType.IMAGE || type == ChatMessageType.FILE)
+			&& (request.getFileUrl() == null || request.getFileUrl().isBlank())) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
+		if (type == ChatMessageType.FILE
+			&& (request.getFileName() == null || request.getFileSizeBytes() == null)) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
+
 		String authorName = currentUserId == null ? null
 			: userRepository.findById(currentUserId).map(UserEntity::getNickname).orElse(null);
 
@@ -618,6 +632,8 @@ public class ChatService {
 	}
 
 	private void broadcastSystemMessage(ChatRoom room, String content) {
+		room.touch();
+		chatRoomRepository.save(room);
 		ChatMessage saved = chatMessageRepository.save(
 			ChatMessage.builder()
 				.chatRoomId(room.getId())

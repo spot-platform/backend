@@ -18,6 +18,23 @@ CREATE UNIQUE INDEX IF NOT EXISTS uidx_chat_rooms_canonical_pair
 -- updated_at 초기값 채우기 (기존 행)
 UPDATE chat_rooms SET updated_at = created_at WHERE updated_at IS NULL;
 
+-- canonical_pair 백필 (기존 PERSONAL 방, 멤버 2명인 경우)
+UPDATE chat_rooms cr
+SET canonical_pair = (
+    SELECT CASE
+               WHEN MIN(m.user_id) <= MAX(m.user_id)
+                   THEN CONCAT(MIN(m.user_id), ':', MAX(m.user_id))
+               ELSE CONCAT(MAX(m.user_id), ':', MIN(m.user_id))
+           END
+    FROM chat_room_members m
+    WHERE m.chat_room_id = cr.id
+    GROUP BY m.chat_room_id
+    HAVING COUNT(*) = 2
+)
+WHERE cr.type = 'PERSONAL'
+  AND cr.is_deleted = FALSE
+  AND cr.canonical_pair IS NULL;
+
 -- ② chat_messages: 파일/이미지 메시지용 컬럼 추가
 ALTER TABLE chat_messages
     ADD COLUMN IF NOT EXISTS file_url        TEXT,
