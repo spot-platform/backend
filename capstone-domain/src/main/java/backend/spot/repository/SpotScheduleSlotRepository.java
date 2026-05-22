@@ -11,9 +11,9 @@ import backend.spot.entity.SpotScheduleSlot;
 
 public interface SpotScheduleSlotRepository extends JpaRepository<SpotScheduleSlot, Long> {
 
-	List<SpotScheduleSlot> findBySpotIdOrderBySlotDateAscSlotHourAsc(String spotId);
+	List<SpotScheduleSlot> findBySpotIdOrderBySlotDateAscSlotHourAsc(Long spotId);
 
 	@Modifying
 	@Query("DELETE FROM SpotScheduleSlot s WHERE s.spotId = :spotId")
-	void deleteBySpotId(@Param("spotId") String spotId);
+	void deleteBySpotId(@Param("spotId") Long spotId);
 }

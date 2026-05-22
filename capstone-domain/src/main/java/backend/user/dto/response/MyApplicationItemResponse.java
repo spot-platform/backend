@@ -18,7 +18,7 @@ public class MyApplicationItemResponse {
 	private String applicationId;
 
 	@Schema(description = "피드 아이템 ID")
-	private String feedItemId;
+	private Long feedItemId;
 
 	@Schema(description = "피드 제목")
 	private String feedTitle;

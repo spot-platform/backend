@@ -17,7 +17,7 @@ import lombok.Getter;
 public class MyParticipatingSpotResponse {
 
 	@Schema(description = "스팟 ID")
-	private String spotId;
+	private Long spotId;
 
 	@Schema(description = "스팟 제목")
 	private String title;

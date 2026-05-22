@@ -142,10 +142,10 @@ public class UserService implements UserDetailsService {
 		List<FeedApplication> applications =
 			feedApplicationRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
 
-		Set<String> feedItemIds = applications.stream()
+		Set<Long> feedItemIds = applications.stream()
 			.map(FeedApplication::getFeedItemId)
 			.collect(Collectors.toSet());
-		Map<String, FeedItem> feedItemById = feedItemIds.isEmpty()
+		Map<Long, FeedItem> feedItemById = feedItemIds.isEmpty()
 			? Map.of()
 			: feedItemRepository.findAllById(feedItemIds).stream()
 				.collect(Collectors.toMap(FeedItem::getId, Function.identity()));
@@ -168,10 +168,10 @@ public class UserService implements UserDetailsService {
 		List<SpotParticipant> participations =
 			spotParticipantRepository.findByUserIdOrderByJoinedAtDesc(user.getId());
 
-		Set<String> spotIds = participations.stream()
+		Set<Long> spotIds = participations.stream()
 			.map(SpotParticipant::getSpotId)
 			.collect(Collectors.toSet());
-		Map<String, Spot> spotById = spotIds.isEmpty()
+		Map<Long, Spot> spotById = spotIds.isEmpty()
 			? Map.of()
 			: spotRepository.findAllById(spotIds).stream()
 				.collect(Collectors.toMap(Spot::getId, Function.identity()));

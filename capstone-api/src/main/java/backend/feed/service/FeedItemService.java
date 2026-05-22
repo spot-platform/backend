@@ -235,7 +235,7 @@ public class FeedItemService {
 				.build();
 
 		FeedItem saved = feedItemRepository.save(feedItem);
-		chatService.ensureGroupRoomForPost(saved.getId(), Set.of(authorId));
+		chatService.ensureGroupRoomForPost(String.valueOf(saved.getId()), Set.of(authorId));
 		return FeedCreateResponse.builder()
 				.id(saved.getId())
 				.type(saved.getType())
@@ -278,7 +278,7 @@ public class FeedItemService {
 				.build();
 
 		FeedItem saved = feedItemRepository.save(feedItem);
-		chatService.ensureGroupRoomForPost(saved.getId(), Set.of(authorId));
+		chatService.ensureGroupRoomForPost(String.valueOf(saved.getId()), Set.of(authorId));
 		return FeedCreateResponse.builder()
 				.id(saved.getId())
 				.type(saved.getType())
@@ -303,14 +303,14 @@ public class FeedItemService {
 
 		application.accept();
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
-		chatService.ensureGroupRoomForPost(feedId, Set.of(application.getUserId()));
+		chatService.ensureGroupRoomForPost(String.valueOf(feedId), Set.of(application.getUserId()));
 		feedItem.accumulateFunding(feedItem.getPrice());
 
 		if (feedItem.isFundingGoalMet()) {
 			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
-			chatService.linkGroupRoomToSpot(feedId, spot.getId(), participantIds);
+			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), participantIds);
 			try {
 				notificationService.send(
 						feedItem.getAuthorId(),

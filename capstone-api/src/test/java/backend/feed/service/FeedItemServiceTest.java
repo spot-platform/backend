@@ -12,6 +12,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import backend.chat.service.ChatService;
 import backend.feed.dto.FeedApplicationResponse;
 import backend.feed.dto.FeedApplyRequest;
 import backend.feed.dto.FeedItemResponse;
@@ -36,6 +38,7 @@ import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.notification.service.NotificationService;
 import backend.spot.entity.Spot;
+import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +54,13 @@ class FeedItemServiceTest {
 	private SpotRepository spotRepository;
 
 	@Mock
+	private SpotParticipantRepository spotParticipantRepository;
+
+	@Mock
 	private NotificationService notificationService;
+
+	@Mock
+	private ChatService chatService;
 
 	@InjectMocks
 	private FeedItemService feedItemService;
@@ -192,6 +201,9 @@ class FeedItemServiceTest {
 		given(feedItemRepository.findByIdAndDeletedFalseForUpdate(1L)).willReturn(Optional.of(feedItem));
 		given(feedApplicationRepository.findByIdAndFeedItemId("app-001", 1L))
 				.willReturn(Optional.of(application));
+		given(feedApplicationRepository.findAllByFeedItemIdAndStatus(1L, FeedApplicationStatus.ACCEPTED))
+				.willReturn(List.of(application));
+		given(spotRepository.save(any(Spot.class))).willAnswer(inv -> inv.getArgument(0));
 
 		feedItemService.acceptApplication(1L, "app-001", "author-id");
 

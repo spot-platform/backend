@@ -108,7 +108,7 @@ public class ChatService {
 
 		// GROUP 생성 시 spotId 실존 검증 — 없는 Spot이면 404
 		if (request.getType() == ChatRoomType.GROUP
-				&& !spotRepository.existsById(request.getSpotId())) {
+				&& !spotRepository.existsById(parseSpotId(request.getSpotId()))) {
 			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}
 
