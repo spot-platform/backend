@@ -41,9 +41,6 @@ public class FeedItem {
 	private String id;
 
 	@Column
-	private String postId;
-
-	@Column
 	private String authorId;
 
 	@Column(nullable = false)
