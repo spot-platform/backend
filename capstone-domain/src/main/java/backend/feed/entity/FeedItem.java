@@ -120,6 +120,11 @@ public class FeedItem {
 	@Column
 	private Double lng;
 
+	/**
+	 * AI 피드(시뮬레이션) 전용 참조 컬럼.
+	 * 일반 사용자가 생성한 피드가 펀딩 목표를 달성해 Spot으로 전환될 때는
+	 * 이 컬럼을 채우지 않는다. 전환 후 FeedItem은 소프트 딜리트 처리된다.
+	 */
 	@Column
 	private String spotId;
 
