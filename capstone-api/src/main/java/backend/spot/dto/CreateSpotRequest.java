@@ -1,5 +1,6 @@
 package backend.spot.dto;
 
+import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
@@ -40,7 +41,7 @@ public class CreateSpotRequest {
 	private Integer pointCost;
 
 	@Schema(description = "카테고리 (선택)", example = "요리", nullable = true)
-	private String category;
+	private FeedCategory category;
 
 	@DecimalMin(value = "-90.0") @DecimalMax(value = "90.0")
 	@Schema(description = "위도 (선택, 지도 마커용)", example = "37.5283", nullable = true)

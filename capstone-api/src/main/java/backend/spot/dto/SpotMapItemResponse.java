@@ -1,5 +1,6 @@
 package backend.spot.dto;
 
+import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.spot.entity.Spot;
@@ -33,7 +34,7 @@ public class SpotMapItemResponse {
 	private Coord coord;
 
 	@Schema(description = "카테고리", example = "요리", nullable = true)
-	private String category;
+	private FeedCategory category;
 
 	@Schema(description = "작성자 ID", example = "user-uuid-string")
 	private String authorId;
