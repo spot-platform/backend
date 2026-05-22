@@ -219,6 +219,10 @@ class FeedItemServiceTest {
 
 		// 알림 발송 확인
 		verify(notificationService, times(1)).send(eq("author-id"), anyString());
+
+		// chatService.linkGroupRoomToSpot 호출 확인
+		// spot.getId()가 테스트 환경에서 null이므로 두 번째 인자는 anyString()으로 검증
+		verify(chatService, times(1)).linkGroupRoomToSpot(eq("1"), anyString(), any());
 	}
 
 	@Test
