@@ -19,8 +19,9 @@ public class SpotScheduleResponse {
 	@Schema(description = "스팟 ID", example = "spot-uuid-string")
 	private String spotId;
 
+	@Builder.Default
 	@Schema(description = "제안된 일정 후보 슬롯")
-	private List<ScheduleSlotDto> proposedSlots;
+	private List<ScheduleSlotDto> proposedSlots = List.of();
 
 	@Schema(description = "확정 슬롯 (없으면 null)", nullable = true)
 	private ScheduleSlotDto confirmedSlot;

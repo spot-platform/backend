@@ -330,7 +330,21 @@ public class SpotService {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
 		}
 
-		// 전체 교체: 기존 슬롯/가용성 제거
+		// 중복 (date, hour) 슬롯 → 400
+		long distinctCount = proposed.stream()
+			.map(s -> s.getDate() + ":" + s.getHour())
+			.distinct()
+			.count();
+		if (distinctCount != proposed.size()) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
+
+		// availableUserIds 를 실제 참여자로만 제한
+		Set<String> participantIds = spotParticipantRepository.findBySpotId(spotId).stream()
+			.map(SpotParticipant::getUserId)
+			.collect(Collectors.toSet());
+
+		// 전체 교체: 기존 슬롯/가용성 벌크 삭제
 		List<SpotScheduleSlot> existing = spotScheduleSlotRepository
 			.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
 		if (!existing.isEmpty()) {
@@ -339,6 +353,7 @@ public class SpotService {
 			spotScheduleSlotRepository.deleteBySpotId(spotId);
 		}
 
+		List<SpotScheduleAvailability> allAvailabilities = new ArrayList<>();
 		for (ScheduleSlotDto dto : proposed) {
 			SpotScheduleSlot slot = spotScheduleSlotRepository.save(SpotScheduleSlot.builder()
 				.spotId(spotId)
@@ -347,14 +362,17 @@ public class SpotService {
 				.confirmed(confirmed != null && sameSlot(dto, confirmed))
 				.build());
 
-			List<SpotScheduleAvailability> availabilities = dto.getAvailableUserIds().stream()
+			dto.getAvailableUserIds().stream()
 				.distinct()
+				.filter(participantIds::contains)
 				.map(userId -> SpotScheduleAvailability.builder()
 					.slotId(slot.getId())
 					.userId(userId)
 					.build())
-				.toList();
-			spotScheduleAvailabilityRepository.saveAll(availabilities);
+				.forEach(allAvailabilities::add);
+		}
+		if (!allAvailabilities.isEmpty()) {
+			spotScheduleAvailabilityRepository.saveAll(allAvailabilities);
 		}
 
 		return getSchedule(spotId);
