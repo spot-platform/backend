@@ -47,9 +47,12 @@ class FeedItemServiceTest {
 
 	@Mock
 	private SpotRepository spotRepository;
+<<<<<<< HEAD
 
 	@Mock
 	private NotificationService notificationService;
+=======
+>>>>>>> ef1de4f (refactor(post): Post 패키지 전체 삭제 및 FeedItemService Post 의존성 제거 (Post→Feed T3))
 
 	@InjectMocks
 	private FeedItemService feedItemService;
@@ -162,7 +165,10 @@ class FeedItemServiceTest {
 
 		assertEquals(FeedApplicationStatus.ACCEPTED, response.getStatus());
 		verify(spotRepository, never()).save(any(Spot.class));
+<<<<<<< HEAD
 		verify(notificationService, never()).send(anyString(), anyString());
+=======
+>>>>>>> ef1de4f (refactor(post): Post 패키지 전체 삭제 및 FeedItemService Post 의존성 제거 (Post→Feed T3))
 	}
 
 	// ─────────────────────────────────────────────
@@ -183,7 +189,10 @@ class FeedItemServiceTest {
 		feedItemService.acceptApplication("feed-001", "app-001", "author-id");
 
 		verify(spotRepository, times(1)).save(any(Spot.class));
+<<<<<<< HEAD
 		verify(notificationService, times(1)).send(eq("author-id"), anyString());
+=======
+>>>>>>> ef1de4f (refactor(post): Post 패키지 전체 삭제 및 FeedItemService Post 의존성 제거 (Post→Feed T3))
 		assertTrue(feedItem.isDeleted()); // 스팟 전환 후 피드 소프트 딜리트
 	}
 
