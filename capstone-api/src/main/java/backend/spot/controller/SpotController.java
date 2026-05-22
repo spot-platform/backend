@@ -78,14 +78,15 @@ public class SpotController {
 		));
 	}
 
-	@Operation(summary = "스팟 검색", description = "제목/설명 키워드 부분 일치 검색")
+	@Operation(summary = "스팟 검색", description = "키워드 부분 일치 검색. scope=ALL(제목+설명, 기본) | TITLE(제목만) | CONTENT(설명만)")
 	@GetMapping("/search")
 	public ResponseEntity<ApiResponse<SpotListResponse>> searchSpots(
 		@RequestParam String q,
+		@RequestParam(defaultValue = "ALL") String scope,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.searchSpots(q, page, size)));
+		return ResponseEntity.ok(ApiResponse.success(spotService.searchSpots(q, scope, page, size)));
 	}
 
 	@Operation(summary = "스팟 생성")

@@ -180,9 +180,10 @@ public class SpotService {
 	 * 제목/설명 키워드로 스팟을 검색합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotListResponse searchSpots(String keyword, int page, int size) {
+	public SpotListResponse searchSpots(String keyword, String scope, int page, int size) {
+		String normalizedScope = normalizeScope(scope);
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-		Page<Spot> spotPage = spotRepository.searchByKeyword(keyword, pageable);
+		Page<Spot> spotPage = spotRepository.searchByKeyword(keyword, normalizedScope, pageable);
 
 		List<SpotResponse> data = spotPage.getContent().stream()
 			.map(this::toSpotResponse)
@@ -199,6 +200,17 @@ public class SpotService {
 			.data(data)
 			.meta(meta)
 			.build();
+	}
+
+	private static String normalizeScope(String scope) {
+		if (scope == null || scope.isBlank()) {
+			return "ALL";
+		}
+		String upper = scope.toUpperCase();
+		if (!upper.equals("ALL") && !upper.equals("TITLE") && !upper.equals("CONTENT")) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
+		return upper;
 	}
 
 	private static <E extends Enum<E>> E parseEnum(Class<E> enumType, String value) {
