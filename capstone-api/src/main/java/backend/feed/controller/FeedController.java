@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import backend.feed.dto.CreateOfferFeedRequest;
+import backend.feed.dto.CreateRequestFeedRequest;
 import backend.feed.dto.FeedApplicationResponse;
 import backend.feed.dto.FeedApplyRequest;
+import backend.feed.dto.FeedCreateResponse;
 import backend.feed.dto.FeedDetailResponse;
 import backend.feed.dto.FeedListQuery;
 import backend.feed.dto.FeedListResponse;
@@ -34,6 +37,26 @@ import lombok.RequiredArgsConstructor;
 public class FeedController {
 
 	private final FeedItemService feedItemService;
+
+	@Operation(summary = "Offer 피드 등록")
+	@PostMapping("/offer")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ApiResponse<FeedCreateResponse> createOfferFeed(
+			@RequestBody CreateOfferFeedRequest request,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return ApiResponse.success(feedItemService.createOfferFeed(
+				request, requireAuth(userDetails), userDetails.getNickname()));
+	}
+
+	@Operation(summary = "Request 피드 등록")
+	@PostMapping("/request")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ApiResponse<FeedCreateResponse> createRequestFeed(
+			@RequestBody CreateRequestFeedRequest request,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return ApiResponse.success(feedItemService.createRequestFeed(
+				request, requireAuth(userDetails), userDetails.getNickname()));
+	}
 
 	@Operation(summary = "피드 목록 조회")
 	@GetMapping

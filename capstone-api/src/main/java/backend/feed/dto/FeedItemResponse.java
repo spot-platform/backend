@@ -1,5 +1,11 @@
 package backend.feed.dto;
 
+import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
@@ -102,6 +108,24 @@ public class FeedItemResponse {
 	@Schema(description = "좋아요수", example = "0")
 	private Integer likes;
 
+	@Schema(description = "스팟 명칭", example = "한강 공원 명당 자리")
+	private String spotName;
+
+	@Schema(description = "상세 설명", example = "돗자리·그늘막 포함, 바베큐 가능 구역입니다.")
+	private String detailDescription;
+
+	@Schema(description = "서포터 사진 URL (OFFER 전용)", example = "https://example.com/supporter.jpg")
+	private String supporterPhotoUrl;
+
+	@Schema(description = "서비스 스타일 사진 URL (REQUEST 전용)", example = "https://example.com/style.jpg")
+	private String serviceStylePhotoUrl;
+
+	@Schema(description = "카테고리 목록", example = "[\"음악\", \"운동\"]")
+	private List<String> categories;
+
+	@Schema(description = "사진 URL 목록", example = "[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
+	private List<String> photoUrls;
+
 	public static FeedItemResponse from(FeedItem feedItem) {
 		return from(feedItem, null, null, null, buildAuthorProfile(feedItem));
 	}
@@ -136,6 +160,12 @@ public class FeedItemResponse {
 				.isAi(feedItem.isAi())
 				.views(feedItem.getViews())
 				.likes(feedItem.getLikes())
+				.spotName(feedItem.getSpotName())
+				.detailDescription(feedItem.getDetailDescription())
+				.supporterPhotoUrl(feedItem.getSupporterPhotoUrl())
+				.serviceStylePhotoUrl(feedItem.getServiceStylePhotoUrl())
+				.categories(parseJsonList(feedItem.getCategoriesJson()))
+				.photoUrls(parseJsonList(feedItem.getPhotoUrlsJson()))
 				.build();
 	}
 
@@ -160,5 +190,18 @@ public class FeedItemResponse {
 		}
 		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
 		return (int) ((long) fundedAmount * 100L / fundingGoal);
+	}
+
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+	static List<String> parseJsonList(String json) {
+		if (json == null || json.isBlank()) {
+			return null;
+		}
+		try {
+			return OBJECT_MAPPER.readValue(json, new TypeReference<List<String>>() {});
+		} catch (JsonProcessingException e) {
+			return null;
+		}
 	}
 }

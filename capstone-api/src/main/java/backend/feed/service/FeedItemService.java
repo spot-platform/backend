@@ -22,9 +22,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import backend.feed.dto.CreateOfferFeedRequest;
+import backend.feed.dto.CreateRequestFeedRequest;
 import backend.feed.dto.FeedApplicationResponse;
 import backend.feed.dto.FeedApplyRequest;
 import backend.feed.dto.FeedAuthorProfile;
+import backend.feed.dto.FeedCreateResponse;
 import backend.feed.dto.FeedDetailResponse;
 import backend.feed.dto.FeedItemResponse;
 import backend.feed.dto.FeedListQuery;
@@ -42,6 +45,8 @@ import backend.feed.repository.BookmarkRepository;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
+import backend.global.enums.FeedItemStatus;
+import backend.global.enums.PostType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
@@ -195,6 +200,79 @@ public class FeedItemService {
 	}
 
 	@Transactional
+	public FeedCreateResponse createOfferFeed(CreateOfferFeedRequest request, String authorId, String authorNickname) {
+		Integer fundingGoal = request.getDesiredPrice() != null
+				? request.getDesiredPrice()
+				: request.getPointCost();
+
+		FeedItem feedItem = FeedItem.builder()
+				.authorId(authorId)
+				.title(request.getTitle())
+				.description(request.getContent())
+				.location(request.getLocation())
+				.authorNickname(authorNickname)
+				.price(request.getPointCost())
+				.type(PostType.OFFER)
+				.status(FeedItemStatus.OPEN)
+				.spotName(request.getSpotName())
+				.detailDescription(request.getDetailDescription())
+				.supporterPhotoUrl(request.getSupporterPhotoUrl())
+				.categoriesJson(serializeList(request.getCategories()))
+				.photoUrlsJson(serializeList(request.getPhotoUrls()))
+				.fundingGoal(fundingGoal)
+				.maxParticipants(request.getMaxPartnerCount())
+				.deadline(request.getDeadline())
+				.lat(request.getLat())
+				.lng(request.getLng())
+				.build();
+
+		FeedItem saved = feedItemRepository.save(feedItem);
+		return FeedCreateResponse.builder()
+				.id(saved.getId())
+				.type(saved.getType())
+				.title(saved.getTitle())
+				.redirectUrl("/feeds/" + saved.getId())
+				.build();
+	}
+
+	@Transactional
+	public FeedCreateResponse createRequestFeed(CreateRequestFeedRequest request, String authorId,
+			String authorNickname) {
+		Integer fundingGoal = (request.getPriceCapPerPerson() != null && request.getMaxPartnerCount() != null)
+				? request.getPriceCapPerPerson() * request.getMaxPartnerCount()
+				: request.getPointCost();
+
+		FeedItem feedItem = FeedItem.builder()
+				.authorId(authorId)
+				.title(request.getTitle())
+				.description(request.getContent())
+				.location(request.getLocation())
+				.authorNickname(authorNickname)
+				.price(request.getPointCost())
+				.type(PostType.REQUEST)
+				.status(FeedItemStatus.OPEN)
+				.spotName(request.getSpotName())
+				.detailDescription(request.getDetailDescription())
+				.serviceStylePhotoUrl(request.getServiceStylePhotoUrl())
+				.categoriesJson(serializeList(request.getCategories()))
+				.photoUrlsJson(serializeList(request.getPhotoUrls()))
+				.fundingGoal(fundingGoal)
+				.maxParticipants(request.getMaxPartnerCount())
+				.deadline(request.getDeadline())
+				.lat(request.getLat())
+				.lng(request.getLng())
+				.build();
+
+		FeedItem saved = feedItemRepository.save(feedItem);
+		return FeedCreateResponse.builder()
+				.id(saved.getId())
+				.type(saved.getType())
+				.title(saved.getTitle())
+				.redirectUrl("/feeds/" + saved.getId())
+				.build();
+	}
+
+	@Transactional
 	public FeedApplicationResponse acceptApplication(String feedId, String applicationId, String requesterId) {
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
@@ -308,6 +386,17 @@ public class FeedItemService {
 			return objectMapper.readValue(json, valueType);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("피드 컨텍스트 JSON 역직렬화에 실패했습니다.", e);
+		}
+	}
+
+	private String serializeList(List<String> list) {
+		if (list == null || list.isEmpty()) {
+			return null;
+		}
+		try {
+			return objectMapper.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("리스트 직렬화에 실패했습니다.", e);
 		}
 	}
 

@@ -142,6 +142,24 @@ public class FeedItem {
 	@Column(columnDefinition = "TEXT")
 	private String primaryPinJson;
 
+	@Column
+	private String spotName;
+
+	@Column(columnDefinition = "TEXT")
+	private String detailDescription;
+
+	@Column(length = 2048)
+	private String supporterPhotoUrl;
+
+	@Column(length = 2048)
+	private String serviceStylePhotoUrl;
+
+	@Column(columnDefinition = "TEXT")
+	private String categoriesJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String photoUrlsJson;
+
 	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
 	private boolean deleted = false;
