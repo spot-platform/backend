@@ -24,6 +24,6 @@ public class FeedCreateResponse {
 	@Schema(description = "피드 제목", example = "한강 공원 명당 제공")
 	private String title;
 
-	@Schema(description = "생성 후 이동할 URL", example = "/feeds/abc123-uuid")
+	@Schema(description = "생성 후 이동할 URL", example = "/feeds/1")
 	private String redirectUrl;
 }

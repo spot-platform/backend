@@ -72,6 +72,7 @@ COMMIT;
 -- ============================================================================
 
 -- 검증 (재기동 후):
+-- 1) PK 컬럼
 -- SELECT column_name, data_type FROM information_schema.columns
 --   WHERE table_name = 'feed_items' AND column_name = 'id';
 -- → data_type: bigint 확인
@@ -83,3 +84,19 @@ COMMIT;
 -- SELECT column_name, data_type FROM information_schema.columns
 --   WHERE table_name = 'notifications' AND column_name = 'id';
 -- → data_type: bigint 확인
+--
+-- 2) FK 컬럼 (feed_item_id / spot_id 전체 일괄 확인)
+-- SELECT table_name, column_name, data_type
+--   FROM information_schema.columns
+--   WHERE (table_name, column_name) IN (
+--     ('feed_applications', 'feed_item_id'),
+--     ('feed_bookmarks',    'feed_item_id'),
+--     ('spot_participants', 'spot_id'),
+--     ('spot_votes',        'spot_id'),
+--     ('spot_notes',        'spot_id'),
+--     ('spot_files',        'spot_id'),
+--     ('spot_checklists',   'spot_id'),
+--     ('spot_schedules',    'spot_id')
+--   )
+--   ORDER BY table_name, column_name;
+-- → 모든 행의 data_type: bigint 확인
