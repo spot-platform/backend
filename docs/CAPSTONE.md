@@ -97,3 +97,243 @@ PR #32 "FRONTEND.md 컴플라이언스" 머지 후 분리된 후속 항목. 도�
 | [#44](https://github.com/spot-platform/backend/issues/44) | F8-b Checkstyle WARN (OAuth2) | 🧔 성찬 | 🔵 Low | 독립 |
 
 권장 순서: **F1 (성찬, 가장 먼저)** → F2 / F3 / F5 / F7 / F8 병렬 → F4 (F1 머지 후) → **F6 마지막** (다른 거 다 머지된 base 위에서)
+
+---
+
+## 🔄 9. Post→Feed 통합 작업 (hoTan35 담당)
+
+### 배경
+Post(write 모델)와 FeedItem(read/display 모델)이 중복. FeedItem이 AI 피드·시뮬레이션을 수용하면서
+Post보다 더 풍부한 구조가 됨. Post를 제거하고 FeedItem으로 단일화. Offer/Request 생성 API도
+`POST /posts/*` → `POST /feeds/*`로 이동.
+
+### 확정된 결정사항
+
+| 항목 | 결정 |
+|---|---|
+| 다중 카테고리·사진 저장 | **JSON 컬럼** (`categoriesJson`, `photoUrlsJson`) — ElementCollection 아님 |
+| FeedItem.spotId | **AI 피드 전용 유지** — 일반 피드 Spot 전환 시엔 기록 안 함 (전환 후 softDelete) |
+| UUID→Long 변경 범위 | **FeedItem, Spot, Notification만** — User, Chat은 UUID 유지 |
+
+### 작업 목록 (번호 순, 하나씩 진행)
+
+#### ✅ T1 — FeedItem 필드 업그레이드
+> Post에만 있던 필드를 FeedItem으로 추가하고, 단수→다중 필드 업그레이드.
+> 완료 기준: `./gradlew compileJava` 통과 + FeedController에 Offer/Request 생성 API 노출
+
+**엔티티 (`FeedItem.java`) 추가 필드:**
+```
+spotName             String  nullable   스팟 명칭
+detailDescription    TEXT    nullable   상세 설명 (description과 별개)
+supporterPhotoUrl    String  nullable   OFFER 전용
+serviceStylePhotoUrl String  nullable   REQUEST 전용
+categoriesJson       TEXT    nullable   List<FeedCategory> JSON — 기존 category 컬럼과 별개 유지
+photoUrlsJson        TEXT    nullable   List<String> JSON — 기존 imageUrl은 AI 피드용 유지
+```
+
+**FeedController 추가 엔드포인트:**
+- `POST /api/v1/feeds/offer` — FeedItemService.createOfferFeed()
+- `POST /api/v1/feeds/request` — FeedItemService.createRequestFeed()
+- 요청 DTO: `CreateOfferFeedRequest`, `CreateRequestFeedRequest` (post 패키지 DTO 참고)
+- 응답 DTO: `FeedCreateResponse` (`id`, `type`, `title`, `redirectUrl` 포함)
+
+**응답 DTO (`FeedItemResponse`, `FeedDetailResponse`) 추가 필드:**
+```
+spotName, detailDescription, supporterPhotoUrl, serviceStylePhotoUrl,
+categories (List<String>), photoUrls (List<String>)
+```
+
+**⚠️ 주의**: `category`(단일) 컬럼은 삭제하지 않음 — AI 피드 이니셜라이저가 사용 중.
+`categoriesJson`은 신규 사용자 생성 피드 전용.
+
+---
+
+#### ✅ T2 — Spot.fromPost() → fromFeedItem() 교체
+> 완료 기준: `./gradlew compileJava` 통과, Spot에 Post import 없음
+
+**변경 파일: `capstone-domain/.../spot/entity/Spot.java`**
+- `fromPost(Post post, ...)` 정적 팩토리 메서드 제거
+- `fromFeedItem(FeedItem feedItem)` 추가
+  ```java
+  public static Spot fromFeedItem(FeedItem feedItem) {
+      return Spot.builder()
+          .type(feedItem.getType())
+          .status(FeedItemStatus.MATCHED)
+          .matchedAt(LocalDateTime.now())
+          .title(feedItem.getTitle())
+          .description(feedItem.getDescription())
+          .pointCost(feedItem.getPrice())
+          .authorId(feedItem.getAuthorId())
+          .authorNickname(feedItem.getAuthorNickname())
+          .build();
+  }
+  ```
+- `import backend.post.entity.Post` 제거
+
+---
+
+#### ✅ T3 — Spot 변환 로직 재구성 + Post 패키지 완전 삭제
+> 완료 기준: `./gradlew compileJava` 통과, post 패키지 파일 0개, FeedItemService에 PostService·PostRepository 의존 없음
+
+**단계:**
+1. `FeedItemService.acceptApplication()` 수정
+   - `postService.convertToSpot(feedItem.getPostId())` → `spotRepository.save(Spot.fromFeedItem(feedItem))`
+   - `notificationService` 주입 추가, 알림 전송 로직 이동
+2. `FeedItemService.deleteFeedItem()` 수정
+   - Post softDelete 연동 로직 제거
+3. `FeedItemService` 필드 제거
+   - `PostRepository postRepository` 제거
+   - `PostService postService` 제거
+4. **삭제 대상 파일 (capstone-api, capstone-domain 전체)**
+   - `backend.post.controller.PostController`
+   - `backend.post.service.PostService`
+   - `backend.post.entity.Post`
+   - `backend.post.repository.PostRepository`
+   - `backend.post.dto.CreateOfferPostRequest`
+   - `backend.post.dto.CreateRequestPostRequest`
+   - `backend.post.dto.PostResponse`
+   - `backend.post.dto.PostCompletionResponse`
+   - `capstone-api/.../post/service/PostServiceTest`
+5. `FeedItemServiceTest` 정리
+   - `PostService`, `PostRepository` mock 제거
+   - `feedItemWithPost()` 헬퍼 제거
+   - `acceptApplication — SpotConversion` 테스트를 PostService 없이 재작성 (SpotRepository.save() verify로 대체)
+
+---
+
+#### ✅ T4 — FeedItem.spotId 처리 (문서화만, 코드 변경 없음)
+> 확정: spotId는 AI 피드 전용 시뮬레이션 참조 컬럼으로 유지.
+> 일반 피드 Spot 전환 시엔 spotId 기록 안 함 (전환 후 feedItem softDelete).
+> **코드 변경 없음.** Spot.java·FeedItem.java에 주석 추가만.
+
+---
+
+#### ✅ T5 — PostType → FeedType rename
+> 완료 기준: `./gradlew compileJava` 통과, `PostType` 참조 0건
+
+**변경 파일 목록 (14개):**
+```
+capstone-domain/.../global/enums/PostType.java          → FeedType.java (클래스명 변경)
+capstone-domain/.../feed/entity/FeedItem.java           PostType → FeedType
+capstone-domain/.../feed/dto/FeedListQuery.java         PostType → FeedType
+capstone-domain/.../feed/repository/FeedItemRepositoryImpl.java  PostType → FeedType
+capstone-domain/.../spot/entity/Spot.java               PostType → FeedType
+capstone-domain/.../spot/repository/SpotRepository.java PostType → FeedType
+capstone-api/.../feed/dto/FeedItemResponse.java         PostType → FeedType (4곳)
+capstone-api/.../feed/dto/FeedDetailResponse.java       PostType → FeedType (4곳)
+capstone-api/.../feed/initializer/AiFeedDataInitializer FeedType.valueOf(...)
+capstone-api/.../spot/dto/CreateSpotRequest.java        PostType → FeedType
+capstone-api/.../spot/dto/SpotMapItemResponse.java      PostType → FeedType
+capstone-api/.../spot/dto/SpotResponse.java             PostType → FeedType
+capstone-api/.../spot/service/SpotService.java          PostType → FeedType
+capstone-api/.../feed/service/FeedItemService.java      PostType → FeedType
+```
+**DB 영향 없음** — DB에 저장되는 값은 enum 상수명(`OFFER`, `REQUEST`, `RENT`)이므로 클래스명 변경과 무관.
+
+---
+
+#### ✅ T6 — FeedCategory 통합 (PostSpotCategory → FeedCategory 흡수)
+> 완료 기준: `./gradlew compileJava` 통과, PostSpotCategory 참조 0건, Spot.category가 FeedCategory 타입
+
+**FeedCategory.java에 추가할 값 (PostSpotCategory에서 이관):**
+```java
+public enum FeedCategory {
+    음악("음악"), 요리("요리"), 운동("운동"), 공예("공예"), 언어("언어"), 기타("기타"),
+    // ↓ PostSpotCategory에서 이관
+    음식_요리("음식·요리"), BBQ_조개("BBQ·조개"), 공동구매("공동구매"), 교육("교육");
+
+    private final String label;
+    FeedCategory(String label) { this.label = label; }
+    public String getLabel() { return label; }
+}
+```
+- `PostSpotCategory.java` 삭제
+- `Spot.category: String` → `Spot.category: FeedCategory` (@Enumerated(EnumType.STRING))
+- `SpotRepository.findMapItems()` — `:category` 파라미터 타입 `String` → `FeedCategory`
+- `SpotService.getSpotMap()` — `parseEnum(PostType, ...)` 패턴 동일하게 FeedCategory도 적용
+- `SpotMapItemResponse`에 `category: FeedCategory`로 타입 변경
+
+**DB 주의**: Spot 테이블의 기존 `category` 컬럼 값이 현재 String이므로,
+기존 데이터가 FeedCategory enum 값과 일치하면 자동 매핑. 불일치 데이터는 서버 기동 시 에러.
+로컬 DB라면 테이블 초기화 후 재기동으로 해결.
+
+---
+
+#### ✅ T7 — FeedItem.postId 컬럼 제거
+> 완료 기준: `./gradlew compileJava` 통과, FeedItem에 postId 필드 없음
+
+**변경 파일:**
+- `FeedItem.java` — `postId` 필드 제거
+- `FeedItemServiceTest.java` — `feedItemWithPost()` 헬퍼 및 `SpotConversion` 테스트 정리 (T3에서 이미 처리됐으면 skip)
+
+---
+
+#### ✅ T8 — UUID → Long (순번) ID 변경
+> 완료 기준: `./gradlew compileJava` 통과, 프론트에서 숫자 ID로 정상 호출
+
+**변경 대상 엔티티 ID:**
+```
+FeedItem.id    : String (UUID) → Long (@GeneratedValue IDENTITY)
+Spot.id        : String (UUID) → Long (@GeneratedValue IDENTITY)
+Notification.id: String (UUID) → Long (@GeneratedValue IDENTITY)
+```
+
+**연쇄로 바꿔야 할 외래키 필드들:**
+```
+FeedApplication.feedItemId : String → Long
+Bookmark.feedItemId        : String → Long
+SpotParticipant.spotId     : String → Long
+SpotVote.spotId            : String → Long   (creatorId는 userId라 String 유지)
+SpotNote.spotId            : String → Long
+SpotFile.spotId            : String → Long
+SpotChecklist.spotId       : String → Long
+SpotSchedule.spotId        : String → Long
+FeedItem.spotId            : String → Long   (AI 피드용 시뮬레이션 참조)
+ChatRoom.spotId(?)         : 확인 후 결정 — Chat ID는 변경 대상 아님
+```
+
+**Repository 타입 파라미터 변경:**
+```
+FeedItemRepository     : JpaRepository<FeedItem, String>    → <FeedItem, Long>
+SpotRepository         : JpaRepository<Spot, String>        → <Spot, Long>
+NotificationRepository : JpaRepository<Notification, String>→ <Notification, Long>
+FeedApplicationRepository, BookmarkRepository 등 관련 메서드 파라미터도 확인
+```
+
+**Controller PathVariable:**
+```java
+// 변경 전
+@GetMapping("/{feedId}")
+public ... getFeedItem(@PathVariable String feedId)
+
+// 변경 후
+@GetMapping("/{feedId}")
+public ... getFeedItem(@PathVariable Long feedId)
+```
+
+**ID 생성 전략 변경:**
+```java
+// 변경 전
+@GeneratedValue(generator = "uuid2")
+@GenericGenerator(name = "uuid2", strategy = "uuid2")
+@Column(columnDefinition = "VARCHAR(36)")
+private String id;
+
+// 변경 후
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+```
+
+**⚠️ T8은 범위가 가장 큼. T1~T7 완료 후 마지막에 진행.**
+
+---
+
+### 실행 순서 요약
+
+```
+T1 → T2 → T3 → T4(no-op) → T5 → T6 → T7 → T8
+```
+
+각 단계 완료 후 `./gradlew compileJava` + `./gradlew checkstyleMain` 필수 확인.
+T3 이후 `./gradlew test`도 실행해서 테스트 통과 여부 확인.
