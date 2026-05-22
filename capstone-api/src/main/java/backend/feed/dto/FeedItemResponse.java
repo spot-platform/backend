@@ -12,7 +12,7 @@ import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,7 +49,7 @@ public class FeedItemResponse {
 	private Integer price;
 
 	@Schema(description = "피드 타입", example = "OFFER")
-	private PostType type;
+	private FeedType type;
 
 	@Schema(description = "상태", example = "OPEN")
 	private FeedItemStatus status;
@@ -145,14 +145,14 @@ public class FeedItemResponse {
 				.category(feedItem.getCategory())
 				.maxParticipants(feedItem.getMaxParticipants())
 				.deadline(feedItem.getDeadline())
-				.partnerCount(feedItem.getType() == PostType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
-				.progressPercent(feedItem.getType() == PostType.OFFER ? calculateProgressPercent(feedItem) : null)
-				.applicantCount(feedItem.getType() == PostType.REQUEST ? applicantCount : null)
+				.partnerCount(feedItem.getType() == FeedType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
+				.progressPercent(feedItem.getType() == FeedType.OFFER ? calculateProgressPercent(feedItem) : null)
+				.applicantCount(feedItem.getType() == FeedType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
 				.myApplicationStatus(myApplication != null ? myApplication.getStatus() : null)
 				.myApplicationRole(myApplication != null ? myApplication.getAppliedRole() : null)
 				.myApplicationDeposit(myApplication != null ? myApplication.getDeposit() : null)
-				.isRentable(feedItem.getType() == PostType.RENT)
+				.isRentable(feedItem.getType() == FeedType.RENT)
 				.authorProfile(authorProfile)
 				.lat(feedItem.getLat())
 				.lng(feedItem.getLng())

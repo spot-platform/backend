@@ -1,6 +1,6 @@
 package backend.spot.dto;
 
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -22,7 +22,7 @@ public class CreateSpotRequest {
 	@NotNull
 	@Schema(description = "스팟 타입 (OFFER: 제공, REQUEST: 요청)", example = "OFFER",
 		requiredMode = Schema.RequiredMode.REQUIRED)
-	private PostType type;
+	private FeedType type;
 
 	@NotBlank
 	@Schema(description = "스팟 제목", example = "한강 자리 제공합니다",

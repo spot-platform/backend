@@ -16,7 +16,7 @@ import backend.feed.entity.FeedItem;
 import backend.feed.entity.QFeedItem;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -70,7 +70,7 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 		};
 	}
 
-	private BooleanExpression eqType(PostType type) {
+	private BooleanExpression eqType(FeedType type) {
 		return type != null ? feedItem.type.eq(type) : null;
 	}
 

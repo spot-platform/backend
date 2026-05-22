@@ -1,5 +1,5 @@
 package backend.global.enums;
 
-public enum PostType {
+public enum FeedType {
 	OFFER, REQUEST, RENT
 }
