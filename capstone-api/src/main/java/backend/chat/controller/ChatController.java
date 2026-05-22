@@ -123,6 +123,15 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId, currentUserId(userDetails))));
 	}
 
+	@Operation(summary = "피드별 채팅방 조회")
+	@GetMapping("/rooms/by-feed/{feedId}")
+	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByFeed(
+		@PathVariable String feedId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByFeed(feedId, currentUserId(userDetails))));
+	}
+
 	@Operation(summary = "스팟별 채팅방 조회")
 	@GetMapping("/rooms/by-spot/{spotId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomBySpot(
@@ -130,15 +139,6 @@ public class ChatController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId, currentUserId(userDetails))));
-	}
-
-	@Operation(summary = "사용자별 채팅방 조회")
-	@GetMapping("/rooms/by-user/{userId}")
-	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByUser(
-		@PathVariable String userId,
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId, currentUserId(userDetails))));
 	}
 
 	// ─── 메시지 (Message) ─────────────────────────

@@ -184,6 +184,26 @@ public class ChatService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsByFeed(String feedId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		List<ChatRoom> rooms = chatRoomRepository.findByPostId(feedId);
+		if (currentUser != null) {
+			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
+			rooms = rooms.stream()
+				.filter(r -> !r.isDeleted())
+				.filter(r -> myRoomIds.contains(r.getId()))
+				.toList();
+		} else {
+			rooms = List.of();
+		}
+		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
+		return rooms.stream()
+			.map(room -> ChatRoomResponse.from(
+				room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
+			.toList();
+	}
+
+	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId, String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
 		List<ChatRoom> rooms = chatRoomRepository.findBySpotId(spotId);
@@ -204,27 +224,6 @@ public class ChatService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChatRoomResponse> getRoomsByUser(String userId, String currentUserId) {
-		UserEntity currentUser = findCurrentUser(currentUserId);
-		List<Long> targetRoomIds = chatRoomMemberRepository.findChatRoomIdsByUserId(userId);
-		if (currentUser != null) {
-			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
-			targetRoomIds = targetRoomIds.stream().filter(myRoomIds::contains).toList();
-		} else {
-			targetRoomIds = List.of();
-		}
-		List<ChatRoom> rooms = targetRoomIds.isEmpty()
-			? List.of()
-			: chatRoomRepository.findAllById(targetRoomIds).stream()
-				.filter(r -> !r.isDeleted())
-				.toList();
-		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
-		return rooms.stream()
-			.map(room -> ChatRoomResponse.from(
-				room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
-			.toList();
-	}
-
 	// ─────────────────────────────────────────────
 	// 멤버십 (Membership) — 외부 도메인에서도 호출 가능
 	// ─────────────────────────────────────────────
