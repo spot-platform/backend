@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import backend.chat.dto.ChatBlockResponse;
+import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
@@ -224,6 +225,17 @@ public class ChatService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<ChatMemberResponse> getMembers(Long roomId, String currentUserId) {
+		assertMembership(roomId, currentUserId);
+		List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(roomId);
+		List<String> userIds = members.stream().map(ChatRoomMember::getUserId).toList();
+		Map<String, UserEntity> usersById = userRepository.findAllById(userIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		return members.stream()
+			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId())))
+			.toList();
+	}
+
 	// ─────────────────────────────────────────────
 	// 멤버십 (Membership) — 외부 도메인에서도 호출 가능
 	// ─────────────────────────────────────────────
@@ -663,8 +675,8 @@ public class ChatService {
 		if (blockedSinceBySenderId.isEmpty()) {
 			return false;
 		}
-		LocalDateTime blockedSince = blockedSinceBySenderId.get(message.getSenderId());
-		return blockedSince != null && blockedSince.isBefore(message.getCreatedAt());
+		// 차단한 유저의 메시지는 차단 시점과 무관하게 모두 가린다 (카카오톡 동작과 동일).
+		return blockedSinceBySenderId.containsKey(message.getSenderId());
 	}
 
 	private ChatRoomEnrichment buildEnrichment(ChatRoom room, UserEntity currentUser) {
@@ -672,41 +684,45 @@ public class ChatService {
 			.getOrDefault(room.getId(), ChatRoomEnrichment.empty());
 	}
 
-	private Map<Long, ChatRoomEnrichment> buildEnrichments(Collection<ChatRoom> rooms, UserEntity currentUser) {
-		if (rooms.isEmpty()) {
-			return Map.of();
-		}
+    private Map<Long, ChatRoomEnrichment> buildEnrichments(Collection<ChatRoom> rooms, UserEntity currentUser) {
+        if (rooms.isEmpty()) {
+            return Map.of();
+        }
 
-		List<Long> roomIds = rooms.stream().map(ChatRoom::getId).toList();
-		Map<Long, ChatMessage> lastMessagesByRoomId = currentUser == null
-			? Map.of()
-			: chatMessageRepository.findLatestByChatRoomIds(roomIds).stream()
-				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
+        List<Long> roomIds = rooms.stream().map(ChatRoom::getId).toList();
+        Map<Long, ChatMessage> lastMessagesByRoomId = currentUser == null
+                ? Map.of()
+                : chatMessageRepository.findLatestByChatRoomIds(roomIds).stream()
+                .collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
 
-		Set<Long> spotIds = rooms.stream()
-			.map(room -> parseSpotId(room.getSpotId()))
-			.filter(java.util.Objects::nonNull)
-			.collect(Collectors.toSet());
-		Map<Long, Spot> spotsById = spotIds.isEmpty()
-			? Map.of()
-			: spotRepository.findAllById(spotIds).stream()
-				.collect(Collectors.toMap(Spot::getId, Function.identity()));
+        Set<Long> spotIds = rooms.stream()
+                .map(room -> parseSpotId(room.getSpotId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-		Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
-		Map<Long, Long> unreadByRoomId = resolveUnreadCounts(roomIds, currentUser);
+        Map<Long, Spot> spotsById = spotIds.isEmpty()
+                ? Map.of()
+                : spotRepository.findAllById(spotIds).stream()
+                .collect(Collectors.toMap(Spot::getId, Function.identity()));
 
-		return rooms.stream()
-			.collect(Collectors.toMap(
-				ChatRoom::getId,
-				room -> ChatRoomEnrichment.builder()
-					.lastMessage(lastMessagesByRoomId.get(room.getId()))
-					.spot(spotsById.get(parseSpotId(room.getSpotId())))
-					.currentUser(currentUser)
-					.partner(partnerByRoomId.get(room.getId()))
-					.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
-					.build()
-			));
-	}
+        Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
+        Map<Long, Long> unreadByRoomId = resolveUnreadCounts(roomIds, currentUser);
+
+        return rooms.stream()
+                .collect(Collectors.toMap(
+                        ChatRoom::getId,
+                        room -> {
+                            Long parsedSpotId = parseSpotId(room.getSpotId());
+                            return ChatRoomEnrichment.builder()
+                                    .lastMessage(lastMessagesByRoomId.get(room.getId()))
+                                    .spot(parsedSpotId != null ? spotsById.get(parsedSpotId) : null)
+                                    .currentUser(currentUser)
+                                    .partner(partnerByRoomId.get(room.getId()))
+                                    .unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
+                                    .build();
+                        }
+                ));
+    }
 
 	private Map<Long, Long> resolveUnreadCounts(Collection<Long> roomIds, UserEntity currentUser) {
 		if (currentUser == null || roomIds.isEmpty()) {
