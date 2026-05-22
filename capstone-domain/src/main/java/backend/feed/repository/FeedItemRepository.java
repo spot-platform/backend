@@ -13,7 +13,5 @@ public interface FeedItemRepository extends JpaRepository<FeedItem, String>,
 		JpaSpecificationExecutor<FeedItem>,
 		FeedItemRepositoryCustom {
 
-	Optional<FeedItem> findByPostIdAndDeletedFalse(String postId);
-
 	Optional<FeedItem> findByIdAndDeletedFalse(String id);
 }
