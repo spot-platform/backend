@@ -290,7 +290,8 @@ public class FeedItemService {
 
 	@Transactional
 	public FeedApplicationResponse acceptApplication(Long feedId, String applicationId, String requesterId) {
-		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
+		// 펀딩 달성 시 Spot 중복 생성 방지를 위해 비관적 락으로 조회
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
 				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 
 		if (!feedItem.getAuthorId().equals(requesterId)) {
