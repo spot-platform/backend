@@ -25,6 +25,7 @@ import backend.chat.dto.CreateChatBlockRequest;
 import backend.chat.dto.CreateChatRoomRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
+import backend.chat.entity.ChatRoomType;
 import backend.chat.service.ChatService;
 import backend.chat.service.SseEmitterService;
 import backend.global.common.response.ApiResponse;
@@ -47,7 +48,7 @@ public class ChatController {
 	// ─── SSE 연결 ─────────────────────────────────
 
 	@Operation(
-		summary = "SSE 구독 연결",
+		summary = "SSE 구독 연결 (방)",
 		description = "특정 채팅방에 SSE 실시간 연결을 맺습니다. 연결 후 해당 방에 새 메시지가 오면 즉시 수신됩니다."
 	)
 	@GetMapping(value = "/rooms/{roomId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -60,14 +61,25 @@ public class ChatController {
 		return sseEmitterService.subscribe(roomId);
 	}
 
+	@Operation(
+		summary = "SSE 구독 연결 (유저)",
+		description = "채팅 목록 화면의 unread 배지를 실시간으로 갱신하기 위한 유저 레벨 SSE 연결입니다. "
+			+ "다른 방에 새 메시지가 오면 badge_update 이벤트가 도착합니다."
+	)
+	@GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter connectUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return sseEmitterService.subscribeUser(currentUserId(userDetails));
+	}
+
 	// ─── 채팅방 (Room) ─────────────────────────────
 
 	@Operation(summary = "채팅방 목록 조회")
 	@GetMapping("/rooms")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRooms(
+		@RequestParam(required = false) ChatRoomType type,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(userDetails))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRooms(currentUserId(userDetails), type)));
 	}
 
 	@Operation(
@@ -158,6 +170,19 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(
 			chatService.sendMessage(roomId, request, currentUserId(userDetails))
 		));
+	}
+
+	@Operation(
+		summary = "타이핑 이벤트 전송",
+		description = "입력 중 상태를 같은 방 구독자에게 SSE로 브로드캐스트합니다. DB 저장 없음."
+	)
+	@PostMapping("/rooms/{roomId}/typing")
+	public ResponseEntity<ApiResponse<Void>> typing(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.broadcastTyping(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success());
 	}
 
 	@Operation(

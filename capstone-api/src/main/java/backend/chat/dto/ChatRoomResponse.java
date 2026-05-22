@@ -69,8 +69,14 @@ public class ChatRoomResponse {
 	@Schema(description = "PERSONAL 채팅 상대방 닉네임")
 	private String partnerNickname;
 
-	@Schema(description = "읽지 않은 메시지 수 (PR B 에서 실 카운트 구현)", example = "0")
+	@Schema(description = "읽지 않은 메시지 수", example = "0")
 	private Integer unreadCount;
+
+	@Schema(description = "마지막 메시지 전송 기준 업데이트 시각 (목록 정렬 기준)")
+	private LocalDateTime updatedAt;
+
+	@Schema(description = "읽기 전용 여부 (스팟 완료/취소 후 true)", example = "false")
+	private boolean readOnly;
 
 	public static ChatRoomResponse from(ChatRoom room) {
 		return from(room, ChatRoomEnrichment.empty());
@@ -99,6 +105,8 @@ public class ChatRoomResponse {
 			.partnerId(partner == null ? null : partner.getId())
 			.partnerNickname(partner == null ? null : partner.getNickname())
 			.unreadCount(resolveUnreadCount(enrichment.getUnreadCount()))
+			.updatedAt(room.getUpdatedAt())
+			.readOnly(room.isReadOnly())
 			.build();
 	}
 

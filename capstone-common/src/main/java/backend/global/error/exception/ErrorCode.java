@@ -50,6 +50,7 @@ public enum ErrorCode {
 	CHAT_BLOCKED_BETWEEN_USERS(HttpStatus.FORBIDDEN, "CH009", "Personal chat is blocked between the two users"),
 	CHAT_BLOCK_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "CH010", "Block target user not found"),
 	CHAT_SELF_BLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH011", "Cannot block yourself"),
+	CHAT_ROOM_READ_ONLY(HttpStatus.FORBIDDEN, "CH012", "This chat room is read-only (spot completed or cancelled)"),
 
 	// Post
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "Post not found"),
