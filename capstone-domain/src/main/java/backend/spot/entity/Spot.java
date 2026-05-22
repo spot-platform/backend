@@ -140,7 +140,7 @@ public class Spot {
 				.pointCost(feedItem.getPrice())
 				.authorId(feedItem.getAuthorId())
 				.authorNickname(feedItem.getAuthorNickname())
-				.category(feedItem.getCategory() != null ? feedItem.getCategory().name() : null)
+				.category(feedItem.getCategory())
 				.lat(feedItem.getLat())
 				.lng(feedItem.getLng())
 				.build();
