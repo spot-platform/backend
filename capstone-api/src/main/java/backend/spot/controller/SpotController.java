@@ -88,7 +88,8 @@ public class SpotController {
 		@RequestParam(defaultValue = "10") int size,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.searchSpots(q, scope, page, size, currentUserIdOrNull(userDetails))));
+		SpotListResponse result = spotService.searchSpots(q, scope, page, size, currentUserIdOrNull(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(result));
 	}
 
 	@Operation(summary = "스팟 생성")

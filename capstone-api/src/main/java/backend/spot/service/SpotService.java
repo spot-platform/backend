@@ -136,7 +136,7 @@ public class SpotService {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<Spot> spotPage = spotRepository.findAll(pageable);
 
-		Set<String> owned = ownedSpotIds(currentUserId);
+		Set<Long> owned = ownedSpotIds(currentUserId);
 		List<SpotResponse> data = spotPage.getContent()
 			.stream()
 			// TODO: batch participant counts when N is large
@@ -191,7 +191,7 @@ public class SpotService {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<Spot> spotPage = spotRepository.searchByKeyword(keyword, normalizedScope, pageable);
 
-		Set<String> owned = ownedSpotIds(currentUserId);
+		Set<Long> owned = ownedSpotIds(currentUserId);
 		List<SpotResponse> data = spotPage.getContent().stream()
 			.map(spot -> toSpotResponse(spot, owned.contains(spot.getId())))
 			.toList();
@@ -886,9 +886,7 @@ public class SpotService {
 		if (currentUserId == null) {
 			return Set.of();
 		}
-		return spotParticipantRepository.findByUserId(currentUserId).stream()
-			.map(SpotParticipant::getSpotId)
-			.collect(Collectors.toSet());
+		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserId(currentUserId));
 	}
 
 	private List<Long> getMyVotedOptionIds(Long voteId, String currentUserId) {
