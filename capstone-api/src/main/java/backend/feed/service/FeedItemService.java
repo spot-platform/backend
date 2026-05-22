@@ -45,6 +45,7 @@ import backend.feed.repository.BookmarkRepository;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.dto.ApiResponseMeta;
+import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.PostType;
 import backend.global.error.exception.BusinessException;
@@ -207,6 +208,7 @@ public class FeedItemService {
 
 		FeedItem feedItem = FeedItem.builder()
 				.authorId(authorId)
+				.authorRole(FeedAuthorRole.SUPPORTER)
 				.title(request.getTitle())
 				.description(request.getContent())
 				.location(request.getLocation())
@@ -248,6 +250,7 @@ public class FeedItemService {
 
 		FeedItem feedItem = FeedItem.builder()
 				.authorId(authorId)
+				.authorRole(FeedAuthorRole.PARTNER)
 				.title(request.getTitle())
 				.description(request.getContent())
 				.location(request.getLocation())
