@@ -1,5 +1,11 @@
 package backend.user.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,13 +14,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.repository.RefreshRepository;
+import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedItem;
+import backend.feed.repository.FeedApplicationRepository;
+import backend.feed.repository.FeedItemRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
+import backend.spot.entity.Spot;
+import backend.spot.entity.SpotParticipant;
+import backend.spot.repository.SpotParticipantRepository;
+import backend.spot.repository.SpotRepository;
 import backend.user.dto.request.DeleteUserRequest;
 import backend.user.dto.request.JoinRequest;
 import backend.user.dto.request.PasswordChangeRequest;
 import backend.user.dto.request.UpdateProfileRequest;
+import backend.user.dto.response.MyApplicationItemResponse;
+import backend.user.dto.response.MyParticipatingSpotResponse;
 import backend.user.dto.response.UserResponseDTO;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
@@ -27,15 +43,15 @@ public class UserService implements UserDetailsService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final RefreshRepository refreshRepository;
+	private final FeedApplicationRepository feedApplicationRepository;
+	private final FeedItemRepository feedItemRepository;
+	private final SpotParticipantRepository spotParticipantRepository;
+	private final SpotRepository spotRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		UserEntity user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-		// TODO: 이메일 인증 기능 추가 시 아래 주석 해제
-		// if (!user.getIsVerified()) {
-		//     throw new UsernameNotFoundException("이메일 인증이 필요합니다: " + email);
-		// }
 		return new CustomUserDetails(user);
 	}
 
@@ -115,6 +131,55 @@ public class UserService implements UserDetailsService {
 
 		user.softDelete();
 		refreshRepository.deleteByEmail(email);
+	}
+
+	/**
+	 * 내가 신청한 피드 목록 (최신순). APPLIED/ACCEPTED/REJECTED/CANCELLED 모두 포함.
+	 */
+	@Transactional(readOnly = true)
+	public List<MyApplicationItemResponse> getMyApplications(String email) {
+		UserEntity user = findActiveUserByEmail(email);
+		List<FeedApplication> applications =
+			feedApplicationRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+
+		Set<String> feedItemIds = applications.stream()
+			.map(FeedApplication::getFeedItemId)
+			.collect(Collectors.toSet());
+		Map<String, FeedItem> feedItemById = feedItemIds.isEmpty()
+			? Map.of()
+			: feedItemRepository.findAllById(feedItemIds).stream()
+				.collect(Collectors.toMap(FeedItem::getId, Function.identity()));
+
+		return applications.stream()
+			.map(app -> {
+				FeedItem feedItem = feedItemById.get(app.getFeedItemId());
+				String title = feedItem != null ? feedItem.getTitle() : null;
+				return MyApplicationItemResponse.of(app, title);
+			})
+			.toList();
+	}
+
+	/**
+	 * 내가 참여 중인 스팟 목록. SpotParticipant 기반 (AUTHOR + PARTICIPANT 모두).
+	 */
+	@Transactional(readOnly = true)
+	public List<MyParticipatingSpotResponse> getMyParticipatingSpots(String email) {
+		UserEntity user = findActiveUserByEmail(email);
+		List<SpotParticipant> participations =
+			spotParticipantRepository.findByUserIdOrderByJoinedAtDesc(user.getId());
+
+		Set<String> spotIds = participations.stream()
+			.map(SpotParticipant::getSpotId)
+			.collect(Collectors.toSet());
+		Map<String, Spot> spotById = spotIds.isEmpty()
+			? Map.of()
+			: spotRepository.findAllById(spotIds).stream()
+				.collect(Collectors.toMap(Spot::getId, Function.identity()));
+
+		return participations.stream()
+			.filter(p -> spotById.containsKey(p.getSpotId()))
+			.map(p -> MyParticipatingSpotResponse.of(p, spotById.get(p.getSpotId())))
+			.toList();
 	}
 
 	private UserEntity findActiveUserByEmail(String email) {

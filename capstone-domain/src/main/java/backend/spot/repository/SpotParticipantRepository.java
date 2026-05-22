@@ -15,6 +15,8 @@ public interface SpotParticipantRepository extends JpaRepository<SpotParticipant
 
 	List<SpotParticipant> findByUserId(String userId);
 
+	List<SpotParticipant> findByUserIdOrderByJoinedAtDesc(String userId);
+
 	Optional<SpotParticipant> findBySpotIdAndUserId(String spotId, String userId);
 
 	boolean existsBySpotIdAndUserId(String spotId, String userId);

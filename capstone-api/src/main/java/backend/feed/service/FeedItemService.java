@@ -1,6 +1,8 @@
 package backend.feed.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import backend.chat.service.ChatService;
 import backend.feed.dto.CreateOfferFeedRequest;
 import backend.feed.dto.CreateRequestFeedRequest;
 import backend.feed.dto.FeedApplicationResponse;
@@ -52,7 +55,11 @@ import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
 import backend.notification.service.NotificationService;
+import backend.spot.entity.ParticipantRole;
+import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
+import backend.spot.entity.SpotParticipant;
+import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
@@ -69,7 +76,9 @@ public class FeedItemService {
 	private final FeedApplicationRepository feedApplicationRepository;
 	private final BookmarkRepository bookmarkRepository;
 	private final SpotRepository spotRepository;
+	private final SpotParticipantRepository spotParticipantRepository;
 	private final NotificationService notificationService;
+	private final ChatService chatService;
 	private final UserRepository userRepository;
 	private final ObjectMapper objectMapper;
 
@@ -226,6 +235,7 @@ public class FeedItemService {
 				.build();
 
 		FeedItem saved = feedItemRepository.save(feedItem);
+		chatService.ensureGroupRoomForPost(saved.getId(), Set.of(authorId));
 		return FeedCreateResponse.builder()
 				.id(saved.getId())
 				.type(saved.getType())
@@ -268,6 +278,7 @@ public class FeedItemService {
 				.build();
 
 		FeedItem saved = feedItemRepository.save(feedItem);
+		chatService.ensureGroupRoomForPost(saved.getId(), Set.of(authorId));
 		return FeedCreateResponse.builder()
 				.id(saved.getId())
 				.type(saved.getType())
@@ -293,8 +304,10 @@ public class FeedItemService {
 		feedItem.accumulateFunding(feedItem.getPrice());
 
 		if (feedItem.isFundingGoalMet()) {
-			spotRepository.save(Spot.fromFeedItem(feedItem));
+			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
+			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
+			chatService.linkGroupRoomToSpot(feedId, spot.getId(), participantIds);
 			try {
 				notificationService.send(
 						feedItem.getAuthorId(),
@@ -323,6 +336,35 @@ public class FeedItemService {
 
 		application.reject();
 		return FeedApplicationResponse.from(application);
+	}
+
+	private Set<String> registerSpotParticipants(Spot spot, FeedItem feedItem) {
+		List<SpotParticipant> participants = new ArrayList<>();
+		participants.add(SpotParticipant.builder()
+			.spotId(spot.getId())
+			.userId(feedItem.getAuthorId())
+			.role(ParticipantRole.AUTHOR)
+			.state(ParticipantState.ACTIVE)
+			.build());
+
+		Set<String> participantIds = new HashSet<>();
+		participantIds.add(feedItem.getAuthorId());
+
+		List<FeedApplication> accepted = feedApplicationRepository
+			.findAllByFeedItemIdAndStatus(feedItem.getId(), FeedApplicationStatus.ACCEPTED);
+		for (FeedApplication app : accepted) {
+			String uid = app.getUserId();
+			if (uid != null && participantIds.add(uid)) {
+				participants.add(SpotParticipant.builder()
+					.spotId(spot.getId())
+					.userId(uid)
+					.role(ParticipantRole.PARTICIPANT)
+					.state(ParticipantState.ACTIVE)
+					.build());
+			}
+		}
+		spotParticipantRepository.saveAll(participants);
+		return participantIds;
 	}
 
 	private Long resolveApplicantCount(FeedItem feedItem) {

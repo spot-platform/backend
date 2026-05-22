@@ -60,4 +60,13 @@ public class ChatRoom {
 	public void markDeleted() {
 		this.isDeleted = true;
 	}
+
+	/** Feed → Spot 전환 시 호출. 채팅 내역을 유지하면서 spotId를 연결한다. */
+	public void linkSpot(String spotId) {
+		if (this.spotId != null && !this.spotId.equals(spotId)) {
+			throw new IllegalStateException(
+				"채팅방이 이미 다른 Spot(" + this.spotId + ")에 연결되어 있습니다.");
+		}
+		this.spotId = spotId;
+	}
 }

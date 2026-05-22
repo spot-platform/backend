@@ -1,5 +1,7 @@
 package backend.user.controller;
 
+import java.util.List;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,8 @@ import backend.user.dto.request.EmailExistRequest;
 import backend.user.dto.request.JoinRequest;
 import backend.user.dto.request.PasswordChangeRequest;
 import backend.user.dto.request.UpdateProfileRequest;
+import backend.user.dto.response.MyApplicationItemResponse;
+import backend.user.dto.response.MyParticipatingSpotResponse;
 import backend.user.dto.response.UserResponseDTO;
 import backend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -163,6 +167,26 @@ public class UserController {
 		String email = getCurrentEmail();
 		userService.deleteUser(email, request != null ? request : new DeleteUserRequest(null));
 		return ApiResponse.success();
+	}
+
+	@Operation(
+		summary = "내가 신청한 피드 목록",
+		description = "내가 신청한 피드 항목 전체를 최신순으로 반환합니다. (APPLIED/ACCEPTED/REJECTED/CANCELLED 모두)"
+	)
+	@GetMapping("/me/feed-applications")
+	public ApiResponse<List<MyApplicationItemResponse>> getMyApplications() {
+		String email = getCurrentEmail();
+		return ApiResponse.success(userService.getMyApplications(email));
+	}
+
+	@Operation(
+		summary = "내가 참여 중인 스팟 목록",
+		description = "내가 작성자(AUTHOR) 또는 참여자(PARTICIPANT)로 속한 스팟 목록을 반환합니다."
+	)
+	@GetMapping("/me/participations")
+	public ApiResponse<List<MyParticipatingSpotResponse>> getMyParticipatingSpots() {
+		String email = getCurrentEmail();
+		return ApiResponse.success(userService.getMyParticipatingSpots(email));
 	}
 
 	private String getCurrentEmail() {
