@@ -9,9 +9,9 @@ import backend.spot.entity.VoteState;
 
 public interface SpotVoteRepository extends JpaRepository<SpotVote, Long> {
 
-	List<SpotVote> findBySpotId(String spotId);
+	List<SpotVote> findBySpotId(Long spotId);
 
-	List<SpotVote> findBySpotIdAndState(String spotId, VoteState state);
+	List<SpotVote> findBySpotIdAndState(Long spotId, VoteState state);
 
-	List<SpotVote> findBySpotIdOrderByCreatedAtDesc(String spotId);
+	List<SpotVote> findBySpotIdOrderByCreatedAtDesc(Long spotId);
 }

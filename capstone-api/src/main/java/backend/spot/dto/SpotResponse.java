@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "스팟 응답 DTO")
 public class SpotResponse {
 
-	@Schema(description = "스팟 ID (UUID)", example = "550e8400-e29b-41d4-a716-446655440000")
-	private String id;
+	@Schema(description = "스팟 ID", example = "1")
+	private Long id;
 
 	@Schema(description = "스팟 타입 (OFFER: 제공, REQUEST: 요청)", example = "OFFER")
 	private FeedType type;

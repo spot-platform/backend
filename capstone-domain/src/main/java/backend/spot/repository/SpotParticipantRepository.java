@@ -11,17 +11,17 @@ import backend.spot.entity.SpotParticipant;
 
 public interface SpotParticipantRepository extends JpaRepository<SpotParticipant, Long> {
 
-	List<SpotParticipant> findBySpotId(String spotId);
+	List<SpotParticipant> findBySpotId(Long spotId);
 
 	List<SpotParticipant> findByUserId(String userId);
 
 	List<SpotParticipant> findByUserIdOrderByJoinedAtDesc(String userId);
 
-	Optional<SpotParticipant> findBySpotIdAndUserId(String spotId, String userId);
+	Optional<SpotParticipant> findBySpotIdAndUserId(Long spotId, String userId);
 
-	boolean existsBySpotIdAndUserId(String spotId, String userId);
+	boolean existsBySpotIdAndUserId(Long spotId, String userId);
 
-	List<SpotParticipant> findBySpotIdAndRole(String spotId, ParticipantRole role);
+	List<SpotParticipant> findBySpotIdAndRole(Long spotId, ParticipantRole role);
 
-	long countBySpotIdAndState(String spotId, ParticipantState state);
+	long countBySpotIdAndState(Long spotId, ParticipantState state);
 }

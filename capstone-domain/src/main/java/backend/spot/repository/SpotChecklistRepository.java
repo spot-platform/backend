@@ -8,7 +8,7 @@ import backend.spot.entity.SpotChecklist;
 
 public interface SpotChecklistRepository extends JpaRepository<SpotChecklist, Long> {
 
-	List<SpotChecklist> findBySpotId(String spotId);
+	List<SpotChecklist> findBySpotId(Long spotId);
 
-	List<SpotChecklist> findBySpotIdAndIsDone(String spotId, Boolean isDone);
+	List<SpotChecklist> findBySpotIdAndIsDone(Long spotId, Boolean isDone);
 }

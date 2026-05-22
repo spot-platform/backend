@@ -13,17 +13,17 @@ import backend.feed.entity.FeedApplicationStatus;
 public interface FeedApplicationRepository extends JpaRepository<FeedApplication, String> {
 
 	Optional<FeedApplication> findByFeedItemIdAndUserIdAndStatus(
-			String feedItemId, String userId, FeedApplicationStatus status);
+			Long feedItemId, String userId, FeedApplicationStatus status);
 
-	Optional<FeedApplication> findByIdAndFeedItemId(String id, String feedItemId);
+	Optional<FeedApplication> findByIdAndFeedItemId(String id, Long feedItemId);
 
-	long countByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
+	long countByFeedItemIdAndStatus(Long feedItemId, FeedApplicationStatus status);
 
-	Optional<FeedApplication> findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(String feedItemId, String userId);
+	Optional<FeedApplication> findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(Long feedItemId, String userId);
 
-	List<FeedApplication> findAllByFeedItemIdAndStatus(String feedItemId, FeedApplicationStatus status);
+	List<FeedApplication> findAllByFeedItemIdAndStatus(Long feedItemId, FeedApplicationStatus status);
 
-	List<FeedApplication> findAllByFeedItemIdInAndUserId(List<String> feedItemIds, String userId);
+	List<FeedApplication> findAllByFeedItemIdInAndUserId(List<Long> feedItemIds, String userId);
 
 	/** 내가 신청한 전체 내역 (최신순). 마이페이지 "신청한 목록" 용. */
 	List<FeedApplication> findAllByUserIdOrderByCreatedAtDesc(String userId);
