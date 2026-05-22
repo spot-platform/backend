@@ -684,9 +684,8 @@ public class ChatService {
 				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
 
 		Set<Long> spotIds = rooms.stream()
-			.map(ChatRoom::getSpotId)
-			.filter(spotId -> spotId != null && !spotId.isBlank())
-			.map(Long::parseLong)
+			.map(room -> parseSpotId(room.getSpotId()))
+			.filter(java.util.Objects::nonNull)
 			.collect(Collectors.toSet());
 		Map<Long, Spot> spotsById = spotIds.isEmpty()
 			? Map.of()
@@ -705,7 +704,7 @@ public class ChatService {
 				ChatRoom::getId,
 				room -> ChatRoomEnrichment.builder()
 					.lastMessage(lastMessagesByRoomId.get(room.getId()))
-					.spot(room.getSpotId() == null ? null : spotsById.get(Long.parseLong(room.getSpotId())))
+					.spot(spotsById.get(parseSpotId(room.getSpotId())))
 					.currentUser(currentUser)
 					.partner(partnerByRoomId.get(room.getId()))
 					.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
@@ -837,6 +836,20 @@ public class ChatService {
 				}
 			});
 		return ChatBlockResponse.from(block, target);
+	}
+
+	/**
+	 * String spotId → Long 안전 파싱. UUID 형태의 레거시 값이나 null 이면 null 반환.
+	 */
+	private Long parseSpotId(String spotId) {
+		if (spotId == null || spotId.isBlank()) {
+			return null;
+		}
+		try {
+			return Long.parseLong(spotId);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	/**
