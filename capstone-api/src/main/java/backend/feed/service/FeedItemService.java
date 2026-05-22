@@ -51,13 +51,18 @@ import backend.global.enums.PostType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
+import backend.notification.service.NotificationService;
 import backend.post.entity.Post;
 import backend.post.repository.PostRepository;
 import backend.post.service.PostService;
+import backend.spot.entity.Spot;
+import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -68,6 +73,8 @@ public class FeedItemService {
 	private final BookmarkRepository bookmarkRepository;
 	private final PostRepository postRepository;
 	private final PostService postService;
+	private final SpotRepository spotRepository;
+	private final NotificationService notificationService;
 	private final UserRepository userRepository;
 	private final ObjectMapper objectMapper;
 
@@ -295,9 +302,17 @@ public class FeedItemService {
 		application.accept();
 		feedItem.accumulateFunding(feedItem.getPrice());
 
-		if (feedItem.isFundingGoalMet() && feedItem.getPostId() != null) {
-			postService.convertToSpot(feedItem.getPostId());
+		if (feedItem.isFundingGoalMet()) {
+			spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
+			try {
+				notificationService.send(
+						feedItem.getAuthorId(),
+						"피드 '" + feedItem.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
+			} catch (Exception e) {
+				log.warn("[notification] Spot 생성 후 알림 전송 실패 - feedId={}, error={}",
+						feedItem.getId(), e.getMessage());
+			}
 		}
 
 		return FeedApplicationResponse.from(application);

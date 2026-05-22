@@ -177,7 +177,9 @@ public class PostService {
 		}
 
 		post.match();
-		spotRepository.save(Spot.fromPost(post, post.getTitle(), post.getContent(), post.getPointCost()));
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(post.getFeedItemId())
+				.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+		spotRepository.save(Spot.fromFeedItem(feedItem));
 
 		try {
 			notificationService.send(post.getAuthorId(), "게시글 '" + post.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
