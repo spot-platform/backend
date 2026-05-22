@@ -1,8 +1,7 @@
 package backend.spot.dto;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-import backend.spot.entity.SpotSchedule;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,24 +16,13 @@ import lombok.NoArgsConstructor;
 @Schema(description = "스팟 일정 응답 DTO")
 public class SpotScheduleResponse {
 
-	@Schema(description = "일정 ID", example = "1")
-	private Long id;
+	@Schema(description = "스팟 ID", example = "spot-uuid-string")
+	private String spotId;
 
-	@Schema(description = "일정 제목", example = "한강 만남")
-	private String title;
+	@Builder.Default
+	@Schema(description = "제안된 일정 후보 슬롯")
+	private List<ScheduleSlotDto> proposedSlots = List.of();
 
-	@Schema(description = "예정 일시")
-	private LocalDateTime scheduledAt;
-
-	@Schema(description = "등록 일시")
-	private LocalDateTime createdAt;
-
-	public static SpotScheduleResponse from(SpotSchedule schedule) {
-		return SpotScheduleResponse.builder()
-			.id(schedule.getId())
-			.title(schedule.getTitle())
-			.scheduledAt(schedule.getScheduledAt())
-			.createdAt(schedule.getCreatedAt())
-			.build();
-	}
+	@Schema(description = "확정 슬롯 (없으면 null)", nullable = true)
+	private ScheduleSlotDto confirmedSlot;
 }
