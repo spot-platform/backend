@@ -1945,6 +1945,25 @@ responses:
 
 ### 3.8 My Activity
 
+#### GET `/me/involved-feeds`
+
+- **사용 위치:** 지도 화면에서 내가 관여한 피드 마커 표시, 마이페이지 활동 피드 목록.
+- **하는 일:** 내가 작성자인 피드 + 신청한 피드(APPLIED/ACCEPTED/REJECTED/CANCELLED) + Spot 전환 후 softDelete된 피드를 한 번에 반환한다.
+- **프론트 액션:** 각 피드의 `myApplicationStatus`로 신청 상태를 구분하고, 지도 마커에 "내 피드" 표시를 적용한다.
+
+
+```yaml
+summary: 내가 관여한 피드 목록
+security: bearerAuth
+responses:
+    200:
+        application/json: ApiResponse<FeedItem[]>
+        # myApplicationStatus: null → 내가 작성한 피드
+        # myApplicationStatus: APPLIED | ACCEPTED | REJECTED | CANCELLED → 내가 신청한 피드
+```
+
+
+
 #### GET `/me/participations`
 
 - **사용 위치:** 마이페이지 참여 내역.
@@ -2509,6 +2528,7 @@ PENDING -> REJECTED
 | `GET /pay/history`                         | 내 point transaction만 조회, 최신순 권장                                               |
 | `POST /pay/charge`                         | 결제 승인 전 mock이면 즉시 balance 증가, 실제 PG면 payment intent 생성                 |
 | `POST /pay/withdrawals`                    | 잔액 확인, 출금 요청 생성, balance hold 또는 즉시 차감 정책 결정                       |
+| `GET /me/involved-feeds`                   | 작성 피드 + 신청 피드 합산, softDelete 피드 포함, 중복 제거 후 반환                   |
 | `GET /notifications`                       | 내 알림만 조회, unreadOnly 필터 적용                                                   |
 | `GET /sim/**`                              | read-only fixture/published dataset 반환, snake_case 유지                              |
 | `GET /locality/regions`                    | targetCity별 published locality dataset 반환                                           |

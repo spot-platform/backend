@@ -1,5 +1,6 @@
 package backend.feed.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,9 @@ public interface FeedItemRepository extends JpaRepository<FeedItem, Long>,
 		FeedItemRepositoryCustom {
 
 	Optional<FeedItem> findByIdAndDeletedFalse(Long id);
+
+	/** 내가 작성한 피드 목록 (삭제되지 않은 것). 최신순. */
+	List<FeedItem> findByAuthorIdAndDeletedFalseOrderByCreatedAtDesc(String authorId);
 
 	/**
 	 * 펀딩 달성 시 Spot 전환 처리에서 동시 수락 경합을 방지하기 위한 비관적 락 조회.

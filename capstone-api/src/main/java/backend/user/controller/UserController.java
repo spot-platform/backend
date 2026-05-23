@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.feed.dto.FeedItemResponse;
 import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -187,6 +188,18 @@ public class UserController {
 	public ApiResponse<List<MyParticipatingSpotResponse>> getMyParticipatingSpots() {
 		String email = getCurrentEmail();
 		return ApiResponse.success(userService.getMyParticipatingSpots(email));
+	}
+
+	@Operation(
+		summary = "내가 관여한 피드 목록",
+		description = "내가 작성했거나 신청한 피드를 모두 반환합니다. "
+			+ "작성한 피드는 최신순으로 먼저, 그 다음 신청한 피드(APPLIED/ACCEPTED/REJECTED/CANCELLED 포함)가 나옵니다. "
+			+ "지도에서 내 피드 마커 강조 표시 등에 활용하세요."
+	)
+	@GetMapping("/me/involved-feeds")
+	public ApiResponse<List<FeedItemResponse>> getMyInvolvedFeeds() {
+		String email = getCurrentEmail();
+		return ApiResponse.success(userService.getMyInvolvedFeeds(email));
 	}
 
 	private String getCurrentEmail() {
