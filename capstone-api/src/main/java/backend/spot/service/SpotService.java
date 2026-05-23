@@ -246,12 +246,13 @@ public class SpotService {
 			.filter(uid -> uid != null && !uid.isBlank())
 			.forEach(memberUserIds::add);
 		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
-		try {
-			memberUserIds.forEach(uid -> notificationService.send(uid,
-					"'" + spot.getTitle() + "' 매칭이 확정됐어요"));
-		} catch (Exception e) {
-			log.warn("[notification] 스팟 매칭 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
-		}
+		memberUserIds.forEach(uid -> {
+			try {
+				notificationService.send(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요");
+			} catch (Exception e) {
+				log.warn("[notification] 스팟 매칭 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
+			}
+		});
 
 		return toSpotResponse(spot);
 	}
@@ -263,13 +264,13 @@ public class SpotService {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
-		try {
-			Set<String> memberIds = getActiveMemberIds(spotId, spot);
-			memberIds.forEach(uid -> notificationService.send(uid,
-					"'" + spot.getTitle() + "'이 취소됐어요"));
-		} catch (Exception e) {
-			log.warn("[notification] 스팟 취소 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
-		}
+		getActiveMemberIds(spotId, spot).forEach(uid -> {
+			try {
+				notificationService.send(uid, "'" + spot.getTitle() + "'이 취소됐어요");
+			} catch (Exception e) {
+				log.warn("[notification] 스팟 취소 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
+			}
+		});
 		return toSpotResponse(spot);
 	}
 
@@ -280,13 +281,13 @@ public class SpotService {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
-		try {
-			Set<String> memberIds = getActiveMemberIds(spotId, spot);
-			memberIds.forEach(uid -> notificationService.send(uid,
-					"'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!"));
-		} catch (Exception e) {
-			log.warn("[notification] 스팟 완료 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
-		}
+		getActiveMemberIds(spotId, spot).forEach(uid -> {
+			try {
+				notificationService.send(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!");
+			} catch (Exception e) {
+				log.warn("[notification] 스팟 완료 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
+			}
+		});
 		return toSpotResponse(spot);
 	}
 
@@ -401,14 +402,14 @@ public class SpotService {
 		}
 
 		if (confirmed != null) {
-			try {
-				Spot spot = findSpotOrThrow(spotId);
-				Set<String> memberIds = getActiveMemberIds(spotId, spot);
-				memberIds.forEach(uid -> notificationService.send(uid,
-						"'" + spot.getTitle() + "' 일정이 확정됐어요"));
-			} catch (Exception e) {
-				log.warn("[notification] 스팟 일정 확정 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
-			}
+			Spot spot = findSpotOrThrow(spotId);
+			getActiveMemberIds(spotId, spot).forEach(uid -> {
+				try {
+					notificationService.send(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요");
+				} catch (Exception e) {
+					log.warn("[notification] 스팟 일정 확정 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
+				}
+			});
 		}
 
 		return getSchedule(spotId);
@@ -520,7 +521,7 @@ public class SpotService {
 		}
 
 		item.assignTo(assigneeId);
-		if (assigneeId != null) {
+		if (assigneeId != null && !assigneeId.equals(currentUserId)) {
 			try {
 				notificationService.send(assigneeId,
 						"'" + item.getContent() + "' 담당자로 지정됐어요");

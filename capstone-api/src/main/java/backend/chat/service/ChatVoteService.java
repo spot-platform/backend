@@ -99,15 +99,17 @@ public class ChatVoteService {
 
 		ChatVoteResponse response = buildResponse(vote, savedOptions, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteCreated(response));
-		try {
-			chatRoomMemberRepository.findByChatRoomId(roomId).stream()
-				.map(m -> m.getUserId())
-				.filter(uid -> !uid.equals(currentUserId))
-				.forEach(uid -> notificationService.send(uid,
-						"'" + vote.getQuestion() + "' 투표가 시작됐어요"));
-		} catch (Exception e) {
-			log.warn("[notification] 투표 생성 알림 전송 실패 - roomId={}, error={}", roomId, e.getMessage());
-		}
+		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+			.map(m -> m.getUserId())
+			.filter(uid -> !uid.equals(currentUserId))
+			.forEach(uid -> {
+				try {
+					notificationService.send(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요");
+				} catch (Exception e) {
+					log.warn("[notification] 투표 생성 알림 전송 실패 - roomId={}, userId={}, error={}",
+						roomId, uid, e.getMessage());
+				}
+			});
 		return response;
 	}
 
@@ -236,15 +238,17 @@ public class ChatVoteService {
 		vote.close();
 		ChatVoteResponse response = buildResponse(vote, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteClosed(response));
-		try {
-			chatRoomMemberRepository.findByChatRoomId(roomId).stream()
-				.map(m -> m.getUserId())
-				.filter(uid -> !uid.equals(currentUserId))
-				.forEach(uid -> notificationService.send(uid,
-						"'" + vote.getQuestion() + "' 투표가 마감됐어요"));
-		} catch (Exception e) {
-			log.warn("[notification] 투표 마감 알림 전송 실패 - roomId={}, voteId={}, error={}", roomId, voteId, e.getMessage());
-		}
+		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+			.map(m -> m.getUserId())
+			.filter(uid -> !uid.equals(currentUserId))
+			.forEach(uid -> {
+				try {
+					notificationService.send(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요");
+				} catch (Exception e) {
+					log.warn("[notification] 투표 마감 알림 전송 실패 - roomId={}, voteId={}, userId={}, error={}",
+						roomId, voteId, uid, e.getMessage());
+				}
+			});
 		return response;
 	}
 

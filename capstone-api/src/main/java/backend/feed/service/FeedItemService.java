@@ -174,11 +174,13 @@ public class FeedItemService {
 				.build();
 
 		FeedApplicationResponse response = FeedApplicationResponse.from(feedApplicationRepository.save(application));
-		try {
-			notificationService.send(feedItem.getAuthorId(),
-					userNickname + "님이 '" + feedItem.getTitle() + "'에 신청했어요");
-		} catch (Exception e) {
-			log.warn("[notification] 피드 신청 알림 전송 실패 - feedId={}, error={}", feedId, e.getMessage());
+		if (!userId.equals(feedItem.getAuthorId())) {
+			try {
+				notificationService.send(feedItem.getAuthorId(),
+						userNickname + "님이 '" + feedItem.getTitle() + "'에 신청했어요");
+			} catch (Exception e) {
+				log.warn("[notification] 피드 신청 알림 전송 실패 - feedId={}, error={}", feedId, e.getMessage());
+			}
 		}
 		return response;
 	}
@@ -315,12 +317,6 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
 		application.accept();
-		try {
-			notificationService.send(application.getUserId(),
-					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
-		} catch (Exception e) {
-			log.warn("[notification] 신청 수락 알림 전송 실패 - applicationId={}, error={}", applicationId, e.getMessage());
-		}
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
 		feedItem.accumulateFunding(feedItem.getPrice());
@@ -338,6 +334,14 @@ public class FeedItemService {
 				log.warn("[notification] Spot 생성 후 알림 전송 실패 - feedId={}, error={}",
 						feedItem.getId(), e.getMessage());
 			}
+		}
+
+		// 모든 후속 처리 완료 후 수락 알림 전송 (중간 실패 시 false positive 방지)
+		try {
+			notificationService.send(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
+		} catch (Exception e) {
+			log.warn("[notification] 신청 수락 알림 전송 실패 - applicationId={}, error={}", applicationId, e.getMessage());
 		}
 
 		return FeedApplicationResponse.from(application);
