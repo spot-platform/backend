@@ -60,6 +60,10 @@
 | 김동현 | `ThonApple` |
 
 ### 룰
+0. **이슈 먼저 생성 (필수)**:
+   - 브랜치 작업 시작 전 반드시 GitHub Issue를 먼저 생성하고 적절한 **라벨**을 단다.
+   - PR은 해당 이슈를 `Closes #번호` 형태로 참조한다.
+   - 이슈 없이 PR을 바로 올리지 않는다.
 1. **CodeRabbit Full Review 요청**:
    - PR 생성 직후 `@coderabbitai full review` 코멘트를 단다.
    - 한도 초과 시 사용자에게 즉시 보고하고, 풀리는 시간을 함께 알린다.
