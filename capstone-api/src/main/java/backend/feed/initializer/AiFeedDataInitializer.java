@@ -16,7 +16,7 @@ import backend.feed.repository.FeedItemRepository;
 import backend.global.enums.FeedAuthorRole;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
-import backend.global.enums.PostType;
+import backend.global.enums.FeedType;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -62,14 +62,14 @@ public class AiFeedDataInitializer implements CommandLineRunner {
 
 	private FeedItem toFeedItem(JsonNode node) {
 		return FeedItem.builder()
-			.spotId(textOrNull(node, "spot_id"))
+			.spotId(longOrNull(node, "spot_id"))
 			.title(requireText(node, "title"))
 			.description(textOrNull(node, "description"))
 			.location(requireText(node, "location"))
 			.authorNickname(requireText(node, "authorNickname"))
 			.authorRole(parseEnum(node, "authorRole", FeedAuthorRole.class))
 			.price(requireInt(node, "price"))
-			.type(parseEnum(node, "type", PostType.class))
+			.type(parseEnum(node, "type", FeedType.class))
 			.status(parseEnum(node, "status", FeedItemStatus.class))
 			.category(parseCategory(node))
 			.maxParticipants(intOrNull(node, "maxParticipants"))
@@ -143,5 +143,13 @@ public class AiFeedDataInitializer implements CommandLineRunner {
 			return null;
 		}
 		return value.asDouble();
+	}
+
+	private Long longOrNull(JsonNode node, String field) {
+		JsonNode value = node.get(field);
+		if (value == null || value.isNull()) {
+			return null;
+		}
+		return value.asLong();
 	}
 }
