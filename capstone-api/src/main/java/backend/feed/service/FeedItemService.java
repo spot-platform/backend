@@ -397,7 +397,16 @@ public class FeedItemService {
 				.collect(Collectors.toMap(
 						FeedApplication::getFeedItemId,
 						a -> a,
-						(a, b) -> a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b));
+						(a, b) -> {
+						// ACCEPTED 상태 우선 — 재신청으로 최신 APPLIED가 생겨도 isOwner 오판 방지
+						if (a.getStatus() == FeedApplicationStatus.ACCEPTED) {
+							return a;
+						}
+						if (b.getStatus() == FeedApplicationStatus.ACCEPTED) {
+							return b;
+						}
+						return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+					}));
 	}
 
 	private Optional<String> resolveCurrentUserId() {
