@@ -43,7 +43,7 @@ public class PayController {
 
 	@Operation(
 		summary = "포인트 거래 내역 조회",
-		description = "최신순. page는 1-base. size 최대 100. 응답 meta: { page, size, total, hasNext }."
+		description = "최신순. page는 1-base (>=1), size는 1~100. 응답 meta: { page, size, total, hasNext }."
 	)
 	@GetMapping("/history")
 	public ApiResponse<List<PointTransactionResponse>> getHistory(
@@ -51,13 +51,11 @@ public class PayController {
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "20") int size
 	) {
-		int safePage = Math.max(1, page);
-		int safeSize = Math.max(1, Math.min(100, size));
 		Page<PointTransactionResponse> result =
-			payService.getHistory(requireUserId(userDetails), safePage, safeSize);
+			payService.getHistory(requireUserId(userDetails), page, size);
 		ApiResponseMeta meta = ApiResponseMeta.builder()
-			.page(safePage)
-			.size(safeSize)
+			.page(page)
+			.size(size)
 			.total(result.getTotalElements())
 			.hasNext(result.hasNext())
 			.build();

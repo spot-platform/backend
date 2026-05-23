@@ -38,11 +38,12 @@ public class PayService {
 
 	/**
 	 * 포인트 거래 내역 조회 (최신순, 페이지네이션).
-	 * 컨트롤러에서 PageMeta로 변환해 응답 meta에 포함.
+	 * page는 1-base (>=1), size는 1~100. 범위 밖이면 INVALID_INPUT_VALUE.
+	 * 컨트롤러에서 ApiResponseMeta로 변환해 응답 meta에 포함.
 	 */
 	public Page<PointTransactionResponse> getHistory(String userId, int page, int size) {
 		findActiveUser(userId);
-		if (page < 1 || size < 1) {
+		if (page < 1 || size < 1 || size > 100) {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
 		}
 		PageRequest pageRequest = PageRequest.of(page - 1, size);
