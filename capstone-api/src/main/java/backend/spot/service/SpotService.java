@@ -132,16 +132,15 @@ public class SpotService {
 	 * 스팟 목록을 페이징하여 최신순으로 조회합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotListResponse getSpots(int page, int size) {
+	public SpotListResponse getSpots(int page, int size, String currentUserId) {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<Spot> spotPage = spotRepository.findAll(pageable);
 
+		Set<Long> owned = ownedSpotIds(currentUserId);
 		List<SpotResponse> data = spotPage.getContent()
 			.stream()
-			.map(spot -> {
-				// TODO: batch participant counts when N is large
-				return toSpotResponse(spot);
-			})
+			// TODO: batch participant counts when N is large
+			.map(spot -> toSpotResponse(spot, owned.contains(spot.getId())))
 			.toList();
 
 		ApiResponseMeta meta = ApiResponseMeta.builder()
@@ -187,13 +186,14 @@ public class SpotService {
 	 * 제목/설명 키워드로 스팟을 검색합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotListResponse searchSpots(String keyword, String scope, int page, int size) {
+	public SpotListResponse searchSpots(String keyword, String scope, int page, int size, String currentUserId) {
 		String normalizedScope = normalizeScope(scope);
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<Spot> spotPage = spotRepository.searchByKeyword(keyword, normalizedScope, pageable);
 
+		Set<Long> owned = ownedSpotIds(currentUserId);
 		List<SpotResponse> data = spotPage.getContent().stream()
-			.map(this::toSpotResponse)
+			.map(spot -> toSpotResponse(spot, owned.contains(spot.getId())))
 			.toList();
 
 		ApiResponseMeta meta = ApiResponseMeta.builder()
@@ -235,8 +235,9 @@ public class SpotService {
 	 * 스팟 단건 상세 조회를 합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotResponse getSpot(Long spotId) {
-		return toSpotResponse(findSpotOrThrow(spotId));
+	public SpotResponse getSpot(Long spotId, String currentUserId) {
+		Spot spot = findSpotOrThrow(spotId);
+		return toSpotResponse(spot, isOwner(spotId, currentUserId));
 	}
 
 	/**
@@ -754,7 +755,8 @@ public class SpotService {
 	}
 
 	private void validateParticipant(Long spotId, String userId, ErrorCode errorCode) {
-		if (!spotParticipantRepository.existsBySpotIdAndUserId(spotId, userId)) {
+		if (!spotParticipantRepository.existsBySpotIdAndUserIdAndState(
+				spotId, userId, ParticipantState.ACTIVE)) {
 			throw new BusinessException(errorCode);
 		}
 	}
@@ -861,11 +863,33 @@ public class SpotService {
 	// ─────────────────────────────────────────────
 
 	private SpotResponse toSpotResponse(Spot spot) {
+		return toSpotResponse(spot, false);
+	}
+
+	private SpotResponse toSpotResponse(Spot spot, boolean isOwner) {
 		long participantCount = spotParticipantRepository.countBySpotIdAndState(
 			spot.getId(),
 			ParticipantState.ACTIVE
 		);
-		return SpotResponse.from(spot, Math.toIntExact(participantCount));
+		return SpotResponse.from(spot, Math.toIntExact(participantCount), isOwner);
+	}
+
+	/**
+	 * 현재 사용자가 권한자(작성자 또는 참여자)인지 — 참여자 레코드 존재로 판정.
+	 * (작성자는 AUTHOR 참여자, 매칭된 파트너/서포터는 PARTICIPANT 참여자)
+	 */
+	private boolean isOwner(Long spotId, String currentUserId) {
+		return currentUserId != null
+			&& spotParticipantRepository.existsBySpotIdAndUserIdAndState(
+				spotId, currentUserId, ParticipantState.ACTIVE);
+	}
+
+	private Set<Long> ownedSpotIds(String currentUserId) {
+		if (currentUserId == null) {
+			return Set.of();
+		}
+		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserIdAndState(
+			currentUserId, ParticipantState.ACTIVE));
 	}
 
 	private List<Long> getMyVotedOptionIds(Long voteId, String currentUserId) {

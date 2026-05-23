@@ -126,12 +126,20 @@ public class FeedItemResponse {
 	@Schema(description = "사진 URL 목록", example = "[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
 	private List<String> photoUrls;
 
+	@Schema(description = "현재 인증 사용자가 권한자(작성자 또는 수락된 신청자)인지 여부. 비인증 시 false", example = "false")
+	private boolean isOwner;
+
 	public static FeedItemResponse from(FeedItem feedItem) {
-		return from(feedItem, null, null, null, buildAuthorProfile(feedItem));
+		return from(feedItem, null, null, null, buildAuthorProfile(feedItem), null);
 	}
 
 	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
 			FeedApplication myApplication, FeedAuthorProfile authorProfile) {
+		return from(feedItem, applicantCount, isBookmarked, myApplication, authorProfile, null);
+	}
+
+	public static FeedItemResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
+			FeedApplication myApplication, FeedAuthorProfile authorProfile, String currentUserId) {
 		return FeedItemResponse.builder()
 				.id(feedItem.getId())
 				.title(feedItem.getTitle())
@@ -166,7 +174,18 @@ public class FeedItemResponse {
 				.serviceStylePhotoUrl(feedItem.getServiceStylePhotoUrl())
 				.categories(parseJsonList(feedItem.getCategoriesJson()))
 				.photoUrls(parseJsonList(feedItem.getPhotoUrlsJson()))
+				.isOwner(resolveIsOwner(feedItem, myApplication, currentUserId))
 				.build();
+	}
+
+	protected static boolean resolveIsOwner(FeedItem feedItem, FeedApplication myApplication, String currentUserId) {
+		if (currentUserId == null) {
+			return false;
+		}
+		boolean isAuthor = currentUserId.equals(feedItem.getAuthorId());
+		boolean isAcceptedPartner = myApplication != null
+				&& myApplication.getStatus() == FeedApplicationStatus.ACCEPTED;
+		return isAuthor || isAcceptedPartner;
 	}
 
 	public static FeedAuthorProfile buildAuthorProfile(FeedItem feedItem) {

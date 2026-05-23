@@ -176,9 +176,18 @@ public class FeedItem {
 		this.deleted = true;
 	}
 
+	/**
+	 * 추가 서포터를 수락할 수 있는지 확인한다.
+	 * OFFER/REQUEST 모두 서포터는 1명만 허용한다.
+	 */
+	public boolean canAcceptMore() {
+		int confirmed = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+		return confirmed < 1;
+	}
+
 	public void accumulateFunding(int amount) {
-		this.fundedAmount += amount;
-		this.confirmedPartnerCount += 1;
+		this.fundedAmount = (this.fundedAmount != null ? this.fundedAmount : 0) + amount;
+		this.confirmedPartnerCount = (this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0) + 1;
 	}
 
 	public boolean isFundingGoalMet() {

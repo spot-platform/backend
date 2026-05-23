@@ -40,7 +40,7 @@ public class FeedDetailResponse extends FeedItemResponse {
 	public static FeedDetailResponse from(FeedItem feedItem, Long applicantCount, Boolean isBookmarked,
 			FeedApplication myApplication, FeedAuthorProfile authorProfile, PlanV3 plan,
 			PriceBreakdown priceBreakdown, Preparation preparation, List<ResolvedPlace> venueAnchors,
-			ResolvedPlace primaryPin, List<FeedParticipantProfile> confirmedPartnerProfiles) {
+			ResolvedPlace primaryPin, List<FeedParticipantProfile> confirmedPartnerProfiles, String currentUserId) {
 		return FeedDetailResponse.builder()
 				.id(feedItem.getId())
 				.title(feedItem.getTitle())
@@ -81,6 +81,7 @@ public class FeedDetailResponse extends FeedItemResponse {
 				.venueAnchors(venueAnchors)
 				.primaryPin(primaryPin)
 				.confirmedPartnerProfiles(confirmedPartnerProfiles)
+				.isOwner(resolveIsOwner(feedItem, myApplication, currentUserId))
 				.build();
 	}
 

@@ -57,9 +57,10 @@ public class SpotController {
 	@GetMapping
 	public ResponseEntity<ApiResponse<SpotListResponse>> getSpots(
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+		@RequestParam(defaultValue = "10") int size,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size)));
+		return ResponseEntity.ok(ApiResponse.success(spotService.getSpots(page, size, currentUserIdOrNull(userDetails))));
 	}
 
 	@Operation(summary = "지도 마커용 스팟 목록", description = "bounds(sw/ne) 4개 모두 주거나 모두 생략. type/status/category 선택 필터.")
@@ -84,9 +85,11 @@ public class SpotController {
 		@RequestParam String q,
 		@RequestParam(defaultValue = "ALL") String scope,
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+		@RequestParam(defaultValue = "10") int size,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.searchSpots(q, scope, page, size)));
+		SpotListResponse result = spotService.searchSpots(q, scope, page, size, currentUserIdOrNull(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(result));
 	}
 
 	@Operation(summary = "스팟 생성")
@@ -102,8 +105,11 @@ public class SpotController {
 
 	@Operation(summary = "스팟 상세 조회")
 	@GetMapping("/{spotId}")
-	public ResponseEntity<ApiResponse<SpotResponse>> getSpot(@PathVariable Long spotId) {
-		return ResponseEntity.ok(ApiResponse.success(spotService.getSpot(spotId)));
+	public ResponseEntity<ApiResponse<SpotResponse>> getSpot(
+		@PathVariable Long spotId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(spotService.getSpot(spotId, currentUserIdOrNull(userDetails))));
 	}
 
 	@Operation(summary = "스팟 매칭", description = "스팟 상태를 OPEN → MATCHED로 전환합니다.")
@@ -309,6 +315,11 @@ public class SpotController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
 		}
 		return userDetails.getUserId();
+	}
+
+	// 공개 조회용 — 비인증이면 null (isOwner 계산 등에 사용)
+	private String currentUserIdOrNull(CustomUserDetails userDetails) {
+		return userDetails != null ? userDetails.getUserId() : null;
 	}
 
 	// ─── 리뷰 (Review) - TODO ─────────────────────

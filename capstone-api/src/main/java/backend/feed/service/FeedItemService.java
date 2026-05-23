@@ -102,7 +102,8 @@ public class FeedItemService {
 						resolveApplicantCount(feedItem),
 						currentUserId == null ? null : bookmarkedIds.contains(feedItem.getId()),
 						myApplicationByFeedId.get(feedItem.getId()),
-						FeedItemResponse.buildAuthorProfile(feedItem)))
+						FeedItemResponse.buildAuthorProfile(feedItem),
+						currentUserId))
 				.collect(Collectors.toList());
 
 		return FeedListResponse.builder()
@@ -131,7 +132,8 @@ public class FeedItemService {
 				deserialize(feedItem.getPreparationJson(), Preparation.class),
 				deserializeList(feedItem.getVenueAnchorsJson()),
 				deserialize(feedItem.getPrimaryPinJson(), ResolvedPlace.class),
-				resolveConfirmedPartnerProfiles(feedItem.getId()));
+				resolveConfirmedPartnerProfiles(feedItem.getId()),
+				currentUserId);
 	}
 
 	@Transactional
@@ -297,6 +299,10 @@ public class FeedItemService {
 			throw new IllegalStateException("게시글 작성자만 신청을 수락할 수 있습니다.");
 		}
 
+		if (!feedItem.canAcceptMore()) {
+			throw new IllegalStateException("이미 서포터 모집이 완료된 피드입니다.");
+		}
+
 		FeedApplication application = feedApplicationRepository
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
@@ -381,8 +387,13 @@ public class FeedItemService {
 		if (currentUserId == null) {
 			return null;
 		}
-		return feedApplicationRepository
-				.findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(feedItemId, currentUserId)
+		return feedApplicationRepository.findAllByFeedItemIdAndUserId(feedItemId, currentUserId)
+				.stream()
+				.reduce((a, b) -> {
+					if (a.getStatus() == FeedApplicationStatus.ACCEPTED) return a;
+					if (b.getStatus() == FeedApplicationStatus.ACCEPTED) return b;
+					return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+				})
 				.orElse(null);
 	}
 
@@ -395,7 +406,16 @@ public class FeedItemService {
 				.collect(Collectors.toMap(
 						FeedApplication::getFeedItemId,
 						a -> a,
-						(a, b) -> a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b));
+						(a, b) -> {
+						// ACCEPTED 상태 우선 — 재신청으로 최신 APPLIED가 생겨도 isOwner 오판 방지
+						if (a.getStatus() == FeedApplicationStatus.ACCEPTED) {
+							return a;
+						}
+						if (b.getStatus() == FeedApplicationStatus.ACCEPTED) {
+							return b;
+						}
+						return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+					}));
 	}
 
 	private Optional<String> resolveCurrentUserId() {

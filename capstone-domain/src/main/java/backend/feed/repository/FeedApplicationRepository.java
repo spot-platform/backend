@@ -19,9 +19,9 @@ public interface FeedApplicationRepository extends JpaRepository<FeedApplication
 
 	long countByFeedItemIdAndStatus(Long feedItemId, FeedApplicationStatus status);
 
-	Optional<FeedApplication> findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(Long feedItemId, String userId);
-
 	List<FeedApplication> findAllByFeedItemIdAndStatus(Long feedItemId, FeedApplicationStatus status);
+
+	List<FeedApplication> findAllByFeedItemIdAndUserId(Long feedItemId, String userId);
 
 	List<FeedApplication> findAllByFeedItemIdInAndUserId(List<Long> feedItemIds, String userId);
 
