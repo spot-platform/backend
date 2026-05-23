@@ -177,12 +177,20 @@ public class FeedItem {
 	}
 
 	/**
+	 * 피드 당 수락 가능한 서포터 최대 인원.
+	 * OFFER/REQUEST 모두 서포터는 1명으로 고정하는 것이 현재 서비스 정책이다.
+	 * {@code maxParticipants} 필드는 프론트 UI 표시용(모집 정원 안내)이며,
+	 * 수락 상한 판단에는 사용하지 않는다.
+	 */
+	private static final int MAX_SUPPORTERS_PER_FEED = 1;
+
+	/**
 	 * 추가 서포터를 수락할 수 있는지 확인한다.
-	 * OFFER/REQUEST 모두 서포터는 1명만 허용한다.
+	 * 수락 상한은 {@link #MAX_SUPPORTERS_PER_FEED}(현재 1명)으로 고정된다.
 	 */
 	public boolean canAcceptMore() {
 		int confirmed = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
-		return confirmed < 1;
+		return confirmed < MAX_SUPPORTERS_PER_FEED;
 	}
 
 	public void accumulateFunding(int amount) {
