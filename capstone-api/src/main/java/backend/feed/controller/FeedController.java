@@ -2,6 +2,7 @@ package backend.feed.controller;
 
 import java.util.Map;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,7 +62,7 @@ public class FeedController {
 
 	@Operation(summary = "피드 목록 조회")
 	@GetMapping
-	public ApiResponse<FeedListResponse> getFeedItems(FeedListQuery query) {
+	public ApiResponse<FeedListResponse> getFeedItems(@ParameterObject FeedListQuery query) {
 		return ApiResponse.success(feedItemService.getFeedItems(query));
 	}
 
