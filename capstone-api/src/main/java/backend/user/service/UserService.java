@@ -1,5 +1,8 @@
 package backend.user.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,10 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.repository.RefreshRepository;
+import backend.feed.dto.FeedItemResponse;
 import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
+import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.global.security.CustomUserDetails;
@@ -180,6 +186,83 @@ public class UserService implements UserDetailsService {
 			.filter(p -> spotById.containsKey(p.getSpotId()))
 			.map(p -> MyParticipatingSpotResponse.of(p, spotById.get(p.getSpotId())))
 			.toList();
+	}
+
+	/**
+	 * 내가 관여한 피드 전체.
+	 * — 내가 작성한 피드 (삭제되지 않은 것)
+	 * — 내가 신청한 피드 (모든 상태, softDelete된 피드 포함)
+	 * 중복 제거 후 FeedItemResponse 형태로 반환하여 지도/카드 렌더링에 바로 사용 가능.
+	 */
+	@Transactional(readOnly = true)
+	public List<FeedItemResponse> getMyInvolvedFeeds(String email) {
+		UserEntity user = findActiveUserByEmail(email);
+		String userId = user.getId();
+
+		// 1. 내가 신청한 피드 (모든 상태, 최신순)
+		List<FeedApplication> myApplications =
+			feedApplicationRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+
+		Set<Long> appliedFeedIds = myApplications.stream()
+			.map(FeedApplication::getFeedItemId)
+			.collect(Collectors.toSet());
+
+		Map<Long, FeedItem> appliedFeedsById = appliedFeedIds.isEmpty()
+			? Collections.emptyMap()
+			: feedItemRepository.findAllById(appliedFeedIds).stream()
+				.collect(Collectors.toMap(FeedItem::getId, Function.identity()));
+
+		// ACCEPTED 우선, 그 외엔 최신 신청
+		Map<Long, FeedApplication> myAppByFeedId = myApplications.stream()
+			.collect(Collectors.toMap(
+				FeedApplication::getFeedItemId,
+				a -> a,
+				(a, b) -> {
+					if (a.getStatus() == FeedApplicationStatus.ACCEPTED) return a;
+					if (b.getStatus() == FeedApplicationStatus.ACCEPTED) return b;
+					return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+				}));
+
+		// 2. 내가 작성한 피드 (삭제되지 않은 것, 최신순)
+		List<FeedItem> authoredFeeds =
+			feedItemRepository.findByAuthorIdAndDeletedFalseOrderByCreatedAtDesc(userId);
+		Set<Long> authoredIds = authoredFeeds.stream()
+			.map(FeedItem::getId)
+			.collect(Collectors.toSet());
+
+		// 3. 합치기 — 작성한 피드 먼저, 그 다음 신청한 피드 (중복 제거)
+		List<FeedItemResponse> result = new ArrayList<>();
+
+		for (FeedItem feedItem : authoredFeeds) {
+			result.add(toFeedItemResponse(feedItem, myAppByFeedId.get(feedItem.getId())));
+		}
+
+		Set<Long> seen = new HashSet<>(authoredIds);
+		for (FeedApplication app : myApplications) {
+			Long feedId = app.getFeedItemId();
+			if (!seen.add(feedId)) {
+				continue;
+			}
+			FeedItem feedItem = appliedFeedsById.get(feedId);
+			if (feedItem != null) {
+				result.add(toFeedItemResponse(feedItem, myAppByFeedId.get(feedId)));
+			}
+		}
+
+		return result;
+	}
+
+	private FeedItemResponse toFeedItemResponse(FeedItem feedItem, FeedApplication myApplication) {
+		Long applicantCount = feedItem.getType() == FeedType.REQUEST
+			? feedApplicationRepository.countByFeedItemIdAndStatus(
+				feedItem.getId(), FeedApplicationStatus.APPLIED)
+			: null;
+		return FeedItemResponse.from(
+			feedItem,
+			applicantCount,
+			null, // 북마크 여부는 이 API에서 제공하지 않음
+			myApplication,
+			FeedItemResponse.buildAuthorProfile(feedItem));
 	}
 
 	private UserEntity findActiveUserByEmail(String email) {
