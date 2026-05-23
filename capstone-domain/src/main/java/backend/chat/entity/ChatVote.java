@@ -81,7 +81,9 @@ public class ChatVote {
 
 	public void close() {
 		this.state = ChatVoteState.CLOSED;
-		this.closedAt = LocalDateTime.now();
+		if (this.closedAt == null) {
+			this.closedAt = LocalDateTime.now();
+		}
 	}
 
 	public void markNotifySent() {

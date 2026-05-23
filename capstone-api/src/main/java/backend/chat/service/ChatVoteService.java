@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,18 +131,14 @@ public class ChatVoteService {
 				chatVoteAnswerRepository.flush();
 				myAnswers.forEach(prev -> chatVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
 			}
-			try {
-				chatVoteAnswerRepository.save(
-					ChatVoteAnswer.builder()
-						.voteId(voteId)
-						.optionId(optionId)
-						.userId(currentUserId)
-						.build()
-				);
-				chatVoteOptionRepository.incrementVoteCount(optionId);
-			} catch (DataIntegrityViolationException ignored) {
-				// 동시 요청으로 이미 삽입된 경우 무시
-			}
+			chatVoteAnswerRepository.save(
+				ChatVoteAnswer.builder()
+					.voteId(voteId)
+					.optionId(optionId)
+					.userId(currentUserId)
+					.build()
+			);
+			chatVoteOptionRepository.incrementVoteCount(optionId);
 		}
 
 		ChatVoteResponse response = buildResponse(vote, currentUserId);
