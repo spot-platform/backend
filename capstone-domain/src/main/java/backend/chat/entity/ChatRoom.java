@@ -70,7 +70,7 @@ public class ChatRoom {
 	 * 스팟 취소/완료 이후 더 이상 메시지를 보낼 수 없는 상태.
 	 * sendMessage 진입 시 검증.
 	 */
-	@Column(name = "is_read_only", nullable = false)
+	@Column(name = "is_read_only", nullable = false, columnDefinition = "boolean default false")
 	@Builder.Default
 	private boolean isReadOnly = false;
 

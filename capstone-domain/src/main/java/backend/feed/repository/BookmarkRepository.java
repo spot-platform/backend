@@ -16,4 +16,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, String> {
 	boolean existsByUserIdAndFeedItemId(String userId, Long feedItemId);
 
 	List<Bookmark> findByUserIdAndFeedItemIdIn(String userId, List<Long> feedItemIds);
+
+	List<Bookmark> findByUserIdOrderByCreatedAtDesc(String userId);
 }
