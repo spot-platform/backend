@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
+import backend.notification.service.NotificationService;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
@@ -54,7 +55,9 @@ import backend.spot.repository.SpotScheduleSlotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -69,6 +72,7 @@ public class SpotService {
 	private final SpotNoteRepository spotNoteRepository;
 	private final UserRepository userRepository;
 	private final ChatService chatService;
+	private final NotificationService notificationService;
 
 	private static String resolveUserId(String currentUserId) {
 		return currentUserId;
@@ -242,6 +246,12 @@ public class SpotService {
 			.filter(uid -> uid != null && !uid.isBlank())
 			.forEach(memberUserIds::add);
 		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
+		try {
+			memberUserIds.forEach(uid -> notificationService.send(uid,
+					"'" + spot.getTitle() + "' 매칭이 확정됐어요"));
+		} catch (Exception e) {
+			log.warn("[notification] 스팟 매칭 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
+		}
 
 		return toSpotResponse(spot);
 	}
@@ -253,6 +263,13 @@ public class SpotService {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
+		try {
+			Set<String> memberIds = getActiveMemberIds(spotId, spot);
+			memberIds.forEach(uid -> notificationService.send(uid,
+					"'" + spot.getTitle() + "'이 취소됐어요"));
+		} catch (Exception e) {
+			log.warn("[notification] 스팟 취소 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
+		}
 		return toSpotResponse(spot);
 	}
 
@@ -263,6 +280,13 @@ public class SpotService {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
+		try {
+			Set<String> memberIds = getActiveMemberIds(spotId, spot);
+			memberIds.forEach(uid -> notificationService.send(uid,
+					"'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!"));
+		} catch (Exception e) {
+			log.warn("[notification] 스팟 완료 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
+		}
 		return toSpotResponse(spot);
 	}
 
@@ -376,6 +400,17 @@ public class SpotService {
 			spotScheduleAvailabilityRepository.saveAll(allAvailabilities);
 		}
 
+		if (confirmed != null) {
+			try {
+				Spot spot = findSpotOrThrow(spotId);
+				Set<String> memberIds = getActiveMemberIds(spotId, spot);
+				memberIds.forEach(uid -> notificationService.send(uid,
+						"'" + spot.getTitle() + "' 일정이 확정됐어요"));
+			} catch (Exception e) {
+				log.warn("[notification] 스팟 일정 확정 알림 전송 실패 - spotId={}, error={}", spotId, e.getMessage());
+			}
+		}
+
 		return getSchedule(spotId);
 	}
 
@@ -485,6 +520,14 @@ public class SpotService {
 		}
 
 		item.assignTo(assigneeId);
+		if (assigneeId != null) {
+			try {
+				notificationService.send(assigneeId,
+						"'" + item.getContent() + "' 담당자로 지정됐어요");
+			} catch (Exception e) {
+				log.warn("[notification] 체크리스트 담당자 알림 전송 실패 - itemId={}, error={}", itemId, e.getMessage());
+			}
+		}
 		return SpotChecklistResponse.of(item, lookupNickname(assigneeId));
 	}
 
@@ -635,5 +678,18 @@ public class SpotService {
 		if (!spotRepository.existsById(spotId)) {
 			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}
+	}
+
+	private Set<String> getActiveMemberIds(Long spotId, Spot spot) {
+		Set<String> ids = new HashSet<>();
+		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
+			ids.add(spot.getAuthorId());
+		}
+		spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
+			.map(SpotParticipant::getUserId)
+			.filter(uid -> uid != null && !uid.isBlank())
+			.forEach(ids::add);
+		return ids;
 	}
 }

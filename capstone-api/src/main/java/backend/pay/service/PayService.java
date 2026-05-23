@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
 import backend.pay.dto.PointBalanceResponse;
 import backend.pay.dto.PointTransactionResponse;
 import backend.pay.entity.PointTransaction;
@@ -18,7 +19,9 @@ import backend.pay.repository.PointTransactionRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class PayService {
 
 	private final UserRepository userRepository;
 	private final PointTransactionRepository pointTransactionRepository;
+	private final NotificationService notificationService;
 
 	/** 포인트 잔액 조회 */
 	public PointBalanceResponse getBalance(String userId) {
@@ -68,6 +72,12 @@ public class PayService {
 			.balanceAfter(user.getPointBalance())
 			.description("포인트 충전")
 			.build());
+
+		try {
+			notificationService.send(userId, amount + "P 충전이 완료됐어요");
+		} catch (Exception e) {
+			log.warn("[notification] 포인트 충전 알림 전송 실패 - userId={}, error={}", userId, e.getMessage());
+		}
 
 		// user.getUpdatedAt()은 @LastModifiedDate 기준 flush/commit 후에야 갱신됨.
 		// 응답에는 현재 시각을 직접 채워 충전 직후의 상태를 반영한다.

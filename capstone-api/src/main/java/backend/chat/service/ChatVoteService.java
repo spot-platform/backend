@@ -27,8 +27,10 @@ import backend.chat.entity.ChatVoteState;
 import backend.chat.repository.ChatVoteAnswerRepository;
 import backend.chat.repository.ChatVoteOptionRepository;
 import backend.chat.repository.ChatVoteRepository;
+import backend.chat.repository.ChatRoomMemberRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +51,8 @@ public class ChatVoteService {
 	private final ChatVoteOptionRepository chatVoteOptionRepository;
 	private final ChatVoteAnswerRepository chatVoteAnswerRepository;
 	private final ChatEventPublisher eventPublisher;
+	private final ChatRoomMemberRepository chatRoomMemberRepository;
+	private final NotificationService notificationService;
 
 	// ─────────────────────────────────────────────
 	// 조회
@@ -95,6 +99,15 @@ public class ChatVoteService {
 
 		ChatVoteResponse response = buildResponse(vote, savedOptions, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteCreated(response));
+		try {
+			chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+				.map(m -> m.getUserId())
+				.filter(uid -> !uid.equals(currentUserId))
+				.forEach(uid -> notificationService.send(uid,
+						"'" + vote.getQuestion() + "' 투표가 시작됐어요"));
+		} catch (Exception e) {
+			log.warn("[notification] 투표 생성 알림 전송 실패 - roomId={}, error={}", roomId, e.getMessage());
+		}
 		return response;
 	}
 
@@ -223,6 +236,15 @@ public class ChatVoteService {
 		vote.close();
 		ChatVoteResponse response = buildResponse(vote, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteClosed(response));
+		try {
+			chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+				.map(m -> m.getUserId())
+				.filter(uid -> !uid.equals(currentUserId))
+				.forEach(uid -> notificationService.send(uid,
+						"'" + vote.getQuestion() + "' 투표가 마감됐어요"));
+		} catch (Exception e) {
+			log.warn("[notification] 투표 마감 알림 전송 실패 - roomId={}, voteId={}, error={}", roomId, voteId, e.getMessage());
+		}
 		return response;
 	}
 
