@@ -20,11 +20,9 @@ import org.springframework.web.server.ResponseStatusException;
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
 import backend.spot.dto.AssignChecklistRequest;
-import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
 import backend.spot.dto.CreateSpotRequest;
-import backend.spot.dto.CreateVoteRequest;
 import backend.spot.dto.SpotChecklistResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
@@ -33,8 +31,6 @@ import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
 import backend.spot.dto.SpotScheduleResponse;
-import backend.spot.dto.SpotVoteResponse;
-import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.service.SpotService;
@@ -157,67 +153,6 @@ public class SpotController {
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
 			spotService.updateSchedule(spotId, request, requireAuth(userDetails))
-		));
-	}
-
-	// ─── 투표 (Vote) ──────────────────────────────
-
-	@Operation(summary = "스팟 투표 목록 조회")
-	@GetMapping("/{spotId}/votes")
-	public ResponseEntity<ApiResponse<List<SpotVoteResponse>>> getVotes(
-		@PathVariable Long spotId,
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			spotService.getVotes(spotId, requireAuth(userDetails))
-		));
-	}
-
-	@Operation(summary = "스팟 투표 생성")
-	@PostMapping("/{spotId}/votes")
-	public ResponseEntity<ApiResponse<SpotVoteResponse>> createVote(
-		@PathVariable Long spotId,
-		@Valid @RequestBody CreateVoteRequest request,
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			spotService.createVote(spotId, request, requireAuth(userDetails))
-		));
-	}
-
-	@Operation(
-		summary = "스팟 투표 참여 (토글, 단발 클릭형)",
-		description = "이미 투표한 옵션을 다시 cast 하면 해제됩니다. 단일선택에서 다른 옵션을 cast 하면 표 변경. "
-			+ "각 클릭이 즉시 반영되는 UX 에 적합 (SSE 와 잘 어울림). "
-			+ "다중선택에서 '선택중 → 투표 버튼' UX 가 필요하면 PUT /my-answers 를 사용하세요."
-	)
-	@PostMapping("/{spotId}/votes/{voteId}/cast")
-	public ResponseEntity<ApiResponse<SpotVoteResponse>> castVote(
-		@PathVariable Long spotId,
-		@PathVariable Long voteId,
-		@Valid @RequestBody CastVoteRequest request,
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			spotService.castVote(spotId, voteId, request, requireAuth(userDetails))
-		));
-	}
-
-	@Operation(
-		summary = "스팟 투표 답변 배치 제출 (카카오톡 다중선택 UX)",
-		description = "body 의 optionIds 가 최종 확정 상태이며 서버가 diff 하여 추가/삭제를 한 트랜잭션에서 적용. "
-			+ "빈 배열 [] = 전체 취소. 같은 body 두 번 = 변화 없음 (멱등). "
-			+ "단일선택 투표는 0~1 개만 허용."
-	)
-	@PutMapping("/{spotId}/votes/{voteId}/my-answers")
-	public ResponseEntity<ApiResponse<SpotVoteResponse>> submitAnswers(
-		@PathVariable Long spotId,
-		@PathVariable Long voteId,
-		@Valid @RequestBody SubmitVoteAnswersRequest request,
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
-		return ResponseEntity.ok(ApiResponse.success(
-			spotService.submitAnswers(spotId, voteId, request, requireAuth(userDetails))
 		));
 	}
 

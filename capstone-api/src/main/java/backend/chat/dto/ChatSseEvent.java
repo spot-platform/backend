@@ -71,6 +71,26 @@ public class ChatSseEvent {
 			.build();
 	}
 
+	public static ChatSseEvent voteCreated(ChatVoteResponse vote) {
+		return builder().type(ChatSseEventType.VOTE_CREATED).data(vote).build();
+	}
+
+	public static ChatSseEvent voteUpdated(ChatVoteResponse vote) {
+		return builder().type(ChatSseEventType.VOTE_UPDATED).data(vote).build();
+	}
+
+	public static ChatSseEvent voteClosed(ChatVoteResponse vote) {
+		return builder().type(ChatSseEventType.VOTE_CLOSED).data(vote).build();
+	}
+
+	public static ChatSseEvent voteClosingSoon(Long roomId, Long voteId, String question) {
+		Map<String, Object> payload = new LinkedHashMap<>();
+		payload.put("roomId", roomId);
+		payload.put("voteId", voteId);
+		payload.put("question", question);
+		return builder().type(ChatSseEventType.VOTE_CLOSING_SOON).data(payload).build();
+	}
+
 	private static Map<String, Object> roomUserPayload(Long roomId, String userId) {
 		Map<String, Object> payload = new LinkedHashMap<>();
 		payload.put("roomId", roomId);

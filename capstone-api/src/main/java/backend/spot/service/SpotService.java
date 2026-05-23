@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,11 +21,9 @@ import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
-import backend.spot.dto.CastVoteRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
 import backend.spot.dto.CreateSpotRequest;
-import backend.spot.dto.CreateVoteRequest;
 import backend.spot.dto.ScheduleSlotDto;
 import backend.spot.dto.SpotChecklistResponse;
 import backend.spot.dto.SpotFileResponse;
@@ -36,9 +33,6 @@ import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
 import backend.spot.dto.SpotScheduleResponse;
-import backend.spot.dto.SpotVoteOptionResponse;
-import backend.spot.dto.SpotVoteResponse;
-import backend.spot.dto.SubmitVoteAnswersRequest;
 import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantRole;
@@ -50,10 +44,6 @@ import backend.spot.entity.SpotNote;
 import backend.spot.entity.SpotParticipant;
 import backend.spot.entity.SpotScheduleAvailability;
 import backend.spot.entity.SpotScheduleSlot;
-import backend.spot.entity.SpotVote;
-import backend.spot.entity.SpotVoteAnswer;
-import backend.spot.entity.SpotVoteOption;
-import backend.spot.entity.VoteState;
 import backend.spot.repository.SpotChecklistRepository;
 import backend.spot.repository.SpotFileRepository;
 import backend.spot.repository.SpotNoteRepository;
@@ -61,9 +51,6 @@ import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 import backend.spot.repository.SpotScheduleAvailabilityRepository;
 import backend.spot.repository.SpotScheduleSlotRepository;
-import backend.spot.repository.SpotVoteAnswerRepository;
-import backend.spot.repository.SpotVoteOptionRepository;
-import backend.spot.repository.SpotVoteRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -77,9 +64,6 @@ public class SpotService {
 	private final SpotParticipantRepository spotParticipantRepository;
 	private final SpotScheduleSlotRepository spotScheduleSlotRepository;
 	private final SpotScheduleAvailabilityRepository spotScheduleAvailabilityRepository;
-	private final SpotVoteRepository spotVoteRepository;
-	private final SpotVoteOptionRepository spotVoteOptionRepository;
-	private final SpotVoteAnswerRepository spotVoteAnswerRepository;
 	private final SpotChecklistRepository spotChecklistRepository;
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
@@ -419,256 +403,6 @@ public class SpotService {
 	}
 
 	// ─────────────────────────────────────────────
-	// 투표 (Vote)
-	// ─────────────────────────────────────────────
-
-	/**
-	 * 스팟의 투표 목록을 선택지 포함하여 조회합니다.
-	 */
-	@Transactional(readOnly = true)
-	public List<SpotVoteResponse> getVotes(Long spotId, String currentUserId) {
-		validateSpotExists(spotId);
-
-		return spotVoteRepository.findBySpotIdOrderByCreatedAtDesc(spotId)
-			.stream()
-			.map(vote -> {
-				List<SpotVoteAnswer> allAnswers = spotVoteAnswerRepository.findByVoteId(vote.getId());
-				List<SpotVoteOptionResponse> options = spotVoteOptionRepository.findByVoteId(vote.getId())
-					.stream()
-					.map(opt -> {
-						List<String> voterIds = allAnswers.stream()
-							.filter(a -> a.getOptionId().equals(opt.getId()))
-							.map(SpotVoteAnswer::getUserId)
-							.toList();
-						return SpotVoteOptionResponse.of(opt, voterIds);
-					})
-					.toList();
-				return SpotVoteResponse.of(vote, options, getMyVotedOptionIds(vote.getId(), currentUserId));
-			})
-			.toList();
-	}
-
-	/**
-	 * 스팟에 투표를 생성합니다.
-	 * TODO: 인증 시스템 도입 후 creatorId 를 실제 로그인 유저 ID로 교체
-	 */
-	public SpotVoteResponse createVote(Long spotId, CreateVoteRequest request, String currentUserId) {
-		validateSpotExists(spotId);
-
-		SpotVote vote = SpotVote.builder()
-			.spotId(spotId)
-			.creatorId(resolveUserId(currentUserId))
-			.question(request.getQuestion())
-			.multiSelect(request.isMultiSelect())
-			.build();
-
-		SpotVote savedVote = spotVoteRepository.save(vote);
-
-		List<SpotVoteOption> options = request.getOptions().stream()
-			.map(content -> SpotVoteOption.builder()
-				.voteId(savedVote.getId())
-				.content(content)
-				.build())
-			.toList();
-
-		List<SpotVoteOption> savedOptions = spotVoteOptionRepository.saveAll(options);
-
-		List<SpotVoteOptionResponse> optionResponses = savedOptions.stream()
-			.map(opt -> SpotVoteOptionResponse.of(opt, List.of()))
-			.toList();
-
-		return SpotVoteResponse.of(savedVote, optionResponses, getMyVotedOptionIds(savedVote.getId(), currentUserId));
-	}
-
-	/**
-	 * 투표에 토글 시맨틱으로 참여/해제합니다. (카카오톡 투표 방식)
-	 *
-	 * <p>이미 해당 옵션에 투표한 상태에서 같은 옵션을 다시 캐스트하면 <b>투표 해제</b>되고
-	 * voteCount 가 감소합니다. 별도 "투표 취소" 엔드포인트 없이 cast 한 개로 토글이 됩니다.
-	 *
-	 * <p>동작 규칙:
-	 * <ul>
-	 *   <li>이미 그 옵션에 답변이 있음 → 답변 삭제, count--</li>
-	 *   <li>단일선택({@code multiSelect=false}) 이고 다른 옵션에 답변이 있음 →
-	 *       기존 답변 삭제 + 카운트 감소 후 새 답변 추가 (= 표 변경)</li>
-	 *   <li>그 외 → 새 답변 추가, count++</li>
-	 * </ul>
-	 *
-	 * <p>검증:
-	 * <ul>
-	 *   <li>선택지 소속 검증: {@code optionId} 가 해당 {@code voteId} 에 속하는지 확인 (IDOR 방지)</li>
-	 *   <li>원자적 카운트 증감: DB UPDATE 쿼리, voteCount 음수 가드</li>
-	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
-	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행시켜 unique constraint 충돌 방지</li>
-	 * </ul>
-	 */
-	public SpotVoteResponse castVote(Long spotId, Long voteId, CastVoteRequest request, String currentUserId) {
-		validateSpotExists(spotId);
-
-		SpotVote vote = spotVoteRepository.findById(voteId)
-			.filter(v -> v.getSpotId().equals(spotId))
-			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
-
-		if (vote.getState() != VoteState.ACTIVE) {
-			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
-		}
-
-		Long optionId = request.getOptionId();
-		spotVoteOptionRepository.findById(optionId)
-			.filter(o -> o.getVoteId().equals(voteId))
-			.orElseThrow(() -> new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE));
-
-		String userId = resolveUserId(currentUserId);
-
-		List<SpotVoteAnswer> myAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
-		Optional<SpotVoteAnswer> existingOnSameOption = myAnswers.stream()
-			.filter(a -> a.getOptionId().equals(optionId))
-			.findFirst();
-
-		if (existingOnSameOption.isPresent()) {
-			// 토글 OFF: 같은 옵션 재캐스트 = 투표 해제
-			spotVoteAnswerRepository.delete(existingOnSameOption.get());
-			spotVoteAnswerRepository.flush();
-			spotVoteOptionRepository.decrementVoteCount(optionId);
-		} else {
-			// 단일선택에서 다른 옵션에 이미 투표 중이면 기존 답변을 표 변경 처리
-			if (!vote.isMultiSelect() && !myAnswers.isEmpty()) {
-				spotVoteAnswerRepository.deleteAllByVoteIdAndUserId(voteId, userId);
-				spotVoteAnswerRepository.flush();
-				myAnswers.forEach(prev -> spotVoteOptionRepository.decrementVoteCount(prev.getOptionId()));
-			}
-
-			SpotVoteAnswer answer = SpotVoteAnswer.builder()
-				.voteId(voteId)
-				.optionId(optionId)
-				.userId(userId)
-				.build();
-			spotVoteAnswerRepository.save(answer);
-			spotVoteOptionRepository.incrementVoteCount(optionId);
-		}
-
-		List<SpotVoteAnswer> allAnswers = spotVoteAnswerRepository.findByVoteId(voteId);
-		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
-			.stream()
-			.map(opt -> {
-				List<String> voterIds = allAnswers.stream()
-					.filter(a -> a.getOptionId().equals(opt.getId()))
-					.map(SpotVoteAnswer::getUserId)
-					.toList();
-				return SpotVoteOptionResponse.of(opt, voterIds);
-			})
-			.toList();
-
-		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
-	}
-
-	/**
-	 * 투표 답변을 배치로 일괄 제출합니다. (카카오톡 다중선택 투표 UX: "선택중 → 투표 버튼")
-	 *
-	 * <p>요청 바디의 {@code optionIds} 가 <b>최종 확정 상태</b>이며, 서버가 현재 답변과 diff 하여
-	 * 추가/삭제를 한 트랜잭션 안에서 원자적으로 적용합니다. 같은 body 를 두 번 보내면 변화 없음 (멱등).
-	 *
-	 * <p>동작 규칙:
-	 * <ul>
-	 *   <li>새로 추가된 옵션 → INSERT + voteCount++</li>
-	 *   <li>제거된 옵션 → DELETE + voteCount--</li>
-	 *   <li>그대로인 옵션 → no-op</li>
-	 *   <li>빈 배열 {@code []} → 모든 답변 삭제 (= 투표 전체 취소)</li>
-	 * </ul>
-	 *
-	 * <p>검증:
-	 * <ul>
-	 *   <li>ACTIVE 상태가 아닌 투표는 거부</li>
-	 *   <li>모든 optionId 가 해당 voteId 소속이어야 함 (IDOR 방지)</li>
-	 *   <li>단일선택({@code multiSelect=false}) 은 0~1개만 허용 → {@code SINGLE_SELECT_VOTE_LIMIT}</li>
-	 *   <li>중복 optionId 는 자동 dedupe (Set)</li>
-	 *   <li>flush() 로 DELETE 를 INSERT 보다 먼저 실행 (unique constraint 충돌 방지)</li>
-	 * </ul>
-	 */
-	public SpotVoteResponse submitAnswers(
-		Long spotId,
-		Long voteId,
-		SubmitVoteAnswersRequest request,
-		String currentUserId
-	) {
-		validateSpotExists(spotId);
-
-		SpotVote vote = spotVoteRepository.findById(voteId)
-			.filter(v -> v.getSpotId().equals(spotId))
-			.orElseThrow(() -> new BusinessException(ErrorCode.VOTE_NOT_FOUND));
-
-		if (vote.getState() != VoteState.ACTIVE) {
-			throw new BusinessException(ErrorCode.VOTE_NOT_ACTIVE);
-		}
-
-		Set<Long> desiredOptionIds = new HashSet<>(request.getOptionIds());
-
-		if (!vote.isMultiSelect() && desiredOptionIds.size() > 1) {
-			throw new BusinessException(ErrorCode.SINGLE_SELECT_VOTE_LIMIT);
-		}
-
-		// 모든 요청 optionId 가 이 vote 의 옵션인지 검증 (한 번의 쿼리로 묶어서)
-		if (!desiredOptionIds.isEmpty()) {
-			List<SpotVoteOption> allVoteOptions = spotVoteOptionRepository.findByVoteId(voteId);
-			Set<Long> validOptionIds = allVoteOptions.stream()
-				.map(SpotVoteOption::getId)
-				.collect(java.util.stream.Collectors.toSet());
-			for (Long optionId : desiredOptionIds) {
-				if (!validOptionIds.contains(optionId)) {
-					throw new BusinessException(ErrorCode.OPTION_NOT_IN_VOTE);
-				}
-			}
-		}
-
-		String userId = resolveUserId(currentUserId);
-
-		List<SpotVoteAnswer> currentAnswers = spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, userId);
-		Set<Long> currentOptionIds = currentAnswers.stream()
-			.map(SpotVoteAnswer::getOptionId)
-			.collect(java.util.stream.Collectors.toSet());
-
-		// diff: 제거 대상 (현재에는 있고 desired 에는 없음)
-		List<SpotVoteAnswer> toRemove = currentAnswers.stream()
-			.filter(a -> !desiredOptionIds.contains(a.getOptionId()))
-			.toList();
-		// diff: 추가 대상 (desired 에는 있고 현재에는 없음)
-		List<Long> toAdd = desiredOptionIds.stream()
-			.filter(id -> !currentOptionIds.contains(id))
-			.toList();
-
-		if (!toRemove.isEmpty()) {
-			spotVoteAnswerRepository.deleteAll(toRemove);
-			spotVoteAnswerRepository.flush();
-			toRemove.forEach(a -> spotVoteOptionRepository.decrementVoteCount(a.getOptionId()));
-		}
-
-		for (Long optionId : toAdd) {
-			spotVoteAnswerRepository.save(
-				SpotVoteAnswer.builder()
-					.voteId(voteId)
-					.optionId(optionId)
-					.userId(userId)
-					.build()
-			);
-			spotVoteOptionRepository.incrementVoteCount(optionId);
-		}
-
-		List<SpotVoteAnswer> allAnswersAfter = spotVoteAnswerRepository.findByVoteId(voteId);
-		List<SpotVoteOptionResponse> optionResponses = spotVoteOptionRepository.findByVoteId(voteId)
-			.stream()
-			.map(opt -> {
-				List<String> voterIds = allAnswersAfter.stream()
-					.filter(a -> a.getOptionId().equals(opt.getId()))
-					.map(SpotVoteAnswer::getUserId)
-					.toList();
-				return SpotVoteOptionResponse.of(opt, voterIds);
-			})
-			.toList();
-
-		return SpotVoteResponse.of(vote, optionResponses, getMyVotedOptionIds(vote.getId(), userId));
-	}
-
-	// ─────────────────────────────────────────────
 	// 체크리스트 (Checklist)
 	// ─────────────────────────────────────────────
 
@@ -890,17 +624,6 @@ public class SpotService {
 		}
 		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserIdAndState(
 			currentUserId, ParticipantState.ACTIVE));
-	}
-
-	private List<Long> getMyVotedOptionIds(Long voteId, String currentUserId) {
-		if (currentUserId == null) {
-			return null;
-		}
-
-		return spotVoteAnswerRepository.findAllByVoteIdAndUserId(voteId, currentUserId)
-			.stream()
-			.map(SpotVoteAnswer::getOptionId)
-			.toList();
 	}
 
 	private Spot findSpotOrThrow(Long spotId) {

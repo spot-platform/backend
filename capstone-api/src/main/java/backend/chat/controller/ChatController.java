@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,17 +18,23 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import backend.chat.dto.AddChatVoteOptionRequest;
+import backend.chat.dto.CastChatVoteRequest;
 import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
+import backend.chat.dto.ChatVoteResponse;
 import backend.chat.dto.CreateChatBlockRequest;
 import backend.chat.dto.CreateChatRoomRequest;
+import backend.chat.dto.CreateChatVoteRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
+import backend.chat.dto.SubmitChatVoteAnswersRequest;
 import backend.chat.entity.ChatRoomType;
 import backend.chat.service.ChatService;
+import backend.chat.service.ChatVoteService;
 import backend.chat.service.SseEmitterService;
 import backend.global.common.response.ApiResponse;
 import backend.global.security.CustomUserDetails;
@@ -44,6 +51,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
 
 	private final ChatService chatService;
+	private final ChatVoteService chatVoteService;
 	private final SseEmitterService sseEmitterService;
 
 	// ─── SSE 연결 ─────────────────────────────────
@@ -246,6 +254,127 @@ public class ChatController {
 	) {
 		chatService.leaveRoom(roomId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	// ─── 투표 (Vote) ──────────────────────────────
+
+	@Operation(
+		summary = "채팅방 투표 목록 조회",
+		description = "채팅방에 생성된 투표를 최신순으로 반환합니다. 카카오톡 투표 탭과 동일한 목록입니다."
+	)
+	@GetMapping("/rooms/{roomId}/votes")
+	public ResponseEntity<ApiResponse<List<ChatVoteResponse>>> getVotes(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.getVotes(roomId, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "채팅 투표 생성",
+		description = "채팅방 멤버만 생성 가능. 생성 시 채팅방 구독자 전원에게 vote_created SSE 이벤트가 전송됩니다."
+	)
+	@PostMapping("/rooms/{roomId}/votes")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> createVote(
+		@PathVariable Long roomId,
+		@Valid @RequestBody CreateChatVoteRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.createVote(roomId, request, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "투표 참여 (단건 토글)",
+		description = "같은 선택지 재캐스트 = 투표 해제. 단일선택 시 기존 표는 자동 교체됩니다. "
+			+ "변경 후 vote_updated SSE 이벤트가 브로드캐스트됩니다."
+	)
+	@PostMapping("/rooms/{roomId}/votes/{voteId}/cast")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> castVote(
+		@PathVariable Long roomId,
+		@PathVariable Long voteId,
+		@Valid @RequestBody CastChatVoteRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.castVote(roomId, voteId, request, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "투표 일괄 제출 (최종 확정)",
+		description = "optionIds 를 최종 확정 상태로 전달. 서버가 현재 답변과 diff 하여 원자적으로 적용합니다. "
+			+ "빈 배열 [] = 전체 취소. 멱등."
+	)
+	@PutMapping("/rooms/{roomId}/votes/{voteId}/submit")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> submitVoteAnswers(
+		@PathVariable Long roomId,
+		@PathVariable Long voteId,
+		@Valid @RequestBody SubmitChatVoteAnswersRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.submitAnswers(roomId, voteId, request, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "투표 마감 (생성자 전용)",
+		description = "투표를 CLOSED 상태로 전환합니다. 마감 후에는 참여 불가. "
+			+ "vote_closed SSE 이벤트가 브로드캐스트됩니다."
+	)
+	@PostMapping("/rooms/{roomId}/votes/{voteId}/close")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> closeVote(
+		@PathVariable Long roomId,
+		@PathVariable Long voteId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.closeVote(roomId, voteId, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "선택지 추가 (생성자 전용)",
+		description = "ACTIVE 투표에 새 선택지를 추가합니다. 추가 후 vote_updated SSE 이벤트가 브로드캐스트됩니다."
+	)
+	@PostMapping("/rooms/{roomId}/votes/{voteId}/options")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> addVoteOption(
+		@PathVariable Long roomId,
+		@PathVariable Long voteId,
+		@Valid @RequestBody AddChatVoteOptionRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.addOption(roomId, voteId, request, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(
+		summary = "선택지 삭제 (생성자 전용)",
+		description = "ACTIVE 투표의 선택지를 삭제합니다. 해당 선택지에 투표한 답변도 함께 삭제됩니다. "
+			+ "삭제 후 vote_updated SSE 이벤트가 브로드캐스트됩니다."
+	)
+	@DeleteMapping("/rooms/{roomId}/votes/{voteId}/options/{optionId}")
+	public ResponseEntity<ApiResponse<ChatVoteResponse>> removeVoteOption(
+		@PathVariable Long roomId,
+		@PathVariable Long voteId,
+		@PathVariable Long optionId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		chatService.assertMembershipPublic(roomId, currentUserId(userDetails));
+		return ResponseEntity.ok(ApiResponse.success(
+			chatVoteService.removeOption(roomId, voteId, optionId, currentUserId(userDetails))
+		));
 	}
 
 	// ─── 차단 (Block) ─────────────────────────────

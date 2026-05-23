@@ -51,6 +51,12 @@ public enum ErrorCode {
 	CHAT_BLOCK_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "CH010", "Block target user not found"),
 	CHAT_SELF_BLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CH011", "Cannot block yourself"),
 	CHAT_ROOM_READ_ONLY(HttpStatus.FORBIDDEN, "CH012", "This chat room is read-only (spot completed or cancelled)"),
+	CHAT_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "CH013", "Chat vote not found"),
+	CHAT_VOTE_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "CH014", "Chat vote is not active"),
+	CHAT_VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CH015", "Chat vote option not found"),
+	CHAT_VOTE_OPTION_NOT_IN_VOTE(HttpStatus.BAD_REQUEST, "CH016", "Option does not belong to this vote"),
+	CHAT_VOTE_SINGLE_SELECT_LIMIT(HttpStatus.BAD_REQUEST, "CH017", "Single-select vote allows at most one option"),
+	CHAT_VOTE_NOT_CREATOR(HttpStatus.FORBIDDEN, "CH018", "Only the vote creator can perform this action"),
 
 	// Post
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "Post not found"),
