@@ -11,8 +11,6 @@ import lombok.Setter;
 @Setter
 @Schema(description = "피드 목록 조회 파라미터")
 public class FeedListQuery {
-	@Schema(description = "탭 정보 (예: HOME, EXPLORE)", example = "HOME")
-	private String tab;
 
 	@Schema(description = "피드 타입", example = "OFFER")
 	private FeedType type;
@@ -26,10 +24,10 @@ public class FeedListQuery {
 	@Schema(description = "정렬 조건 (latest: 최신순, popular: 인기순)", example = "latest")
 	private String sort;
 
-	@Schema(description = "근처 위도 (제공 시 nearLng 와 함께 반경 5km 필터 적용)", example = "37.2636")
+	@Schema(description = "근처 위도 — nearLng 와 함께 제공 시 반경 5km 필터 적용 (선택)", example = "37.2636")
 	private Double nearLat;
 
-	@Schema(description = "근처 경도", example = "127.0286")
+	@Schema(description = "근처 경도 — nearLat 와 함께 제공 시 반경 5km 필터 적용 (선택)", example = "127.0286")
 	private Double nearLng;
 
 	@Schema(description = "페이지 번호 (0부터 시작)", example = "0")

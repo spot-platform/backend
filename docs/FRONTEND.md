@@ -1079,13 +1079,12 @@ responses:
 summary: 홈/탐색 피드 목록
 parameters:
     query:
-        tab?: HOME | EXPLORE
         type?: OFFER | REQUEST | RENT
         category?: string
         status?: OPEN | MATCHED | CLOSED
         q?: string
-        nearLat?: number
-        nearLng?: number
+        nearLat?: number  # nearLng 와 함께 제공 시 반경 5km 필터 적용 (선택)
+        nearLng?: number  # nearLat 와 함께 제공 시 반경 5km 필터 적용 (선택)
         page?: number
         size?: number
 responses:
