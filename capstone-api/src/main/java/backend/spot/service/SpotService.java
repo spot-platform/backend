@@ -755,7 +755,8 @@ public class SpotService {
 	}
 
 	private void validateParticipant(Long spotId, String userId, ErrorCode errorCode) {
-		if (!spotParticipantRepository.existsBySpotIdAndUserId(spotId, userId)) {
+		if (!spotParticipantRepository.existsBySpotIdAndUserIdAndState(
+				spotId, userId, ParticipantState.ACTIVE)) {
 			throw new BusinessException(errorCode);
 		}
 	}

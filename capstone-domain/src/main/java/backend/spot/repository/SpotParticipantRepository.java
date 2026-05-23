@@ -27,8 +27,6 @@ public interface SpotParticipantRepository extends JpaRepository<SpotParticipant
 
 	Optional<SpotParticipant> findBySpotIdAndUserId(Long spotId, String userId);
 
-	boolean existsBySpotIdAndUserId(Long spotId, String userId);
-
 	boolean existsBySpotIdAndUserIdAndState(Long spotId, String userId, ParticipantState state);
 
 	List<SpotParticipant> findBySpotIdAndRole(Long spotId, ParticipantRole role);
