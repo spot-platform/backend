@@ -74,6 +74,7 @@ public enum ErrorCode {
 
 	// Pay
 	INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "PAY001", "Charge amount must be at least 1000"),
+	// 출금/사용 API용 (현재 미사용, 후속 작업에서 사용 예정)
 	INSUFFICIENT_POINT_BALANCE(HttpStatus.BAD_REQUEST, "PAY002", "Insufficient point balance");
 
 	private final HttpStatus status;

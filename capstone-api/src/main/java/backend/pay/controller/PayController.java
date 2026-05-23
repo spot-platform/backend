@@ -2,6 +2,7 @@ package backend.pay.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import backend.global.common.response.ApiResponse;
+import backend.global.dto.ApiResponseMeta;
 import backend.global.security.CustomUserDetails;
 import backend.pay.dto.ChargePointRequest;
 import backend.pay.dto.PointBalanceResponse;
@@ -42,7 +43,7 @@ public class PayController {
 
 	@Operation(
 		summary = "포인트 거래 내역 조회",
-		description = "최신순. page는 1-base."
+		description = "최신순. page는 1-base. size 최대 100. 응답 meta: { page, size, total, hasNext }."
 	)
 	@GetMapping("/history")
 	public ApiResponse<List<PointTransactionResponse>> getHistory(
@@ -50,7 +51,17 @@ public class PayController {
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "20") int size
 	) {
-		return ApiResponse.success(payService.getHistory(requireUserId(userDetails), page, size));
+		int safePage = Math.max(1, page);
+		int safeSize = Math.max(1, Math.min(100, size));
+		Page<PointTransactionResponse> result =
+			payService.getHistory(requireUserId(userDetails), safePage, safeSize);
+		ApiResponseMeta meta = ApiResponseMeta.builder()
+			.page(safePage)
+			.size(safeSize)
+			.total(result.getTotalElements())
+			.hasNext(result.hasNext())
+			.build();
+		return ApiResponse.success(result.getContent(), meta);
 	}
 
 	@Operation(
@@ -58,7 +69,6 @@ public class PayController {
 		description = "최소 충전 금액 1000. MVP 기준 Mock 충전 (실제 PG 미연동)."
 	)
 	@PostMapping("/charge")
-	@ResponseStatus(HttpStatus.OK)
 	public ApiResponse<PointBalanceResponse> charge(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestBody ChargePointRequest request

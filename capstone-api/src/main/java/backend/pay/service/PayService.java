@@ -1,7 +1,9 @@
 package backend.pay.service;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,18 +32,23 @@ public class PayService {
 		UserEntity user = findActiveUser(userId);
 		return PointBalanceResponse.builder()
 			.balance(user.getPointBalance())
-			.updatedAt(user.getUpdatedAt().toString())
+			.updatedAt(formatIso(user.getUpdatedAt()))
 			.build();
 	}
 
-	/** 포인트 거래 내역 조회 (최신순, 페이지네이션) */
-	public List<PointTransactionResponse> getHistory(String userId, int page, int size) {
+	/**
+	 * 포인트 거래 내역 조회 (최신순, 페이지네이션).
+	 * 컨트롤러에서 PageMeta로 변환해 응답 meta에 포함.
+	 */
+	public Page<PointTransactionResponse> getHistory(String userId, int page, int size) {
+		findActiveUser(userId);
+		if (page < 1 || size < 1) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+		}
 		PageRequest pageRequest = PageRequest.of(page - 1, size);
 		return pointTransactionRepository
 			.findByUserIdOrderByCreatedAtDesc(userId, pageRequest)
-			.stream()
-			.map(PointTransactionResponse::from)
-			.toList();
+			.map(PointTransactionResponse::from);
 	}
 
 	/** 포인트 충전 (Mock — 실제 PG 미연동) */
@@ -61,9 +68,11 @@ public class PayService {
 			.description("포인트 충전")
 			.build());
 
+		// user.getUpdatedAt()은 @LastModifiedDate 기준 flush/commit 후에야 갱신됨.
+		// 응답에는 현재 시각을 직접 채워 충전 직후의 상태를 반영한다.
 		return PointBalanceResponse.builder()
 			.balance(user.getPointBalance())
-			.updatedAt(user.getUpdatedAt().toString())
+			.updatedAt(formatIso(LocalDateTime.now()))
 			.build();
 	}
 
@@ -74,5 +83,9 @@ public class PayService {
 			throw new BusinessException(ErrorCode.USER_ALREADY_DELETED);
 		}
 		return user;
+	}
+
+	private String formatIso(LocalDateTime dateTime) {
+		return dateTime == null ? null : dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	}
 }

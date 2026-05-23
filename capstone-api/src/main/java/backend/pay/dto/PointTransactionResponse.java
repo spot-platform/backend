@@ -1,5 +1,7 @@
 package backend.pay.dto;
 
+import java.time.format.DateTimeFormatter;
+
 import backend.pay.entity.PointTransaction;
 import backend.pay.entity.PointTransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +34,9 @@ public record PointTransactionResponse(
 			.amount(tx.getAmount())
 			.balanceAfter(tx.getBalanceAfter())
 			.description(tx.getDescription())
-			.createdAt(tx.getCreatedAt() != null ? tx.getCreatedAt().toString() : null)
+			.createdAt(tx.getCreatedAt() != null
+				? tx.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+				: null)
 			.build();
 	}
 }
