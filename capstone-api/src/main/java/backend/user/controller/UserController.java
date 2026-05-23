@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.feed.dto.FeedItemResponse;
 import backend.global.common.response.ApiResponse;
+import backend.global.enums.FeedItemStatus;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.user.dto.request.DeleteUserRequest;
@@ -182,12 +184,26 @@ public class UserController {
 
 	@Operation(
 		summary = "내가 참여 중인 스팟 목록",
-		description = "내가 작성자(AUTHOR) 또는 참여자(PARTICIPANT)로 속한 스팟 목록을 반환합니다."
+		description = "내가 작성자(AUTHOR) 또는 참여자(PARTICIPANT)로 속한 스팟 목록을 반환합니다. "
+			+ "status 파라미터로 OPEN/MATCHED/CLOSED 필터링 가능. "
+			+ "미지정 시 전체 반환."
 	)
 	@GetMapping("/me/participations")
-	public ApiResponse<List<MyParticipatingSpotResponse>> getMyParticipatingSpots() {
+	public ApiResponse<List<MyParticipatingSpotResponse>> getMyParticipatingSpots(
+		@RequestParam(required = false) FeedItemStatus status
+	) {
 		String email = getCurrentEmail();
-		return ApiResponse.success(userService.getMyParticipatingSpots(email));
+		return ApiResponse.success(userService.getMyParticipatingSpots(email, status));
+	}
+
+	@Operation(
+		summary = "내가 북마크한 피드 목록",
+		description = "내가 북마크한 피드를 최신 북마크 순으로 반환합니다. softDelete된 피드는 제외됩니다."
+	)
+	@GetMapping("/me/favorites")
+	public ApiResponse<List<FeedItemResponse>> getMyFavorites() {
+		String email = getCurrentEmail();
+		return ApiResponse.success(userService.getMyFavorites(email));
 	}
 
 	@Operation(

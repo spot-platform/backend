@@ -18,11 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.repository.RefreshRepository;
 import backend.feed.dto.FeedItemResponse;
+import backend.feed.entity.Bookmark;
 import backend.feed.entity.FeedApplication;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
+import backend.feed.repository.BookmarkRepository;
 import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
+import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -49,6 +52,7 @@ public class UserService implements UserDetailsService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final RefreshRepository refreshRepository;
+	private final BookmarkRepository bookmarkRepository;
 	private final FeedApplicationRepository feedApplicationRepository;
 	private final FeedItemRepository feedItemRepository;
 	private final SpotParticipantRepository spotParticipantRepository;
@@ -167,9 +171,10 @@ public class UserService implements UserDetailsService {
 
 	/**
 	 * 내가 참여 중인 스팟 목록. SpotParticipant 기반 (AUTHOR + PARTICIPANT 모두).
+	 * status가 null이면 전체, 지정 시 해당 상태만 반환.
 	 */
 	@Transactional(readOnly = true)
-	public List<MyParticipatingSpotResponse> getMyParticipatingSpots(String email) {
+	public List<MyParticipatingSpotResponse> getMyParticipatingSpots(String email, FeedItemStatus status) {
 		UserEntity user = findActiveUserByEmail(email);
 		List<SpotParticipant> participations =
 			spotParticipantRepository.findByUserIdOrderByJoinedAtDesc(user.getId());
@@ -182,9 +187,37 @@ public class UserService implements UserDetailsService {
 			: spotRepository.findAllById(spotIds).stream()
 				.collect(Collectors.toMap(Spot::getId, Function.identity()));
 
+		// TODO: 참여 스팟 수가 많아지면 DB 레벨 status 필터 쿼리로 전환 권장 (현재 in-memory 필터)
 		return participations.stream()
 			.filter(p -> spotById.containsKey(p.getSpotId()))
+			.filter(p -> status == null || spotById.get(p.getSpotId()).getStatus() == status)
 			.map(p -> MyParticipatingSpotResponse.of(p, spotById.get(p.getSpotId())))
+			.toList();
+	}
+
+	/**
+	 * 내가 북마크한 피드 목록. 최신 북마크 순, softDelete된 피드 제외.
+	 */
+	@Transactional(readOnly = true)
+	public List<FeedItemResponse> getMyFavorites(String email) {
+		UserEntity user = findActiveUserByEmail(email);
+		List<Bookmark> bookmarks = bookmarkRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+		if (bookmarks.isEmpty()) {
+			return List.of();
+		}
+
+		List<Long> feedItemIds = bookmarks.stream().map(Bookmark::getFeedItemId).toList();
+		Map<Long, FeedItem> feedItemById = feedItemRepository.findAllById(feedItemIds).stream()
+			.filter(f -> !f.isDeleted())
+			.collect(Collectors.toMap(FeedItem::getId, Function.identity()));
+
+		return bookmarks.stream()
+			.filter(b -> feedItemById.containsKey(b.getFeedItemId()))
+			.map(b -> {
+				FeedItem feedItem = feedItemById.get(b.getFeedItemId());
+				return FeedItemResponse.from(
+					feedItem, null, true, null, FeedItemResponse.buildAuthorProfile(feedItem));
+			})
 			.toList();
 	}
 
