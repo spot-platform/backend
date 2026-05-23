@@ -187,7 +187,7 @@ public class ChatService {
 	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsByFeed(String feedId, String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
-		List<ChatRoom> rooms = chatRoomRepository.findByPostId(feedId);
+		List<ChatRoom> rooms = chatRoomRepository.findByPostIdAndIsDeletedFalse(feedId);
 		if (currentUser != null) {
 			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
 			rooms = rooms.stream()
@@ -684,45 +684,45 @@ public class ChatService {
 			.getOrDefault(room.getId(), ChatRoomEnrichment.empty());
 	}
 
-    private Map<Long, ChatRoomEnrichment> buildEnrichments(Collection<ChatRoom> rooms, UserEntity currentUser) {
-        if (rooms.isEmpty()) {
-            return Map.of();
-        }
+	private Map<Long, ChatRoomEnrichment> buildEnrichments(Collection<ChatRoom> rooms, UserEntity currentUser) {
+		if (rooms.isEmpty()) {
+			return Map.of();
+		}
 
-        List<Long> roomIds = rooms.stream().map(ChatRoom::getId).toList();
-        Map<Long, ChatMessage> lastMessagesByRoomId = currentUser == null
-                ? Map.of()
-                : chatMessageRepository.findLatestByChatRoomIds(roomIds).stream()
-                .collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
+		List<Long> roomIds = rooms.stream().map(ChatRoom::getId).toList();
+		Map<Long, ChatMessage> lastMessagesByRoomId = currentUser == null
+			? Map.of()
+			: chatMessageRepository.findLatestByChatRoomIds(roomIds).stream()
+				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
 
-        Set<Long> spotIds = rooms.stream()
-                .map(room -> parseSpotId(room.getSpotId()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		Set<Long> spotIds = rooms.stream()
+			.map(room -> parseSpotId(room.getSpotId()))
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
 
-        Map<Long, Spot> spotsById = spotIds.isEmpty()
-                ? Map.of()
-                : spotRepository.findAllById(spotIds).stream()
-                .collect(Collectors.toMap(Spot::getId, Function.identity()));
+		Map<Long, Spot> spotsById = spotIds.isEmpty()
+			? Map.of()
+			: spotRepository.findAllById(spotIds).stream()
+				.collect(Collectors.toMap(Spot::getId, Function.identity()));
 
-        Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
-        Map<Long, Long> unreadByRoomId = resolveUnreadCounts(roomIds, currentUser);
+		Map<Long, UserEntity> partnerByRoomId = resolvePersonalPartners(rooms, currentUser);
+		Map<Long, Long> unreadByRoomId = resolveUnreadCounts(roomIds, currentUser);
 
-        return rooms.stream()
-                .collect(Collectors.toMap(
-                        ChatRoom::getId,
-                        room -> {
-                            Long parsedSpotId = parseSpotId(room.getSpotId());
-                            return ChatRoomEnrichment.builder()
-                                    .lastMessage(lastMessagesByRoomId.get(room.getId()))
-                                    .spot(parsedSpotId != null ? spotsById.get(parsedSpotId) : null)
-                                    .currentUser(currentUser)
-                                    .partner(partnerByRoomId.get(room.getId()))
-                                    .unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
-                                    .build();
-                        }
-                ));
-    }
+		return rooms.stream()
+			.collect(Collectors.toMap(
+				ChatRoom::getId,
+				room -> {
+					Long parsedSpotId = parseSpotId(room.getSpotId());
+					return ChatRoomEnrichment.builder()
+						.lastMessage(lastMessagesByRoomId.get(room.getId()))
+						.spot(parsedSpotId != null ? spotsById.get(parsedSpotId) : null)
+						.currentUser(currentUser)
+						.partner(partnerByRoomId.get(room.getId()))
+						.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
+						.build();
+				}
+			));
+	}
 
 	private Map<Long, Long> resolveUnreadCounts(Collection<Long> roomIds, UserEntity currentUser) {
 		if (currentUser == null || roomIds.isEmpty()) {
