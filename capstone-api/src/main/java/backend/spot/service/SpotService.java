@@ -265,7 +265,6 @@ public class SpotService {
 	/**
 	 * 스팟을 취소합니다. (OPEN → CLOSED)
 	 */
-	@Transactional
 	public SpotResponse cancelSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.cancel();
@@ -276,7 +275,6 @@ public class SpotService {
 	/**
 	 * 스팟을 완료 처리합니다. (MATCHED → CLOSED)
 	 */
-	@Transactional
 	public SpotResponse completeSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
 		spot.complete();
