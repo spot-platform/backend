@@ -879,14 +879,16 @@ public class SpotService {
 	 */
 	private boolean isOwner(Long spotId, String currentUserId) {
 		return currentUserId != null
-			&& spotParticipantRepository.existsBySpotIdAndUserId(spotId, currentUserId);
+			&& spotParticipantRepository.existsBySpotIdAndUserIdAndState(
+				spotId, currentUserId, ParticipantState.ACTIVE);
 	}
 
 	private Set<Long> ownedSpotIds(String currentUserId) {
 		if (currentUserId == null) {
 			return Set.of();
 		}
-		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserId(currentUserId));
+		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserIdAndState(
+			currentUserId, ParticipantState.ACTIVE));
 	}
 
 	private List<Long> getMyVotedOptionIds(Long voteId, String currentUserId) {

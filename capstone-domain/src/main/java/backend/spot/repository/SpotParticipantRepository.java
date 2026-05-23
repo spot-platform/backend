@@ -22,9 +22,14 @@ public interface SpotParticipantRepository extends JpaRepository<SpotParticipant
 	@Query("SELECT p.spotId FROM SpotParticipant p WHERE p.userId = :userId")
 	List<Long> findSpotIdsByUserId(@Param("userId") String userId);
 
+	@Query("SELECT p.spotId FROM SpotParticipant p WHERE p.userId = :userId AND p.state = :state")
+	List<Long> findSpotIdsByUserIdAndState(@Param("userId") String userId, @Param("state") ParticipantState state);
+
 	Optional<SpotParticipant> findBySpotIdAndUserId(Long spotId, String userId);
 
 	boolean existsBySpotIdAndUserId(Long spotId, String userId);
+
+	boolean existsBySpotIdAndUserIdAndState(Long spotId, String userId, ParticipantState state);
 
 	List<SpotParticipant> findBySpotIdAndRole(Long spotId, ParticipantRole role);
 
