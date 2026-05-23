@@ -1150,6 +1150,30 @@ responses:
 
 
 
+#### GET `/feeds/{feedId}/applications`
+
+- **사용 위치:** 피드 관리 화면 (작성자 전용).
+- **하는 일:** 해당 피드에 들어온 신청 목록을 반환한다. 작성자만 호출 가능.
+- **프론트 액션:** 신청자 목록을 렌더링하고, 각 항목의 `id`로 수락/거절 API를 호출한다.
+
+
+```yaml
+summary: 피드 신청 목록 조회 (작성자 전용)
+security: bearerAuth
+parameters:
+    path:
+        feedId: number
+responses:
+    200:
+        application/json: ApiResponse<FeedApplication[]>
+    403:
+        application/json: ErrorResponse # 작성자 아닌 경우
+    404:
+        application/json: ErrorResponse
+```
+
+
+
 #### POST `/feeds/{feedId}/bookmark`
 
 - **사용 위치:** 피드 카드/상세의 북마크 버튼.
@@ -2459,6 +2483,7 @@ PENDING -> REJECTED
 | `PUT /me/persona`                          | 기존 persona upsert, interests 중복 제거                                               |
 | `GET /feeds`                               | feed read model 조회, 내 신청/북마크 상태 조인                                         |
 | `POST /feeds/{feedId}/applications`        | 중복 신청 방지, 포인트/보증금 정책 검증, application 생성                              |
+| `GET /feeds/{feedId}/applications`         | 작성자 권한 확인, 해당 피드 전체 신청 최신순 반환                                      |
 | `DELETE /feeds/{feedId}/applications/me`   | 내 active application 조회 후 CANCELLED 전환                                           |
 | `POST /feeds/{feedId}/bookmark`            | `(user_id, feed_id)` unique upsert                                                     |
 | `GET /spots/map`                           | bounds 필터, 경량 필드만 반환, 취소/비공개 제외                                        |
