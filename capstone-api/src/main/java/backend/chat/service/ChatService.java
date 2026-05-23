@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import backend.chat.dto.ChatBlockResponse;
+import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
@@ -184,6 +185,26 @@ public class ChatService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getRoomsByFeed(String feedId, String currentUserId) {
+		UserEntity currentUser = findCurrentUser(currentUserId);
+		List<ChatRoom> rooms = chatRoomRepository.findByPostIdAndIsDeletedFalse(feedId);
+		if (currentUser != null) {
+			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
+			rooms = rooms.stream()
+				.filter(r -> !r.isDeleted())
+				.filter(r -> myRoomIds.contains(r.getId()))
+				.toList();
+		} else {
+			rooms = List.of();
+		}
+		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
+		return rooms.stream()
+			.map(room -> ChatRoomResponse.from(
+				room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
+			.toList();
+	}
+
+	@Transactional(readOnly = true)
 	public List<ChatRoomResponse> getRoomsBySpot(String spotId, String currentUserId) {
 		UserEntity currentUser = findCurrentUser(currentUserId);
 		List<ChatRoom> rooms = chatRoomRepository.findBySpotId(spotId);
@@ -204,24 +225,14 @@ public class ChatService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChatRoomResponse> getRoomsByUser(String userId, String currentUserId) {
-		UserEntity currentUser = findCurrentUser(currentUserId);
-		List<Long> targetRoomIds = chatRoomMemberRepository.findChatRoomIdsByUserId(userId);
-		if (currentUser != null) {
-			Set<Long> myRoomIds = Set.copyOf(chatRoomMemberRepository.findChatRoomIdsByUserId(currentUser.getId()));
-			targetRoomIds = targetRoomIds.stream().filter(myRoomIds::contains).toList();
-		} else {
-			targetRoomIds = List.of();
-		}
-		List<ChatRoom> rooms = targetRoomIds.isEmpty()
-			? List.of()
-			: chatRoomRepository.findAllById(targetRoomIds).stream()
-				.filter(r -> !r.isDeleted())
-				.toList();
-		Map<Long, ChatRoomEnrichment> enrichments = buildEnrichments(rooms, currentUser);
-		return rooms.stream()
-			.map(room -> ChatRoomResponse.from(
-				room, enrichments.getOrDefault(room.getId(), ChatRoomEnrichment.empty())))
+	public List<ChatMemberResponse> getMembers(Long roomId, String currentUserId) {
+		assertMembership(roomId, currentUserId);
+		List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(roomId);
+		List<String> userIds = members.stream().map(ChatRoomMember::getUserId).toList();
+		Map<String, UserEntity> usersById = userRepository.findAllById(userIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		return members.stream()
+			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId())))
 			.toList();
 	}
 
@@ -664,8 +675,8 @@ public class ChatService {
 		if (blockedSinceBySenderId.isEmpty()) {
 			return false;
 		}
-		LocalDateTime blockedSince = blockedSinceBySenderId.get(message.getSenderId());
-		return blockedSince != null && blockedSince.isBefore(message.getCreatedAt());
+		// 차단한 유저의 메시지는 차단 시점과 무관하게 모두 가린다 (카카오톡 동작과 동일).
+		return blockedSinceBySenderId.containsKey(message.getSenderId());
 	}
 
 	private ChatRoomEnrichment buildEnrichment(ChatRoom room, UserEntity currentUser) {
@@ -686,8 +697,9 @@ public class ChatService {
 
 		Set<Long> spotIds = rooms.stream()
 			.map(room -> parseSpotId(room.getSpotId()))
-			.filter(java.util.Objects::nonNull)
+			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
+
 		Map<Long, Spot> spotsById = spotIds.isEmpty()
 			? Map.of()
 			: spotRepository.findAllById(spotIds).stream()
@@ -699,13 +711,16 @@ public class ChatService {
 		return rooms.stream()
 			.collect(Collectors.toMap(
 				ChatRoom::getId,
-				room -> ChatRoomEnrichment.builder()
-					.lastMessage(lastMessagesByRoomId.get(room.getId()))
-					.spot(spotsById.get(parseSpotId(room.getSpotId())))
-					.currentUser(currentUser)
-					.partner(partnerByRoomId.get(room.getId()))
-					.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
-					.build()
+				room -> {
+					Long parsedSpotId = parseSpotId(room.getSpotId());
+					return ChatRoomEnrichment.builder()
+						.lastMessage(lastMessagesByRoomId.get(room.getId()))
+						.spot(parsedSpotId != null ? spotsById.get(parsedSpotId) : null)
+						.currentUser(currentUser)
+						.partner(partnerByRoomId.get(room.getId()))
+						.unreadCount(unreadByRoomId.getOrDefault(room.getId(), 0L))
+						.build();
+				}
 			));
 	}
 

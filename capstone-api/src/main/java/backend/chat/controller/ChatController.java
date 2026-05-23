@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import backend.chat.dto.ChatBlockResponse;
+import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
 import backend.chat.dto.ChatRoomResponse;
@@ -123,6 +124,15 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getRoom(roomId, currentUserId(userDetails))));
 	}
 
+	@Operation(summary = "피드별 채팅방 조회")
+	@GetMapping("/rooms/by-feed/{feedId}")
+	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByFeed(
+		@PathVariable String feedId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByFeed(feedId, currentUserId(userDetails))));
+	}
+
 	@Operation(summary = "스팟별 채팅방 조회")
 	@GetMapping("/rooms/by-spot/{spotId}")
 	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomBySpot(
@@ -132,13 +142,16 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsBySpot(spotId, currentUserId(userDetails))));
 	}
 
-	@Operation(summary = "사용자별 채팅방 조회")
-	@GetMapping("/rooms/by-user/{userId}")
-	public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getRoomsByUser(
-		@PathVariable String userId,
+	@Operation(
+		summary = "채팅방 멤버 목록 조회",
+		description = "피드 단계든 스팟 단계든 관계없이 해당 채팅방에 속한 멤버 전체를 반환합니다. 본인이 멤버인 방만 조회 가능합니다."
+	)
+	@GetMapping("/rooms/{roomId}/members")
+	public ResponseEntity<ApiResponse<List<ChatMemberResponse>>> getMembers(
+		@PathVariable Long roomId,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(chatService.getRoomsByUser(userId, currentUserId(userDetails))));
+		return ResponseEntity.ok(ApiResponse.success(chatService.getMembers(roomId, currentUserId(userDetails))));
 	}
 
 	// ─── 메시지 (Message) ─────────────────────────

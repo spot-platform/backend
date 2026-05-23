@@ -23,6 +23,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 	/** Feed 단계(postId 기준)의 GROUP 방 조회. Feed → Spot 전환 시 기존 방을 재사용하기 위해 사용. */
 	Optional<ChatRoom> findFirstByPostIdAndTypeAndIsDeletedFalse(String postId, ChatRoomType type);
 
+	/** feedId(postId) 기준 미삭제 GROUP 방 목록. by-feed 엔드포인트용. */
+	List<ChatRoom> findByPostIdAndIsDeletedFalse(String postId);
+
 	/** PERSONAL 방 중복 방지용 canonical_pair 조회. */
 	Optional<ChatRoom> findFirstByCanonicalPairAndTypeAndIsDeletedFalse(String canonicalPair, ChatRoomType type);
 }
