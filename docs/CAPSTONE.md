@@ -89,13 +89,13 @@ PR #32 "FRONTEND.md 컴플라이언스" 머지 후 분리된 후속 항목. 도�
 |---|---|---|---|---|
 | [#33](https://github.com/spot-platform/backend/issues/33) | F1 인증 통합 (`dummy-user-id` 제거) | 🧔 성찬 | 🔴 High | — (F4·F3 일부의 블로커) |
 | [#34](https://github.com/spot-platform/backend/issues/34) | F2 SpotSchedule 구조 재설계 | 🧑 동현 | 🔴 High | 독립 |
-| [#35](https://github.com/spot-platform/backend/issues/35) | F3-a 피드 북마크 실구현 | 🧔 호찬 | 🟡 Med | F1 일부 |
+| [#35](https://github.com/spot-platform/backend/issues/35) | ✅ F3-a 피드 북마크 실구현 | 🧔 호찬 | 🟡 Med | — |
 | [#36](https://github.com/spot-platform/backend/issues/36) | F3-b 전체 알림 읽음 처리 | 🧔 성찬 | 🟡 Med | F1 |
 | [#37](https://github.com/spot-platform/backend/issues/37) | F3-c 스팟 지도 마커 / 검색 | 🧑 동현 | 🟡 Med | 독립 |
-| [#38](https://github.com/spot-platform/backend/issues/38) | F4 FeedItemResponse 신규 필드 채우기 | 🧔 호찬 | 🟡 Med | **F1** |
+| [#38](https://github.com/spot-platform/backend/issues/38) | ✅ F4 FeedItemResponse 신규 필드 채우기 | 🧔 호찬 | 🟡 Med | — |
 | [#39](https://github.com/spot-platform/backend/issues/39) | F5 SpotChecklist 담당자 컬럼 | 🧑 동현 | 🟡 Med | 독립 |
 | [#40](https://github.com/spot-platform/backend/issues/40) | F6-a Spot/Chat ID Long→String | 🧑 동현 | 🔵 Low | 가장 마지막 |
-| [#41](https://github.com/spot-platform/backend/issues/41) | F6-b Feed ID Long→String | 🧔 호찬 | 🔵 Low | F3-a 후 |
+| [#41](https://github.com/spot-platform/backend/issues/41) | ✅ F6-b Feed ID Long→String | 🧔 호찬 | 🔵 Low | — |
 | [#42](https://github.com/spot-platform/backend/issues/42) | F7 OpenAPI 자동 검증 CI | 🧑 동현 | 🔵 Low | 독립 |
 | [#43](https://github.com/spot-platform/backend/issues/43) | F8-a Checkstyle WARN (ChatService) | 🧑 동현 | 🔵 Low | 독립 |
 | [#44](https://github.com/spot-platform/backend/issues/44) | F8-b Checkstyle WARN (OAuth2) | 🧔 성찬 | 🔵 Low | 독립 |
