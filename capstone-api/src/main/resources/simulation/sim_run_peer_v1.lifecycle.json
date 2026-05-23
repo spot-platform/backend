@@ -1,0 +1,1695 @@
+[
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0009"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0009"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0012"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0012"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0022"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0022"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0032"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0032"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0037"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0037"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0097"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0097"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0130"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0130"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0131"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0131"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0132"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0132"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0133"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0133"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0135"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0135"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0217"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0217"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0251"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0251"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0302"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0302"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0418"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0418"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0464"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0464"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0513"
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0513"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 4,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0217"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0251"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0302"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_1030"
+  },
+  {
+    "tick": 5,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_1030"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 6,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0078",
+    "agent_id": "A_90213"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 6,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0106",
+    "agent_id": "A_18729"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0418"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0464"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0513"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0009"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0012"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0022"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0032"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 7,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0091",
+    "agent_id": "A_19351"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0097"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0130"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0131"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0132"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0133"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0135"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0217"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0251"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0302"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 8,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0263",
+    "agent_id": "A_20208"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 8,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0307",
+    "agent_id": "A_54294"
+  },
+  {
+    "tick": 8,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0307",
+    "agent_id": "A_94278"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0418"
+  },
+  {
+    "tick": 8,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0418",
+    "agent_id": "A_25213"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0464"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0513"
+  },
+  {
+    "tick": 8,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0513",
+    "agent_id": "A_97821"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0009"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0012"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0022"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0032"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0097"
+  },
+  {
+    "tick": 9,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0097",
+    "agent_id": "A_91232"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0130"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0131"
+  },
+  {
+    "tick": 9,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0131",
+    "agent_id": "A_23173"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0132"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0133"
+  },
+  {
+    "tick": 9,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0133",
+    "agent_id": "A_11824"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0135"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0217"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0251"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0302"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0418"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0421"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0464"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0513"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0009"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0012"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0022"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0032"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0097"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0130"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0131"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0132"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0133"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0135"
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 13,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0037"
+  },
+  {
+    "tick": 13,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_1030"
+  },
+  {
+    "tick": 15,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0037"
+  },
+  {
+    "tick": 15,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0037",
+    "agent_id": "A_22015"
+  },
+  {
+    "tick": 15,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0037",
+    "agent_id": "A_26011"
+  },
+  {
+    "tick": 15,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_1030"
+  },
+  {
+    "tick": 15,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_1030",
+    "agent_id": "A_66980"
+  },
+  {
+    "tick": 15,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_1030",
+    "agent_id": "A_30836"
+  },
+  {
+    "tick": 64,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 64,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 65,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 65,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 65,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 65,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 66,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 66,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 67,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 67,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 70,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8546"
+  },
+  {
+    "tick": 70,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8546"
+  },
+  {
+    "tick": 74,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_8986"
+  },
+  {
+    "tick": 74,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8986"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 86,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8546"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 88,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8052",
+    "agent_id": "A_19289"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 88,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8211",
+    "agent_id": "A_42208"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8546"
+  },
+  {
+    "tick": 88,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8546",
+    "agent_id": "A_78875"
+  },
+  {
+    "tick": 88,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8546",
+    "agent_id": "A_85483"
+  },
+  {
+    "tick": 89,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_10568"
+  },
+  {
+    "tick": 89,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_10568"
+  },
+  {
+    "tick": 89,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_10578"
+  },
+  {
+    "tick": 89,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_10578"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 90,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_8546"
+  },
+  {
+    "tick": 95,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_8986"
+  },
+  {
+    "tick": 95,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_10568"
+  },
+  {
+    "tick": 95,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_10578"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8986"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_88385"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_36467"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_14250"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_10568"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_10568",
+    "agent_id": "A_14888"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_10568",
+    "agent_id": "A_59362"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_10578"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_10578",
+    "agent_id": "A_17456"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_10578",
+    "agent_id": "A_54350"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_18216"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18216"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_18228"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18228"
+  },
+  {
+    "tick": 150,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_18772"
+  },
+  {
+    "tick": 150,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18772"
+  },
+  {
+    "tick": 152,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_19029"
+  },
+  {
+    "tick": 152,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_19029"
+  },
+  {
+    "tick": 155,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_19501"
+  },
+  {
+    "tick": 155,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_19501"
+  },
+  {
+    "tick": 158,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 158,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 160,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_20181"
+  },
+  {
+    "tick": 160,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_20181"
+  },
+  {
+    "tick": 160,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_20223"
+  },
+  {
+    "tick": 160,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_20223"
+  },
+  {
+    "tick": 161,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_20288"
+  },
+  {
+    "tick": 161,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_20288"
+  },
+  {
+    "tick": 168,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 168,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_18216"
+  },
+  {
+    "tick": 168,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_18228"
+  },
+  {
+    "tick": 168,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_18772"
+  },
+  {
+    "tick": 168,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_19029"
+  },
+  {
+    "tick": 170,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 170,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_18216"
+  },
+  {
+    "tick": 170,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_18228"
+  },
+  {
+    "tick": 170,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_18772"
+  },
+  {
+    "tick": 170,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_19029"
+  },
+  {
+    "tick": 172,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 172,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_18216"
+  },
+  {
+    "tick": 172,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_18228"
+  },
+  {
+    "tick": 172,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_18772"
+  },
+  {
+    "tick": 172,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_19029"
+  },
+  {
+    "tick": 175,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 177,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_19501"
+  },
+  {
+    "tick": 177,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 177,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_20181"
+  },
+  {
+    "tick": 177,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_20223"
+  },
+  {
+    "tick": 177,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_20288"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_19501"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_19501",
+    "agent_id": "A_46458"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_19501",
+    "agent_id": "A_66981"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_19959",
+    "agent_id": "A_18130"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_19959",
+    "agent_id": "A_31012"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20181"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20181",
+    "agent_id": "A_65460"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20181",
+    "agent_id": "A_95969"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20223"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20223",
+    "agent_id": "A_48452"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20223",
+    "agent_id": "A_52567"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20288"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20288",
+    "agent_id": "A_99783"
+  },
+  {
+    "tick": 179,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20288",
+    "agent_id": "A_53583"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 234,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 234,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 252,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 252,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_27780",
+    "agent_id": "A_56627"
+  },
+  {
+    "tick": 252,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 252,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_27781",
+    "agent_id": "A_33819"
+  },
+  {
+    "tick": 252,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 254,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 254,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 254,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_28453"
+  }
+]
