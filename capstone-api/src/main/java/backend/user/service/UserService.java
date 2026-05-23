@@ -187,6 +187,7 @@ public class UserService implements UserDetailsService {
 			: spotRepository.findAllById(spotIds).stream()
 				.collect(Collectors.toMap(Spot::getId, Function.identity()));
 
+		// TODO: 참여 스팟 수가 많아지면 DB 레벨 status 필터 쿼리로 전환 권장 (현재 in-memory 필터)
 		return participations.stream()
 			.filter(p -> spotById.containsKey(p.getSpotId()))
 			.filter(p -> status == null || spotById.get(p.getSpotId()).getStatus() == status)
@@ -202,7 +203,7 @@ public class UserService implements UserDetailsService {
 		UserEntity user = findActiveUserByEmail(email);
 		List<Bookmark> bookmarks = bookmarkRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 		if (bookmarks.isEmpty()) {
-			return Collections.emptyList();
+			return List.of();
 		}
 
 		List<Long> feedItemIds = bookmarks.stream().map(Bookmark::getFeedItemId).toList();
