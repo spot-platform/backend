@@ -341,6 +341,20 @@ public class FeedItemService {
 		return FeedApplicationResponse.from(application);
 	}
 
+	public List<FeedApplicationResponse> getApplications(Long feedId, String requesterId) {
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+
+		if (!feedItem.getAuthorId().equals(requesterId)) {
+			throw new BusinessException(ErrorCode.FORBIDDEN);
+		}
+
+		return feedApplicationRepository.findAllByFeedItemIdOrderByCreatedAtDesc(feedId)
+				.stream()
+				.map(FeedApplicationResponse::from)
+				.collect(Collectors.toList());
+	}
+
 	private Set<String> registerSpotParticipants(Spot spot, FeedItem feedItem) {
 		List<SpotParticipant> participants = new ArrayList<>();
 		participants.add(SpotParticipant.builder()

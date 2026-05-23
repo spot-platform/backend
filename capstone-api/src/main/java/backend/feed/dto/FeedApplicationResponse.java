@@ -22,6 +22,7 @@ public class FeedApplicationResponse {
 	private String id;
 	private Long feedId;
 	private String userId;
+	private String userNickname;
 	private String proposal;
 	private FeedApplicationStatus status;
 	private FeedApplicationRole appliedRole;
@@ -33,6 +34,7 @@ public class FeedApplicationResponse {
 				.id(application.getId())
 				.feedId(application.getFeedItemId())
 				.userId(application.getUserId())
+				.userNickname(application.getUserNickname())
 				.proposal(application.getProposal())
 				.status(application.getStatus())
 				.appliedRole(application.getAppliedRole())

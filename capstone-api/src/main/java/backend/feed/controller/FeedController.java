@@ -1,5 +1,6 @@
 package backend.feed.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -78,6 +79,14 @@ public class FeedController {
 			@PathVariable Long feedId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		feedItemService.deleteFeedItem(feedId, requireAuth(userDetails));
+	}
+
+	@Operation(summary = "피드 신청 목록 조회 (작성자 전용)", description = "해당 피드에 들어온 모든 신청 목록을 반환합니다. 작성자만 조회 가능.")
+	@GetMapping("/{feedId}/applications")
+	public ApiResponse<List<FeedApplicationResponse>> getApplications(
+			@PathVariable Long feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return ApiResponse.success(feedItemService.getApplications(feedId, requireAuth(userDetails)));
 	}
 
 	@Operation(summary = "피드 신청")
