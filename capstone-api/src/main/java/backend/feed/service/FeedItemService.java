@@ -383,8 +383,13 @@ public class FeedItemService {
 		if (currentUserId == null) {
 			return null;
 		}
-		return feedApplicationRepository
-				.findFirstByFeedItemIdAndUserIdOrderByCreatedAtDesc(feedItemId, currentUserId)
+		return feedApplicationRepository.findAllByFeedItemIdAndUserId(feedItemId, currentUserId)
+				.stream()
+				.reduce((a, b) -> {
+					if (a.getStatus() == FeedApplicationStatus.ACCEPTED) return a;
+					if (b.getStatus() == FeedApplicationStatus.ACCEPTED) return b;
+					return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+				})
 				.orElse(null);
 	}
 
