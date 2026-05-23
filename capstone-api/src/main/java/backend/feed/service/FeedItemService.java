@@ -299,6 +299,10 @@ public class FeedItemService {
 			throw new IllegalStateException("게시글 작성자만 신청을 수락할 수 있습니다.");
 		}
 
+		if (!feedItem.canAcceptMore()) {
+			throw new IllegalStateException("이미 서포터 모집이 완료된 피드입니다.");
+		}
+
 		FeedApplication application = feedApplicationRepository
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
