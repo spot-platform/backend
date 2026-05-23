@@ -24,6 +24,9 @@ public class FeedListQuery {
 	@Schema(description = "정렬 조건 (latest: 최신순, popular: 인기순)", example = "latest")
 	private String sort;
 
+	@Schema(description = "AI 생성 피드 여부 (true: AI 피드만, false: 일반 피드만, 생략: 전체)", example = "true")
+	private Boolean isAi;
+
 	@Schema(description = "근처 위도 — nearLng 와 함께 제공 시 반경 5km 필터 적용 (선택)", example = "37.2636")
 	private Double nearLat;
 

@@ -37,6 +37,7 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 						eqType(query.getType()),
 						eqStatus(query.getStatus()),
 						eqCategory(query.getCategory()),
+						eqIsAi(query.getIsAi()),
 						nearLocation(query.getNearLat(), query.getNearLng())
 				)
 				.orderBy(getOrderSpecifier(query.getSort()))
@@ -52,6 +53,7 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 						eqType(query.getType()),
 						eqStatus(query.getStatus()),
 						eqCategory(query.getCategory()),
+						eqIsAi(query.getIsAi()),
 						nearLocation(query.getNearLat(), query.getNearLng())
 				)
 				.fetchOne();
@@ -80,6 +82,10 @@ public class FeedItemRepositoryImpl implements FeedItemRepositoryCustom {
 
 	private BooleanExpression eqCategory(FeedCategory category) {
 		return category != null ? feedItem.category.eq(category) : null;
+	}
+
+	private BooleanExpression eqIsAi(Boolean isAi) {
+		return isAi != null ? feedItem.isAi.eq(isAi) : null;
 	}
 
 	private BooleanExpression nearLocation(Double nearLat, Double nearLng) {
