@@ -70,7 +70,11 @@ public enum ErrorCode {
 	INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "Password does not match"),
 	PASSWORD_CONFIRM_MISMATCH(HttpStatus.BAD_REQUEST, "U004", "New password and confirm password do not match"),
 	SOCIAL_USER_CANNOT_CHANGE_PASSWORD(HttpStatus.FORBIDDEN, "U005", "Social login users cannot change password"),
-	USER_ALREADY_DELETED(HttpStatus.GONE, "U006", "User account has been deleted");
+	USER_ALREADY_DELETED(HttpStatus.GONE, "U006", "User account has been deleted"),
+
+	// Pay
+	INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "PAY001", "Charge amount must be at least 1000"),
+	INSUFFICIENT_POINT_BALANCE(HttpStatus.BAD_REQUEST, "PAY002", "Insufficient point balance");
 
 	private final HttpStatus status;
 	private final String code;
