@@ -74,7 +74,7 @@ public class PayService {
 			.build());
 
 		try {
-			notificationService.send(userId, amount + "P 충전이 완료됐어요");
+			notificationService.sendAfterCommit(userId, amount + "P 충전이 완료됐어요");
 		} catch (Exception e) {
 			log.warn("[notification] 포인트 충전 알림 전송 실패 - userId={}, error={}", userId, e.getMessage());
 		}

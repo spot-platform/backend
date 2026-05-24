@@ -25,9 +25,10 @@ import backend.chat.entity.ChatVoteAnswer;
 import backend.chat.entity.ChatVoteOption;
 import backend.chat.entity.ChatVoteState;
 import backend.chat.repository.ChatVoteAnswerRepository;
+import backend.chat.entity.ChatRoomMember;
+import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatVoteOptionRepository;
 import backend.chat.repository.ChatVoteRepository;
-import backend.chat.repository.ChatRoomMemberRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.notification.service.NotificationService;
@@ -100,11 +101,11 @@ public class ChatVoteService {
 		ChatVoteResponse response = buildResponse(vote, savedOptions, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteCreated(response));
 		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
-			.map(m -> m.getUserId())
+			.map(ChatRoomMember::getUserId)
 			.filter(uid -> !uid.equals(currentUserId))
 			.forEach(uid -> {
 				try {
-					notificationService.send(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요");
+					notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요");
 				} catch (Exception e) {
 					log.warn("[notification] 투표 생성 알림 전송 실패 - roomId={}, userId={}, error={}",
 						roomId, uid, e.getMessage());
@@ -239,11 +240,11 @@ public class ChatVoteService {
 		ChatVoteResponse response = buildResponse(vote, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteClosed(response));
 		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
-			.map(m -> m.getUserId())
+			.map(ChatRoomMember::getUserId)
 			.filter(uid -> !uid.equals(currentUserId))
 			.forEach(uid -> {
 				try {
-					notificationService.send(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요");
+					notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요");
 				} catch (Exception e) {
 					log.warn("[notification] 투표 마감 알림 전송 실패 - roomId={}, voteId={}, userId={}, error={}",
 						roomId, voteId, uid, e.getMessage());

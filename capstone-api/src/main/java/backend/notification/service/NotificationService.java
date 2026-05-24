@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -46,5 +48,22 @@ public class NotificationService {
 
 	public void markAllAsRead(String userId) {
 		notificationRepository.bulkMarkAllAsRead(userId);
+	}
+
+	/**
+	 * 외부 트랜잭션이 활성화되어 있으면 커밋 후에만 알림 발송.
+	 * 트랜잭션이 없으면 즉시 발송.
+	 */
+	public void sendAfterCommit(String userId, String message) {
+		if (TransactionSynchronizationManager.isActualTransactionActive()) {
+			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+				@Override
+				public void afterCommit() {
+					send(userId, message);
+				}
+			});
+		} else {
+			send(userId, message);
+		}
 	}
 }

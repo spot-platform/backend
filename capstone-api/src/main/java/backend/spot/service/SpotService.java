@@ -16,12 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.chat.service.ChatService;
 import backend.global.dto.ApiResponseMeta;
-import backend.notification.service.NotificationService;
 import backend.global.enums.FeedCategory;
 import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
 import backend.spot.dto.CreateSpotRequest;
@@ -248,7 +248,7 @@ public class SpotService {
 		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
 		memberUserIds.forEach(uid -> {
 			try {
-				notificationService.send(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요");
+				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요");
 			} catch (Exception e) {
 				log.warn("[notification] 스팟 매칭 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
 			}
@@ -266,7 +266,7 @@ public class SpotService {
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
 		getActiveMemberIds(spotId, spot).forEach(uid -> {
 			try {
-				notificationService.send(uid, "'" + spot.getTitle() + "'이 취소됐어요");
+				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "'이 취소됐어요");
 			} catch (Exception e) {
 				log.warn("[notification] 스팟 취소 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
 			}
@@ -283,7 +283,7 @@ public class SpotService {
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
 		getActiveMemberIds(spotId, spot).forEach(uid -> {
 			try {
-				notificationService.send(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!");
+				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!");
 			} catch (Exception e) {
 				log.warn("[notification] 스팟 완료 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
 			}
@@ -347,7 +347,7 @@ public class SpotService {
 	 */
 	@Transactional
 	public SpotScheduleResponse updateSchedule(Long spotId, UpdateScheduleRequest request, String currentUserId) {
-		validateSpotExists(spotId);
+		Spot spot = findSpotOrThrow(spotId);
 		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
 
 		List<ScheduleSlotDto> proposed = request.getProposedSlots();
@@ -402,10 +402,9 @@ public class SpotService {
 		}
 
 		if (confirmed != null) {
-			Spot spot = findSpotOrThrow(spotId);
 			getActiveMemberIds(spotId, spot).forEach(uid -> {
 				try {
-					notificationService.send(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요");
+					notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요");
 				} catch (Exception e) {
 					log.warn("[notification] 스팟 일정 확정 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
 				}
@@ -523,7 +522,7 @@ public class SpotService {
 		item.assignTo(assigneeId);
 		if (assigneeId != null && !assigneeId.equals(currentUserId)) {
 			try {
-				notificationService.send(assigneeId,
+				notificationService.sendAfterCommit(assigneeId,
 						"'" + item.getContent() + "' 담당자로 지정됐어요");
 			} catch (Exception e) {
 				log.warn("[notification] 체크리스트 담당자 알림 전송 실패 - itemId={}, error={}", itemId, e.getMessage());
