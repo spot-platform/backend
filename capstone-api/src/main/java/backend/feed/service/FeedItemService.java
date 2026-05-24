@@ -322,6 +322,9 @@ public class FeedItemService {
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
 			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
+			// Spot 전환은 시스템 자동 처리 — 작성자 포함 모든 참여자에게 알림
+			participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
+					"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
 		}
 
 		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
