@@ -173,7 +173,12 @@ public class FeedItemService {
 				.deposit(request.getDeposit())
 				.build();
 
-		return FeedApplicationResponse.from(feedApplicationRepository.save(application));
+		FeedApplicationResponse response = FeedApplicationResponse.from(feedApplicationRepository.save(application));
+		if (!userId.equals(feedItem.getAuthorId())) {
+			notificationService.sendAfterCommit(feedItem.getAuthorId(),
+					userNickname + "님이 '" + feedItem.getTitle() + "'에 신청했어요");
+		}
+		return response;
 	}
 
 	@Transactional
@@ -317,14 +322,15 @@ public class FeedItemService {
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
 			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
-			try {
-				notificationService.send(
-						feedItem.getAuthorId(),
-						"피드 '" + feedItem.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
-			} catch (Exception e) {
-				log.warn("[notification] Spot 생성 후 알림 전송 실패 - feedId={}, error={}",
-						feedItem.getId(), e.getMessage());
-			}
+			// Spot 전환은 시스템 자동 처리 — 작성자 포함 모든 참여자에게 알림
+			participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
+					"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
+		}
+
+		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
+		if (!requesterId.equals(application.getUserId())) {
+			notificationService.sendAfterCommit(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
 		}
 
 		return FeedApplicationResponse.from(application);
@@ -344,6 +350,10 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
 		application.reject();
+		if (!requesterId.equals(application.getUserId())) {
+			notificationService.sendAfterCommit(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 신청이 거절됐어요");
+		}
 		return FeedApplicationResponse.from(application);
 	}
 
