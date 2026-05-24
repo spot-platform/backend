@@ -8,5 +8,5 @@ import backend.spot.entity.SpotSettlement;
 
 public interface SpotSettlementRepository extends JpaRepository<SpotSettlement, Long> {
 
-	Optional<SpotSettlement> findFirstBySpotIdOrderByCreatedAtDesc(Long spotId);
+	Optional<SpotSettlement> findFirstBySpotIdOrderByCreatedAtDescIdDesc(Long spotId);
 }

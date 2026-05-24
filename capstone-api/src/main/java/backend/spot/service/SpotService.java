@@ -741,7 +741,7 @@ public class SpotService {
 		}
 
 		// 승인 대기 중인 정산이 이미 있으면 중복 생성 차단 (PENDING 다건 공존 방지).
-		spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDesc(spotId)
+		spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
 			.filter(existing -> existing.getStatus() == WorkflowApprovalStatus.PENDING)
 			.ifPresent(existing -> {
 				throw new BusinessException(ErrorCode.SETTLEMENT_ALREADY_PENDING);
@@ -781,7 +781,7 @@ public class SpotService {
 		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
 
 		SpotSettlement settlement = spotSettlementRepository
-			.findFirstBySpotIdOrderByCreatedAtDesc(spotId)
+			.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.SETTLEMENT_NOT_FOUND));
 		if (settlement.getStatus() != WorkflowApprovalStatus.PENDING) {
 			throw new BusinessException(ErrorCode.SETTLEMENT_NOT_PENDING);
