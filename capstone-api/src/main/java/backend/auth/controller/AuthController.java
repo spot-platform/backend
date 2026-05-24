@@ -1,6 +1,7 @@
 package backend.auth.controller;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,6 +82,8 @@ public class AuthController {
 		throw new UnsupportedOperationException("Handled by LogoutFilter");
 	}
 
+	private static final Set<String> ALLOWED_PROVIDERS = Set.of("naver", "google");
+
 	@Operation(
 		summary = "소셜 로그인 시작",
 		description = "OAuth2 소셜 로그인을 시작합니다. provider는 naver 또는 google."
@@ -95,6 +98,10 @@ public class AuthController {
 		@PathVariable String provider,
 		HttpServletResponse response
 	) throws IOException {
+		if (!ALLOWED_PROVIDERS.contains(provider)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported provider: " + provider);
+			return;
+		}
 		response.sendRedirect("/api/v1/auth/oauth/" + provider);
 	}
 
