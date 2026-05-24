@@ -322,14 +322,13 @@ public class FeedItemService {
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
 			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
-			notificationService.sendAfterCommit(
-					feedItem.getAuthorId(),
-					"피드 '" + feedItem.getTitle() + "'의 매칭이 완료되어 Spot이 생성되었습니다.");
 		}
 
-		// 모든 후속 처리 완료 후 수락 알림 전송 (중간 실패 시 false positive 방지)
-		notificationService.sendAfterCommit(application.getUserId(),
-				"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
+		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
+		if (!requesterId.equals(application.getUserId())) {
+			notificationService.sendAfterCommit(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
+		}
 
 		return FeedApplicationResponse.from(application);
 	}
@@ -348,8 +347,10 @@ public class FeedItemService {
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
 		application.reject();
-		notificationService.sendAfterCommit(application.getUserId(),
-				"'" + feedItem.getTitle() + "' 신청이 거절됐어요");
+		if (!requesterId.equals(application.getUserId())) {
+			notificationService.sendAfterCommit(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 신청이 거절됐어요");
+		}
 		return FeedApplicationResponse.from(application);
 	}
 

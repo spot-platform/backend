@@ -384,10 +384,12 @@ public class SpotService {
 			spotScheduleAvailabilityRepository.saveAll(allAvailabilities);
 		}
 
-		// 새로 확정된 경우에만 알림 전송 (재제출 시 중복 방지)
+		// 새로 확정된 경우에만 알림 전송 (재제출 시 중복 방지, 액션 수행자 제외)
 		if (confirmed != null && !wasAlreadyConfirmed) {
-			getActiveMemberIds(spotId, spot).forEach(uid ->
-				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요"));
+			getActiveMemberIds(spotId, spot).stream()
+				.filter(uid -> !uid.equals(currentUserId))
+				.forEach(uid ->
+					notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요"));
 		}
 
 		return getSchedule(spotId);
