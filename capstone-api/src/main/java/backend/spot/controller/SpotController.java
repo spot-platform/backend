@@ -22,15 +22,20 @@ import backend.global.security.CustomUserDetails;
 import backend.spot.dto.AssignChecklistRequest;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
+import backend.spot.dto.CreateReviewRequest;
+import backend.spot.dto.CreateSettlementRequest;
 import backend.spot.dto.CreateSpotRequest;
 import backend.spot.dto.SpotChecklistResponse;
+import backend.spot.dto.SpotDetailResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
 import backend.spot.dto.SpotMapItemResponse;
 import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
+import backend.spot.dto.SpotReviewResponse;
 import backend.spot.dto.SpotScheduleResponse;
+import backend.spot.dto.SpotSettlementResponse;
 import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.service.SpotService;
@@ -99,9 +104,9 @@ public class SpotController {
 		));
 	}
 
-	@Operation(summary = "스팟 상세 조회")
+	@Operation(summary = "스팟 상세 조회", description = "스팟 기본 정보 + 활동 타임라인")
 	@GetMapping("/{spotId}")
-	public ResponseEntity<ApiResponse<SpotResponse>> getSpot(
+	public ResponseEntity<ApiResponse<SpotDetailResponse>> getSpot(
 		@PathVariable Long spotId,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
@@ -257,17 +262,48 @@ public class SpotController {
 		return userDetails != null ? userDetails.getUserId() : null;
 	}
 
-	// ─── 리뷰 (Review) - TODO ─────────────────────
+	// ─── 리뷰 (Review) ────────────────────────────
 
-	@Operation(summary = "스팟 리뷰 조회", description = "TODO: Review 도메인 구현 후 연결")
+	@Operation(summary = "스팟 리뷰 조회", description = "해당 스팟의 후기 목록을 최신순으로 반환합니다.")
 	@GetMapping("/{spotId}/reviews")
-	public ResponseEntity<ApiResponse<Void>> getReviews(@PathVariable Long spotId) {
-		return ResponseEntity.ok(ApiResponse.success());
+	public ResponseEntity<ApiResponse<List<SpotReviewResponse>>> getReviews(@PathVariable Long spotId) {
+		return ResponseEntity.ok(ApiResponse.success(spotService.getReviews(spotId)));
 	}
 
-	@Operation(summary = "스팟 리뷰 작성", description = "TODO: Review 도메인 구현 후 연결")
+	@Operation(summary = "스팟 리뷰 작성", description = "완료(CLOSED)된 스팟의 참여자만 작성 가능. 동일 대상 중복 작성 불가.")
 	@PostMapping("/{spotId}/reviews")
-	public ResponseEntity<ApiResponse<Void>> createReview(@PathVariable Long spotId) {
-		return ResponseEntity.ok(ApiResponse.success());
+	public ResponseEntity<ApiResponse<SpotReviewResponse>> createReview(
+		@PathVariable Long spotId,
+		@Valid @RequestBody CreateReviewRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.createReview(spotId, request, requireAuth(userDetails))
+		));
+	}
+
+	// ─── 정산 (Settlement) ────────────────────────
+
+	@Operation(summary = "스팟 정산 요청", description = "완료(CLOSED)된 스팟의 작성자가 정산 항목/요약을 제출해 승인 대기 상태를 만듭니다.")
+	@PostMapping("/{spotId}/settlement")
+	public ResponseEntity<ApiResponse<SpotSettlementResponse>> requestSettlement(
+		@PathVariable Long spotId,
+		@Valid @RequestBody CreateSettlementRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.requestSettlement(spotId, request, requireAuth(userDetails))
+		));
+	}
+
+	@Operation(summary = "스팟 정산 승인", description = "승인 대기 중인 정산을 참여자가 승인 처리합니다.")
+	@PostMapping("/{spotId}/settlement/approve")
+	public ResponseEntity<ApiResponse<SpotSettlementResponse>> approveSettlement(
+		@PathVariable Long spotId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.approveSettlement(spotId, requireAuth(userDetails))
+		));
 	}
 }

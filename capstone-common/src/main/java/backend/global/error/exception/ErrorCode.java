@@ -33,6 +33,10 @@ public enum ErrorCode {
 	NOT_SPOT_PARTICIPANT(HttpStatus.FORBIDDEN, "S013", "Only spot participants can perform this action"),
 	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
+	SPOT_NOT_CLOSED(HttpStatus.BAD_REQUEST, "S014", "Spot must be closed for this action"),
+	REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "S015", "Review already submitted for this target"),
+	SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "S016", "Settlement not found"),
+	SETTLEMENT_NOT_PENDING(HttpStatus.BAD_REQUEST, "S017", "Settlement is not in a pending state"),
 
 	// Simulation
 	SIMULATION_RUN_NOT_FOUND(HttpStatus.NOT_FOUND, "SIM001", "Simulation run not found"),
