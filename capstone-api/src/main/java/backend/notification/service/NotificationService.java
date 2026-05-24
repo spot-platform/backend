@@ -15,7 +15,9 @@ import backend.notification.entity.Notification;
 import backend.notification.event.NotificationCreatedEvent;
 import backend.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -59,11 +61,19 @@ public class NotificationService {
 			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 				@Override
 				public void afterCommit() {
-					send(userId, message);
+					try {
+						send(userId, message);
+					} catch (Exception e) {
+						log.warn("[notification] afterCommit 알림 전송 실패 - userId={}, error={}", userId, e.getMessage());
+					}
 				}
 			});
 		} else {
-			send(userId, message);
+			try {
+				send(userId, message);
+			} catch (Exception e) {
+				log.warn("[notification] 알림 전송 실패 - userId={}, error={}", userId, e.getMessage());
+			}
 		}
 	}
 }
