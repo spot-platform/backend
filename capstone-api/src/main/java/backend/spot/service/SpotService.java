@@ -233,26 +233,14 @@ public class SpotService {
 	 */
 	public SpotResponse matchSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> memberUserIds = getActiveMemberIds(spotId, spot);
 		spot.match();
 
 		// 채팅방은 createSpot 시점에 이미 개설됨. matchSpot 에서는 신규 참가자를 기존 방에 추가만 함.
-		Set<String> memberUserIds = new HashSet<>();
-		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
-			memberUserIds.add(spot.getAuthorId());
-		}
-		spotParticipantRepository.findBySpotId(spotId).stream()
-			.filter(p -> p.getState() == ParticipantState.ACTIVE)
-			.map(SpotParticipant::getUserId)
-			.filter(uid -> uid != null && !uid.isBlank())
-			.forEach(memberUserIds::add);
 		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
-		memberUserIds.forEach(uid -> {
-			try {
-				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요");
-			} catch (Exception e) {
-				log.warn("[notification] 스팟 매칭 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
-			}
-		});
+		memberUserIds.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요"));
 
 		return toSpotResponse(spot);
 	}
@@ -262,15 +250,12 @@ public class SpotService {
 	 */
 	public SpotResponse cancelSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.cancel();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
-		getActiveMemberIds(spotId, spot).forEach(uid -> {
-			try {
-				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "'이 취소됐어요");
-			} catch (Exception e) {
-				log.warn("[notification] 스팟 취소 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
-			}
-		});
+		recipients.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "'이 취소됐어요"));
 		return toSpotResponse(spot);
 	}
 
@@ -279,15 +264,12 @@ public class SpotService {
 	 */
 	public SpotResponse completeSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.complete();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
-		getActiveMemberIds(spotId, spot).forEach(uid -> {
-			try {
-				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!");
-			} catch (Exception e) {
-				log.warn("[notification] 스팟 완료 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
-			}
-		});
+		recipients.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!"));
 		return toSpotResponse(spot);
 	}
 
@@ -370,9 +352,10 @@ public class SpotService {
 			.map(SpotParticipant::getUserId)
 			.collect(Collectors.toSet());
 
-		// 전체 교체: 기존 슬롯/가용성 벌크 삭제
+		// 전체 교체: 기존 슬롯/가용성 벌크 삭제 (삭제 전 기존 확정 여부 저장)
 		List<SpotScheduleSlot> existing = spotScheduleSlotRepository
 			.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
+		boolean wasAlreadyConfirmed = existing.stream().anyMatch(SpotScheduleSlot::isConfirmed);
 		if (!existing.isEmpty()) {
 			List<Long> existingIds = existing.stream().map(SpotScheduleSlot::getId).toList();
 			spotScheduleAvailabilityRepository.deleteBySlotIdIn(existingIds);
@@ -401,14 +384,10 @@ public class SpotService {
 			spotScheduleAvailabilityRepository.saveAll(allAvailabilities);
 		}
 
-		if (confirmed != null) {
-			getActiveMemberIds(spotId, spot).forEach(uid -> {
-				try {
-					notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요");
-				} catch (Exception e) {
-					log.warn("[notification] 스팟 일정 확정 알림 전송 실패 - spotId={}, userId={}, error={}", spotId, uid, e.getMessage());
-				}
-			});
+		// 새로 확정된 경우에만 알림 전송 (재제출 시 중복 방지)
+		if (confirmed != null && !wasAlreadyConfirmed) {
+			getActiveMemberIds(spotId, spot).forEach(uid ->
+				notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요"));
 		}
 
 		return getSchedule(spotId);
@@ -521,12 +500,8 @@ public class SpotService {
 
 		item.assignTo(assigneeId);
 		if (assigneeId != null && !assigneeId.equals(currentUserId)) {
-			try {
-				notificationService.sendAfterCommit(assigneeId,
-						"'" + item.getContent() + "' 담당자로 지정됐어요");
-			} catch (Exception e) {
-				log.warn("[notification] 체크리스트 담당자 알림 전송 실패 - itemId={}, error={}", itemId, e.getMessage());
-			}
+			notificationService.sendAfterCommit(assigneeId,
+					"'" + item.getContent() + "' 담당자로 지정됐어요");
 		}
 		return SpotChecklistResponse.of(item, lookupNickname(assigneeId));
 	}

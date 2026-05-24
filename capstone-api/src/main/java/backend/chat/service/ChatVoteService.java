@@ -20,13 +20,13 @@ import backend.chat.dto.ChatVoteOptionResponse;
 import backend.chat.dto.ChatVoteResponse;
 import backend.chat.dto.CreateChatVoteRequest;
 import backend.chat.dto.SubmitChatVoteAnswersRequest;
+import backend.chat.entity.ChatRoomMember;
 import backend.chat.entity.ChatVote;
 import backend.chat.entity.ChatVoteAnswer;
 import backend.chat.entity.ChatVoteOption;
 import backend.chat.entity.ChatVoteState;
-import backend.chat.repository.ChatVoteAnswerRepository;
-import backend.chat.entity.ChatRoomMember;
 import backend.chat.repository.ChatRoomMemberRepository;
+import backend.chat.repository.ChatVoteAnswerRepository;
 import backend.chat.repository.ChatVoteOptionRepository;
 import backend.chat.repository.ChatVoteRepository;
 import backend.global.error.exception.BusinessException;
@@ -103,14 +103,7 @@ public class ChatVoteService {
 		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
 			.map(ChatRoomMember::getUserId)
 			.filter(uid -> !uid.equals(currentUserId))
-			.forEach(uid -> {
-				try {
-					notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요");
-				} catch (Exception e) {
-					log.warn("[notification] 투표 생성 알림 전송 실패 - roomId={}, userId={}, error={}",
-						roomId, uid, e.getMessage());
-				}
-			});
+			.forEach(uid -> notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요"));
 		return response;
 	}
 
@@ -242,14 +235,7 @@ public class ChatVoteService {
 		chatRoomMemberRepository.findByChatRoomId(roomId).stream()
 			.map(ChatRoomMember::getUserId)
 			.filter(uid -> !uid.equals(currentUserId))
-			.forEach(uid -> {
-				try {
-					notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요");
-				} catch (Exception e) {
-					log.warn("[notification] 투표 마감 알림 전송 실패 - roomId={}, voteId={}, userId={}, error={}",
-						roomId, voteId, uid, e.getMessage());
-				}
-			});
+			.forEach(uid -> notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요"));
 		return response;
 	}
 

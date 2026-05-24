@@ -73,11 +73,7 @@ public class PayService {
 			.description("포인트 충전")
 			.build());
 
-		try {
-			notificationService.sendAfterCommit(userId, amount + "P 충전이 완료됐어요");
-		} catch (Exception e) {
-			log.warn("[notification] 포인트 충전 알림 전송 실패 - userId={}, error={}", userId, e.getMessage());
-		}
+		notificationService.sendAfterCommit(userId, amount + "P 충전이 완료됐어요");
 
 		// user.getUpdatedAt()은 @LastModifiedDate 기준 flush/commit 후에야 갱신됨.
 		// 응답에는 현재 시각을 직접 채워 충전 직후의 상태를 반영한다.
