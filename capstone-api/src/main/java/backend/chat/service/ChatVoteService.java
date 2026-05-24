@@ -317,6 +317,11 @@ public class ChatVoteService {
 				vote.close();
 				ChatVoteResponse response = buildResponse(vote, null);
 				eventPublisher.publishRoom(vote.getChatRoomId(), ChatSseEvent.voteClosed(response));
+				// 수동 마감과 동일하게 채팅방 멤버 전체에게 push 알림
+				chatRoomMemberRepository.findByChatRoomId(vote.getChatRoomId()).stream()
+					.map(ChatRoomMember::getUserId)
+					.forEach(uid -> notificationService.sendAfterCommit(uid,
+						"'" + vote.getQuestion() + "' 투표가 마감됐어요"));
 			} catch (Exception e) {
 				log.error("[VoteScheduler] auto-close failed voteId={}", vote.getId(), e);
 			}
