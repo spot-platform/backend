@@ -21,6 +21,7 @@ import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
+import backend.chat.dto.ChatNotificationSettingResponse;
 import backend.chat.dto.ChatRoomResponse;
 import backend.chat.dto.ChatRoomResponse.ChatRoomEnrichment;
 import backend.chat.dto.CreateChatRoomRequest;
@@ -280,6 +281,44 @@ public class ChatService {
 		}
 	}
 
+	// ─────────────────────────────────────────────
+	// 방 알림 설정 (Notification mute)
+	// ─────────────────────────────────────────────
+
+	/** 현재 사용자의 이 방에 대한 알림 수신 설정을 조회한다. */
+	@Transactional(readOnly = true)
+	public ChatNotificationSettingResponse getRoomNotification(Long roomId, String currentUserId) {
+		ChatRoomMember member = findMemberOrThrow(roomId, currentUserId);
+		return ChatNotificationSettingResponse.of(member.isNotificationEnabled());
+	}
+
+	/** 현재 사용자의 이 방에 대한 알림 수신 설정을 변경한다. (음소거 on/off) */
+	public ChatNotificationSettingResponse updateRoomNotification(Long roomId, String currentUserId, boolean enabled) {
+		ChatRoomMember member = findMemberOrThrow(roomId, currentUserId);
+		member.updateNotificationEnabled(enabled);
+		return ChatNotificationSettingResponse.of(enabled);
+	}
+
+	/**
+	 * 룸 스코프 알림 발송 대상 — 알림을 켜둔(음소거하지 않은) 멤버의 userId 목록.
+	 * 투표 시작/마감 등 룸 알림 발송 시 muted 멤버를 제외하기 위해 사용한다.
+	 */
+	@Transactional(readOnly = true)
+	public List<String> getNotifiableUserIds(Long roomId) {
+		return chatRoomMemberRepository.findByChatRoomId(roomId).stream()
+			.filter(ChatRoomMember::isNotificationEnabled)
+			.map(ChatRoomMember::getUserId)
+			.toList();
+	}
+
+	private ChatRoomMember findMemberOrThrow(Long roomId, String currentUserId) {
+		if (currentUserId == null || currentUserId.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+		return chatRoomMemberRepository.findByChatRoomIdAndUserId(roomId, currentUserId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CHAT_ROOM_ACCESS_DENIED));
+	}
+
 	public ChatRoom ensureGroupRoomForSpot(String spotId, Collection<String> participantUserIds) {
 		ChatRoom room = findOrCreateGroupRoomForSpot(spotId, null);
 		if (participantUserIds != null) {
@@ -421,6 +460,38 @@ public class ChatService {
 			.toList();
 
 		return ChatMessageListResponse.of(responses, size);
+	}
+
+	/**
+	 * 사진 모인 탭 — 방에 공유된 IMAGE 타입 메시지를 최신순으로 조회한다.
+	 * 차단한 사용자가 올린 이미지는 blocked 처리되어 내려간다.
+	 */
+	@Transactional(readOnly = true)
+	public List<ChatMessageResponse> getPhotos(Long roomId, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
+
+		List<ChatMessage> images = chatMessageRepository
+			.findByChatRoomIdAndTypeOrderByIdDesc(roomId, ChatMessageType.IMAGE);
+
+		Set<String> senderIds = images.stream()
+			.map(ChatMessage::getSenderId)
+			.filter(id -> id != null && !ChatMessage.SYSTEM_SENDER_ID.equals(id))
+			.collect(Collectors.toSet());
+		Map<String, String> nicknameById = senderIds.isEmpty()
+			? Map.of()
+			: userRepository.findAllById(senderIds).stream()
+				.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
+
+		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
+
+		return images.stream()
+			.map(m -> ChatMessageResponse.from(
+				m,
+				nicknameById.get(m.getSenderId()),
+				isMessageBlocked(m, blockedSinceBySenderId)
+			))
+			.toList();
 	}
 
 	/**
