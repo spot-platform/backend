@@ -21,6 +21,7 @@ import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
 import backend.spot.dto.CreateSpotRequest;
@@ -54,7 +55,9 @@ import backend.spot.repository.SpotScheduleSlotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -69,6 +72,7 @@ public class SpotService {
 	private final SpotNoteRepository spotNoteRepository;
 	private final UserRepository userRepository;
 	private final ChatService chatService;
+	private final NotificationService notificationService;
 
 	private static String resolveUserId(String currentUserId) {
 		return currentUserId;
@@ -229,19 +233,14 @@ public class SpotService {
 	 */
 	public SpotResponse matchSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> memberUserIds = getActiveMemberIds(spotId, spot);
 		spot.match();
 
 		// 채팅방은 createSpot 시점에 이미 개설됨. matchSpot 에서는 신규 참가자를 기존 방에 추가만 함.
-		Set<String> memberUserIds = new HashSet<>();
-		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
-			memberUserIds.add(spot.getAuthorId());
-		}
-		spotParticipantRepository.findBySpotId(spotId).stream()
-			.filter(p -> p.getState() == ParticipantState.ACTIVE)
-			.map(SpotParticipant::getUserId)
-			.filter(uid -> uid != null && !uid.isBlank())
-			.forEach(memberUserIds::add);
 		chatService.ensureGroupRoomForSpot(spotId.toString(), memberUserIds);
+		memberUserIds.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요"));
 
 		return toSpotResponse(spot);
 	}
@@ -251,8 +250,12 @@ public class SpotService {
 	 */
 	public SpotResponse cancelSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.cancel();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
+		recipients.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "'이 취소됐어요"));
 		return toSpotResponse(spot);
 	}
 
@@ -261,8 +264,12 @@ public class SpotService {
 	 */
 	public SpotResponse completeSpot(Long spotId) {
 		Spot spot = findSpotOrThrow(spotId);
+		// 상태 변경 전에 수신자 수집
+		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.complete();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
+		recipients.forEach(uid ->
+			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!"));
 		return toSpotResponse(spot);
 	}
 
@@ -322,7 +329,7 @@ public class SpotService {
 	 */
 	@Transactional
 	public SpotScheduleResponse updateSchedule(Long spotId, UpdateScheduleRequest request, String currentUserId) {
-		validateSpotExists(spotId);
+		Spot spot = findSpotOrThrow(spotId);
 		validateParticipant(spotId, resolveUserId(currentUserId), ErrorCode.NOT_SPOT_PARTICIPANT);
 
 		List<ScheduleSlotDto> proposed = request.getProposedSlots();
@@ -345,9 +352,10 @@ public class SpotService {
 			.map(SpotParticipant::getUserId)
 			.collect(Collectors.toSet());
 
-		// 전체 교체: 기존 슬롯/가용성 벌크 삭제
+		// 전체 교체: 기존 슬롯/가용성 벌크 삭제 (삭제 전 기존 확정 여부 저장)
 		List<SpotScheduleSlot> existing = spotScheduleSlotRepository
 			.findBySpotIdOrderBySlotDateAscSlotHourAsc(spotId);
+		boolean wasAlreadyConfirmed = existing.stream().anyMatch(SpotScheduleSlot::isConfirmed);
 		if (!existing.isEmpty()) {
 			List<Long> existingIds = existing.stream().map(SpotScheduleSlot::getId).toList();
 			spotScheduleAvailabilityRepository.deleteBySlotIdIn(existingIds);
@@ -374,6 +382,14 @@ public class SpotService {
 		}
 		if (!allAvailabilities.isEmpty()) {
 			spotScheduleAvailabilityRepository.saveAll(allAvailabilities);
+		}
+
+		// 새로 확정된 경우에만 알림 전송 (재제출 시 중복 방지, 액션 수행자 제외)
+		if (confirmed != null && !wasAlreadyConfirmed) {
+			getActiveMemberIds(spotId, spot).stream()
+				.filter(uid -> !uid.equals(currentUserId))
+				.forEach(uid ->
+					notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 일정이 확정됐어요"));
 		}
 
 		return getSchedule(spotId);
@@ -485,6 +501,10 @@ public class SpotService {
 		}
 
 		item.assignTo(assigneeId);
+		if (assigneeId != null && !assigneeId.equals(currentUserId)) {
+			notificationService.sendAfterCommit(assigneeId,
+					"'" + item.getContent() + "' 담당자로 지정됐어요");
+		}
 		return SpotChecklistResponse.of(item, lookupNickname(assigneeId));
 	}
 
@@ -635,5 +655,18 @@ public class SpotService {
 		if (!spotRepository.existsById(spotId)) {
 			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}
+	}
+
+	private Set<String> getActiveMemberIds(Long spotId, Spot spot) {
+		Set<String> ids = new HashSet<>();
+		if (spot.getAuthorId() != null && !spot.getAuthorId().isBlank()) {
+			ids.add(spot.getAuthorId());
+		}
+		spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
+			.map(SpotParticipant::getUserId)
+			.filter(uid -> uid != null && !uid.isBlank())
+			.forEach(ids::add);
+		return ids;
 	}
 }
