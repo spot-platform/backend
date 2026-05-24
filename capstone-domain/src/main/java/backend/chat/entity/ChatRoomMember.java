@@ -69,6 +69,19 @@ public class ChatRoomMember {
 	private Long lastReadMessageId;
 
 	/**
+	 * 본 멤버의 이 방에 대한 알림 수신 여부. false = 음소거.
+	 * 룸 스코프 알림(예: 투표 시작/마감)이 muted 멤버에게는 전송되지 않는다.
+	 */
+	@Builder.Default
+	@Column(name = "notification_enabled", nullable = false)
+	private boolean notificationEnabled = true;
+
+	/** 방 알림 on/off 설정. */
+	public void updateNotificationEnabled(boolean enabled) {
+		this.notificationEnabled = enabled;
+	}
+
+	/**
 	 * 단조 증가 read 마커 업데이트. 더 작은 ID 를 시도하면 무시되어 read 가 뒤로 가지 않는다.
 	 * 멱등 — 같은 messageId 를 여러 번 호출해도 결과 동일.
 	 *

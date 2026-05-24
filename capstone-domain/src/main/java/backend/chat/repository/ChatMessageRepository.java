@@ -10,12 +10,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import backend.chat.entity.ChatMessage;
+import backend.chat.entity.ChatMessageType;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
 	List<ChatMessage> findByChatRoomId(Long chatRoomId);
 
 	List<ChatMessage> findByChatRoomIdOrderByCreatedAtAsc(Long chatRoomId);
+
+	/** 사진 모인 탭 — 특정 타입(IMAGE) 메시지를 최신순으로 조회. */
+	List<ChatMessage> findByChatRoomIdAndTypeOrderByIdDesc(Long chatRoomId, ChatMessageType type);
 
 	List<ChatMessage> findByChatRoomIdOrderByIdDesc(Long chatRoomId, Pageable pageable);
 
