@@ -8,5 +8,5 @@ import backend.spot.entity.SpotTimelineEvent;
 
 public interface SpotTimelineEventRepository extends JpaRepository<SpotTimelineEvent, Long> {
 
-	List<SpotTimelineEvent> findBySpotIdOrderByCreatedAtAsc(Long spotId);
+	List<SpotTimelineEvent> findBySpotIdOrderByCreatedAtAscIdAsc(Long spotId);
 }

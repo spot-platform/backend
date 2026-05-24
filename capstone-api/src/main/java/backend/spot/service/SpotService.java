@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -250,7 +251,7 @@ public class SpotService {
 	}
 
 	private List<TimelineEventResponse> loadTimeline(Long spotId) {
-		List<SpotTimelineEvent> events = spotTimelineEventRepository.findBySpotIdOrderByCreatedAtAsc(spotId);
+		List<SpotTimelineEvent> events = spotTimelineEventRepository.findBySpotIdOrderByCreatedAtAscIdAsc(spotId);
 		List<String> actorIds = events.stream().map(SpotTimelineEvent::getActorId).distinct().toList();
 		Map<String, String> nicknameMap = userRepository.findAllByIdIn(actorIds).stream()
 			.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
@@ -669,6 +670,8 @@ public class SpotService {
 			throw new BusinessException(ErrorCode.REVIEW_ALREADY_EXISTS);
 		}
 
+		validateReviewTarget(spotId, request.getTargetNickname());
+
 		SpotReview review = spotReviewRepository.save(SpotReview.builder()
 			.spotId(spotId)
 			.reviewerId(currentUserId)
@@ -678,6 +681,20 @@ public class SpotService {
 			.build());
 
 		return SpotReviewResponse.of(review, lookupNickname(currentUserId));
+	}
+
+	/** 후기 대상 닉네임이 해당 스팟의 활성 참여자인지 검증한다. */
+	private void validateReviewTarget(Long spotId, String targetNickname) {
+		List<String> participantIds = spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
+			.map(SpotParticipant::getUserId)
+			.toList();
+		boolean isParticipantNickname = userRepository.findAllByIdIn(participantIds).stream()
+			.map(UserEntity::getNickname)
+			.anyMatch(nickname -> nickname.equals(targetNickname));
+		if (!isParticipantNickname) {
+			throw new BusinessException(ErrorCode.REVIEW_TARGET_NOT_PARTICIPANT);
+		}
 	}
 
 	// ─────────────────────────────────────────────
@@ -733,10 +750,19 @@ public class SpotService {
 		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
 
 		SpotSettlement settlement = spotSettlementRepository
-			.findFirstBySpotIdAndStatusOrderByCreatedAtDesc(spotId, WorkflowApprovalStatus.PENDING)
+			.findFirstBySpotIdOrderByCreatedAtDesc(spotId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.SETTLEMENT_NOT_FOUND));
+		if (settlement.getStatus() != WorkflowApprovalStatus.PENDING) {
+			throw new BusinessException(ErrorCode.SETTLEMENT_NOT_PENDING);
+		}
 
 		settlement.approve();
+		// 동시 승인 경합 시 @Version 충돌을 비즈니스 예외(이미 처리됨)로 변환.
+		try {
+			spotSettlementRepository.flush();
+		} catch (OptimisticLockingFailureException e) {
+			throw new BusinessException(ErrorCode.SETTLEMENT_NOT_PENDING);
+		}
 		recordTimeline(spotId, TimelineEventKind.SETTLEMENT_APPROVED, currentUserId, settlement.getSummary());
 
 		return buildSettlementResponse(settlement);

@@ -35,6 +35,7 @@ public enum ErrorCode {
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
 	SPOT_NOT_CLOSED(HttpStatus.BAD_REQUEST, "S014", "Spot must be closed for this action"),
 	REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "S015", "Review already submitted for this target"),
+	REVIEW_TARGET_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "S018", "Review target must be a spot participant"),
 	SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "S016", "Settlement not found"),
 	SETTLEMENT_NOT_PENDING(HttpStatus.BAD_REQUEST, "S017", "Settlement is not in a pending state"),
 

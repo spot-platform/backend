@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,6 +58,10 @@ public class SpotSettlement {
 
 	@Column
 	private LocalDateTime approvedAt;
+
+	/** 동시 승인(PENDING→APPROVED) 경합 시 lost update 방지용 낙관적 락. */
+	@Version
+	private Long version;
 
 	/**
 	 * 정산 요청을 승인 처리합니다. (PENDING → APPROVED)

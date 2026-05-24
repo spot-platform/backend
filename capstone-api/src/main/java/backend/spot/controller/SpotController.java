@@ -277,7 +277,7 @@ public class SpotController {
 		@Valid @RequestBody CreateReviewRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		return ResponseEntity.ok(ApiResponse.success(
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
 			spotService.createReview(spotId, request, requireAuth(userDetails))
 		));
 	}
