@@ -21,6 +21,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 	/** 사진 모인 탭 — 특정 타입(IMAGE) 메시지를 최신순으로 조회. */
 	List<ChatMessage> findByChatRoomIdAndTypeOrderByIdDesc(Long chatRoomId, ChatMessageType type);
 
+	/** 메시지 검색 — 방 안에서 내용(content)에 키워드가 포함된 메시지를 최신순으로 조회. SYSTEM 메시지는 제외. */
+	List<ChatMessage> findByChatRoomIdAndTypeNotAndContentContainingIgnoreCaseOrderByIdDesc(
+		Long chatRoomId, ChatMessageType type, String content, Pageable pageable);
+
 	List<ChatMessage> findByChatRoomIdOrderByIdDesc(Long chatRoomId, Pageable pageable);
 
 	Optional<ChatMessage> findTopByChatRoomIdOrderByIdDesc(Long chatRoomId);

@@ -495,6 +495,45 @@ public class ChatService {
 	}
 
 	/**
+	 * 방 안 메시지 검색 — 내용(content)에 키워드가 포함된 메시지를 최신순으로 반환한다.
+	 * SYSTEM 메시지는 제외하며, 차단한 사용자의 메시지는 blocked 처리되어 내려간다.
+	 * 키워드가 비어 있으면 빈 목록을 반환한다.
+	 */
+	@Transactional(readOnly = true)
+	public List<ChatMessageResponse> searchMessages(Long roomId, String keyword, int size, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
+		assertMembership(roomId, currentUserId);
+
+		String trimmed = keyword == null ? "" : keyword.trim();
+		if (trimmed.isEmpty()) {
+			return List.of();
+		}
+
+		List<ChatMessage> matches = chatMessageRepository
+			.findByChatRoomIdAndTypeNotAndContentContainingIgnoreCaseOrderByIdDesc(
+				roomId, ChatMessageType.SYSTEM, trimmed, PageRequest.of(0, size));
+
+		Set<String> senderIds = matches.stream()
+			.map(ChatMessage::getSenderId)
+			.filter(id -> id != null && !ChatMessage.SYSTEM_SENDER_ID.equals(id))
+			.collect(Collectors.toSet());
+		Map<String, String> nicknameById = senderIds.isEmpty()
+			? Map.of()
+			: userRepository.findAllById(senderIds).stream()
+				.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
+
+		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
+
+		return matches.stream()
+			.map(m -> ChatMessageResponse.from(
+				m,
+				nicknameById.get(m.getSenderId()),
+				isMessageBlocked(m, blockedSinceBySenderId)
+			))
+			.toList();
+	}
+
+	/**
 	 * 메시지 전송.
 	 *
 	 * <ul>
