@@ -509,9 +509,11 @@ public class ChatService {
 			return List.of();
 		}
 
+		// size 방어: 0 이하면 PageRequest 예외, 과대값은 무거운 쿼리 → [1, 100] 으로 clamp
+		int normalizedSize = Math.max(1, Math.min(size, 100));
 		List<ChatMessage> matches = chatMessageRepository
 			.findByChatRoomIdAndTypeNotAndContentContainingIgnoreCaseOrderByIdDesc(
-				roomId, ChatMessageType.SYSTEM, trimmed, PageRequest.of(0, size));
+				roomId, ChatMessageType.SYSTEM, trimmed, PageRequest.of(0, normalizedSize));
 
 		Set<String> senderIds = matches.stream()
 			.map(ChatMessage::getSenderId)
