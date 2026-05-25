@@ -217,12 +217,13 @@ class FeedItemServiceTest {
 		// 피드 소프트 딜리트 확인
 		assertTrue(feedItem.isDeleted());
 
-		// 알림 발송 확인
-		verify(notificationService, times(1)).send(eq("author-id"), anyString());
+		// 알림 발송 확인 (PR #99에서 send → sendAfterCommit 으로 전환됨)
+		verify(notificationService, times(1)).sendAfterCommit(eq("author-id"), anyString());
 
 		// chatService.linkGroupRoomToSpot 호출 확인
 		// spot.getId()가 테스트 환경에서 null이므로 두 번째 인자는 anyString()으로 검증
-		verify(chatService, times(1)).linkGroupRoomToSpot(eq("1"), anyString(), any());
+		// 4번째 인자(allMemberIds: Collection)까지 시그니처에 맞춰 검증
+		verify(chatService, times(1)).linkGroupRoomToSpot(eq("1"), anyString(), any(), any());
 	}
 
 	@Test
