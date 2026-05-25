@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +27,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "spot_votes")
-public class SpotVote {
+@Table(name = "spot_settlements")
+public class SpotSettlement {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,33 +37,40 @@ public class SpotVote {
 	@Column(name = "spot_id", nullable = false)
 	private Long spotId;
 
+	/** 논리 FK — users.id (물리 FK 미설정, CAPSTONE.md §3-1) */
 	@Column(nullable = false)
-	private String creatorId;
+	private String requesterId;
+
+	@Column(columnDefinition = "TEXT", nullable = false)
+	private String summary;
 
 	@Column(nullable = false)
-	private String question;
+	private Integer totalAmount;
 
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
 	@Column(nullable = false)
-	private VoteState state = VoteState.ACTIVE;
-
-	@Builder.Default
-	@Column(nullable = false)
-	private boolean multiSelect = false;
-
-	@Column
-	private LocalDateTime closedAt;
+	private WorkflowApprovalStatus status = WorkflowApprovalStatus.PENDING;
 
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	public void close() {
-		if (this.state != VoteState.ACTIVE) {
-			throw new IllegalStateException("활성 투표만 마감할 수 있습니다. 현재 상태: " + this.state);
+	@Column
+	private LocalDateTime approvedAt;
+
+	/** 동시 승인(PENDING→APPROVED) 경합 시 lost update 방지용 낙관적 락. */
+	@Version
+	private Long version;
+
+	/**
+	 * 정산 요청을 승인 처리합니다. (PENDING → APPROVED)
+	 */
+	public void approve() {
+		if (this.status != WorkflowApprovalStatus.PENDING) {
+			throw new IllegalStateException("승인 대기 중인 정산만 승인할 수 있습니다. 현재 상태: " + this.status);
 		}
-		this.state = VoteState.CLOSED;
-		this.closedAt = LocalDateTime.now();
+		this.status = WorkflowApprovalStatus.APPROVED;
+		this.approvedAt = LocalDateTime.now();
 	}
 }

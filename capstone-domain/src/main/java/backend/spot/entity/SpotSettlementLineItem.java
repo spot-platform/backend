@@ -17,27 +17,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "spot_vote_options")
-public class SpotVoteOption {
+@Table(name = "spot_settlement_line_items")
+public class SpotSettlementLineItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "vote_id", nullable = false)
-	private Long voteId;
+	@Column(name = "settlement_id", nullable = false)
+	private Long settlementId;
 
 	@Column(nullable = false)
-	private String content;
+	private String label;
 
-	@Builder.Default
 	@Column(nullable = false)
-	private Integer voteCount = 0;
-
-	/**
-	 * 투표 선택 시 득표 수를 1 증가합니다.
-	 */
-	public void incrementCount() {
-		this.voteCount++;
-	}
+	private Integer amount;
 }

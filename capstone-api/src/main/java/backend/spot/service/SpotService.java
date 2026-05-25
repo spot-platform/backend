@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,16 +25,23 @@ import backend.global.error.exception.ErrorCode;
 import backend.notification.service.NotificationService;
 import backend.spot.dto.CreateChecklistRequest;
 import backend.spot.dto.CreateNoteRequest;
+import backend.spot.dto.CreateReviewRequest;
+import backend.spot.dto.CreateSettlementRequest;
 import backend.spot.dto.CreateSpotRequest;
 import backend.spot.dto.ScheduleSlotDto;
+import backend.spot.dto.SettlementLineItemDto;
 import backend.spot.dto.SpotChecklistResponse;
+import backend.spot.dto.SpotDetailResponse;
 import backend.spot.dto.SpotFileResponse;
 import backend.spot.dto.SpotListResponse;
 import backend.spot.dto.SpotMapItemResponse;
 import backend.spot.dto.SpotNoteResponse;
 import backend.spot.dto.SpotParticipantResponse;
 import backend.spot.dto.SpotResponse;
+import backend.spot.dto.SpotReviewResponse;
 import backend.spot.dto.SpotScheduleResponse;
+import backend.spot.dto.SpotSettlementResponse;
+import backend.spot.dto.TimelineEventResponse;
 import backend.spot.dto.UpdateScheduleRequest;
 import backend.spot.dto.UploadFileRequest;
 import backend.spot.entity.ParticipantRole;
@@ -43,15 +51,25 @@ import backend.spot.entity.SpotChecklist;
 import backend.spot.entity.SpotFile;
 import backend.spot.entity.SpotNote;
 import backend.spot.entity.SpotParticipant;
+import backend.spot.entity.SpotReview;
 import backend.spot.entity.SpotScheduleAvailability;
 import backend.spot.entity.SpotScheduleSlot;
+import backend.spot.entity.SpotSettlement;
+import backend.spot.entity.SpotSettlementLineItem;
+import backend.spot.entity.SpotTimelineEvent;
+import backend.spot.entity.TimelineEventKind;
+import backend.spot.entity.WorkflowApprovalStatus;
 import backend.spot.repository.SpotChecklistRepository;
 import backend.spot.repository.SpotFileRepository;
 import backend.spot.repository.SpotNoteRepository;
 import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
+import backend.spot.repository.SpotReviewRepository;
 import backend.spot.repository.SpotScheduleAvailabilityRepository;
 import backend.spot.repository.SpotScheduleSlotRepository;
+import backend.spot.repository.SpotSettlementLineItemRepository;
+import backend.spot.repository.SpotSettlementRepository;
+import backend.spot.repository.SpotTimelineEventRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +88,10 @@ public class SpotService {
 	private final SpotChecklistRepository spotChecklistRepository;
 	private final SpotFileRepository spotFileRepository;
 	private final SpotNoteRepository spotNoteRepository;
+	private final SpotTimelineEventRepository spotTimelineEventRepository;
+	private final SpotReviewRepository spotReviewRepository;
+	private final SpotSettlementRepository spotSettlementRepository;
+	private final SpotSettlementLineItemRepository spotSettlementLineItemRepository;
 	private final UserRepository userRepository;
 	private final ChatService chatService;
 	private final NotificationService notificationService;
@@ -112,6 +134,8 @@ public class SpotService {
 
 		// SPOT 생성 시점(OPEN)에 GROUP 채팅방을 즉시 개설하고 작성자를 첫 멤버로 등록.
 		chatService.ensureGroupRoomForSpot(saved.getId().toString(), Set.of(author.getId()));
+
+		recordTimeline(saved.getId(), TimelineEventKind.CREATED, author.getId(), null);
 
 		return toSpotResponse(saved);
 	}
@@ -223,9 +247,21 @@ public class SpotService {
 	 * 스팟 단건 상세 조회를 합니다.
 	 */
 	@Transactional(readOnly = true)
-	public SpotResponse getSpot(Long spotId, String currentUserId) {
+	public SpotDetailResponse getSpot(Long spotId, String currentUserId) {
 		Spot spot = findSpotOrThrow(spotId);
-		return toSpotResponse(spot, isOwner(spotId, currentUserId));
+		long participantCount = spotParticipantRepository.countBySpotIdAndState(spotId, ParticipantState.ACTIVE);
+		return SpotDetailResponse.of(
+			spot, Math.toIntExact(participantCount), isOwner(spotId, currentUserId), loadTimeline(spotId));
+	}
+
+	private List<TimelineEventResponse> loadTimeline(Long spotId) {
+		List<SpotTimelineEvent> events = spotTimelineEventRepository.findBySpotIdOrderByCreatedAtAscIdAsc(spotId);
+		List<String> actorIds = events.stream().map(SpotTimelineEvent::getActorId).distinct().toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(actorIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
+		return events.stream()
+			.map(e -> TimelineEventResponse.of(e, nicknameMap.getOrDefault(e.getActorId(), e.getActorId())))
+			.toList();
 	}
 
 	/**
@@ -242,6 +278,8 @@ public class SpotService {
 		memberUserIds.forEach(uid ->
 			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 매칭이 확정됐어요"));
 
+		recordTimeline(spotId, TimelineEventKind.MATCHED, spot.getAuthorId(), null);
+
 		return toSpotResponse(spot);
 	}
 
@@ -254,6 +292,7 @@ public class SpotService {
 		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.cancel();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 취소되었습니다.");
+		recordTimeline(spotId, TimelineEventKind.CANCELLED, spot.getAuthorId(), null);
 		recipients.forEach(uid ->
 			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "'이 취소됐어요"));
 		return toSpotResponse(spot);
@@ -268,6 +307,7 @@ public class SpotService {
 		Set<String> recipients = getActiveMemberIds(spotId, spot);
 		spot.complete();
 		chatService.closeGroupRoom(String.valueOf(spotId), "스팟이 완료되었습니다.");
+		recordTimeline(spotId, TimelineEventKind.COMPLETED, spot.getAuthorId(), null);
 		recipients.forEach(uid ->
 			notificationService.sendAfterCommit(uid, "'" + spot.getTitle() + "' 활동이 완료됐어요. 리뷰를 남겨주세요!"));
 		return toSpotResponse(spot);
@@ -609,7 +649,162 @@ public class SpotService {
 
 		String authorNickname = userRepository.findById(authorId)
 			.map(u -> u.getNickname()).orElse(authorId);
-		return SpotNoteResponse.of(spotNoteRepository.save(note), authorNickname);
+		SpotNoteResponse response = SpotNoteResponse.of(spotNoteRepository.save(note), authorNickname);
+		recordTimeline(spotId, TimelineEventKind.COMMENT, authorId, request.getContent());
+		return response;
+	}
+
+	// ─────────────────────────────────────────────
+	// 리뷰 (Review)
+	// ─────────────────────────────────────────────
+
+	/**
+	 * 스팟에 작성된 후기 목록을 최신순으로 조회합니다.
+	 */
+	@Transactional(readOnly = true)
+	public List<SpotReviewResponse> getReviews(Long spotId) {
+		validateSpotExists(spotId);
+
+		List<SpotReview> reviews = spotReviewRepository.findBySpotIdOrderByCreatedAtDesc(spotId);
+		List<String> reviewerIds = reviews.stream().map(SpotReview::getReviewerId).distinct().toList();
+		Map<String, String> nicknameMap = userRepository.findAllByIdIn(reviewerIds).stream()
+			.collect(Collectors.toMap(UserEntity::getId, UserEntity::getNickname));
+		return reviews.stream()
+			.map(r -> SpotReviewResponse.of(r, nicknameMap.getOrDefault(r.getReviewerId(), r.getReviewerId())))
+			.toList();
+	}
+
+	/**
+	 * 스팟 후기를 작성합니다. 완료(CLOSED)된 스팟의 참여자만 작성 가능하며,
+	 * 동일 대상에 대한 중복 후기는 거부합니다.
+	 */
+	public SpotReviewResponse createReview(Long spotId, CreateReviewRequest request, String currentUserId) {
+		Spot spot = findSpotOrThrow(spotId);
+		if (spot.getStatus() != FeedItemStatus.CLOSED) {
+			throw new BusinessException(ErrorCode.SPOT_NOT_CLOSED);
+		}
+		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
+
+		if (spotReviewRepository.existsBySpotIdAndReviewerIdAndTargetNickname(
+				spotId, currentUserId, request.getTargetNickname())) {
+			throw new BusinessException(ErrorCode.REVIEW_ALREADY_EXISTS);
+		}
+
+		validateReviewTarget(spotId, currentUserId, request.getTargetNickname());
+
+		SpotReview review = spotReviewRepository.save(SpotReview.builder()
+			.spotId(spotId)
+			.reviewerId(currentUserId)
+			.targetNickname(request.getTargetNickname())
+			.rating(request.getRating())
+			.comment(request.getComment())
+			.build());
+
+		return SpotReviewResponse.of(review, lookupNickname(currentUserId));
+	}
+
+	/**
+	 * 후기 대상 닉네임이 해당 스팟의 활성 참여자(리뷰어 본인 제외)인지 검증한다.
+	 * 본인 닉네임을 대상으로 보낸 자기 자신 리뷰도 여기서 함께 차단된다.
+	 */
+	private void validateReviewTarget(Long spotId, String reviewerId, String targetNickname) {
+		List<String> participantIds = spotParticipantRepository.findBySpotId(spotId).stream()
+			.filter(p -> p.getState() == ParticipantState.ACTIVE)
+			.map(SpotParticipant::getUserId)
+			.filter(uid -> !uid.equals(reviewerId))
+			.toList();
+		boolean isParticipantNickname = userRepository.findAllByIdIn(participantIds).stream()
+			.map(UserEntity::getNickname)
+			.anyMatch(nickname -> nickname.equals(targetNickname));
+		if (!isParticipantNickname) {
+			throw new BusinessException(ErrorCode.REVIEW_TARGET_NOT_PARTICIPANT);
+		}
+	}
+
+	// ─────────────────────────────────────────────
+	// 정산 (Settlement)
+	// ─────────────────────────────────────────────
+
+	/**
+	 * 정산을 요청합니다. 완료(CLOSED)된 스팟의 작성자만 요청할 수 있으며,
+	 * 항목 합계를 계산해 승인 대기(PENDING) 상태로 생성합니다.
+	 */
+	public SpotSettlementResponse requestSettlement(
+		Long spotId, CreateSettlementRequest request, String currentUserId
+	) {
+		Spot spot = findSpotOrThrow(spotId);
+		if (spot.getStatus() != FeedItemStatus.CLOSED) {
+			throw new BusinessException(ErrorCode.SPOT_NOT_CLOSED);
+		}
+		if (!spot.getAuthorId().equals(currentUserId)) {
+			throw new BusinessException(ErrorCode.NOT_SPOT_AUTHOR);
+		}
+
+		// 승인 대기 중인 정산이 이미 있으면 중복 생성 차단 (PENDING 다건 공존 방지).
+		spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
+			.filter(existing -> existing.getStatus() == WorkflowApprovalStatus.PENDING)
+			.ifPresent(existing -> {
+				throw new BusinessException(ErrorCode.SETTLEMENT_ALREADY_PENDING);
+			});
+
+		int totalAmount = request.getLineItems().stream()
+			.mapToInt(SettlementLineItemDto::getAmount)
+			.sum();
+
+		SpotSettlement settlement = spotSettlementRepository.save(SpotSettlement.builder()
+			.spotId(spotId)
+			.requesterId(currentUserId)
+			.summary(request.getSummary())
+			.totalAmount(totalAmount)
+			.build());
+
+		List<SpotSettlementLineItem> items = request.getLineItems().stream()
+			.map(dto -> SpotSettlementLineItem.builder()
+				.settlementId(settlement.getId())
+				.label(dto.getLabel())
+				.amount(dto.getAmount())
+				.build())
+			.toList();
+		spotSettlementLineItemRepository.saveAll(items);
+
+		recordTimeline(spotId, TimelineEventKind.SETTLEMENT_REQUESTED, currentUserId, request.getSummary());
+
+		return buildSettlementResponse(settlement);
+	}
+
+	/**
+	 * 승인 대기 중인 정산을 승인 처리합니다. 스팟 참여자만 승인할 수 있습니다.
+	 * (정산 합의 기록만 남기며, 포인트 이동은 수행하지 않습니다.)
+	 */
+	public SpotSettlementResponse approveSettlement(Long spotId, String currentUserId) {
+		validateSpotExists(spotId);
+		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
+
+		SpotSettlement settlement = spotSettlementRepository
+			.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.SETTLEMENT_NOT_FOUND));
+		if (settlement.getStatus() != WorkflowApprovalStatus.PENDING) {
+			throw new BusinessException(ErrorCode.SETTLEMENT_NOT_PENDING);
+		}
+
+		settlement.approve();
+		// 동시 승인 경합 시 @Version 충돌을 비즈니스 예외(이미 처리됨)로 변환.
+		try {
+			spotSettlementRepository.flush();
+		} catch (OptimisticLockingFailureException e) {
+			throw new BusinessException(ErrorCode.SETTLEMENT_NOT_PENDING);
+		}
+		recordTimeline(spotId, TimelineEventKind.SETTLEMENT_APPROVED, currentUserId, settlement.getSummary());
+
+		return buildSettlementResponse(settlement);
+	}
+
+	private SpotSettlementResponse buildSettlementResponse(SpotSettlement settlement) {
+		List<SettlementLineItemDto> lineItems = spotSettlementLineItemRepository
+			.findBySettlementId(settlement.getId()).stream()
+			.map(SettlementLineItemDto::from)
+			.toList();
+		return SpotSettlementResponse.of(settlement, lineItems);
 	}
 
 	// ─────────────────────────────────────────────
@@ -644,6 +839,15 @@ public class SpotService {
 		}
 		return new HashSet<>(spotParticipantRepository.findSpotIdsByUserIdAndState(
 			currentUserId, ParticipantState.ACTIVE));
+	}
+
+	private void recordTimeline(Long spotId, TimelineEventKind kind, String actorId, String content) {
+		spotTimelineEventRepository.save(SpotTimelineEvent.builder()
+			.spotId(spotId)
+			.kind(kind)
+			.actorId(actorId)
+			.content(content)
+			.build());
 	}
 
 	private Spot findSpotOrThrow(Long spotId) {
