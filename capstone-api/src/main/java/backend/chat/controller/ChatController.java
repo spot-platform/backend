@@ -174,6 +174,19 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getPhotos(roomId, currentUserId(userDetails))));
 	}
 
+	@Operation(summary = "채팅방 메시지 검색", description = "방 안에서 내용에 q가 포함된 메시지를 최신순으로 반환합니다. SYSTEM 메시지 제외.")
+	@GetMapping("/rooms/{roomId}/messages/search")
+	public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> searchMessages(
+		@PathVariable Long roomId,
+		@RequestParam("q") String query,
+		@RequestParam(defaultValue = "30") int size,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.searchMessages(roomId, query, size, currentUserId(userDetails))
+		));
+	}
+
 	// ─── 메시지 (Message) ─────────────────────────
 
 	@Operation(
