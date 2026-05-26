@@ -54,6 +54,12 @@ public class ChatMessageResponse {
 	@Schema(description = "전송 일시")
 	private LocalDateTime createdAt;
 
+	@Schema(
+		description = "이 메시지를 아직 읽지 않은 방 멤버 수 (발신자 제외). 메시지 목록 조회에서만 채워지며 그 외 경로에서는 null",
+		example = "2", nullable = true
+	)
+	private Integer unreadCount;
+
 	private static final String BLOCKED_PLACEHOLDER = "차단한 사용자의 메시지입니다.";
 
 	public static ChatMessageResponse from(ChatMessage message) {
@@ -64,12 +70,18 @@ public class ChatMessageResponse {
 		return from(message, null, blocked);
 	}
 
+	public static ChatMessageResponse from(ChatMessage message, String authorName, boolean blocked) {
+		return from(message, authorName, blocked, null);
+	}
+
 	/**
-	 * authorName 과 차단 여부를 반영해 응답을 빌드.
+	 * authorName / 차단 여부 / 안읽음 수를 반영해 응답을 빌드.
 	 * blocked=true 면 content 를 placeholder 로 교체.
 	 * SYSTEM 메시지는 authorId / authorName null.
+	 * unreadCount 는 메시지 목록 조회에서만 채워지며, 그 외 경로에서는 null.
 	 */
-	public static ChatMessageResponse from(ChatMessage message, String authorName, boolean blocked) {
+	public static ChatMessageResponse from(ChatMessage message, String authorName, boolean blocked,
+		Integer unreadCount) {
 		boolean isSystem = message.getType() == ChatMessageType.SYSTEM;
 		return ChatMessageResponse.builder()
 			.id(message.getId())
@@ -83,6 +95,7 @@ public class ChatMessageResponse {
 			.fileName(blocked ? null : message.getFileName())
 			.fileSizeBytes(blocked ? null : message.getFileSizeBytes())
 			.createdAt(message.getCreatedAt())
+			.unreadCount(unreadCount)
 			.build();
 	}
 

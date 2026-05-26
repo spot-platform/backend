@@ -451,15 +451,33 @@ public class ChatService {
 
 		Map<String, LocalDateTime> blockedSinceBySenderId = resolveBlockedSinceForRoom(room, currentUserId);
 
+		// 그룹 "N명 안읽음": 멤버들의 read 마커를 한 번 로드해 메시지별 미독 인원(발신자 제외)을 계산.
+		List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(roomId);
+
 		List<ChatMessageResponse> responses = messages.stream()
 			.map(m -> ChatMessageResponse.from(
 				m,
 				nicknameById.get(m.getSenderId()),
-				isMessageBlocked(m, blockedSinceBySenderId)
+				isMessageBlocked(m, blockedSinceBySenderId),
+				countUnreadMembers(members, m)
 			))
 			.toList();
 
 		return ChatMessageListResponse.of(responses, size);
+	}
+
+	/**
+	 * 메시지를 아직 읽지 않은 멤버 수 (발신자 제외).
+	 * 멤버의 lastReadMessageId 가 null 이거나 메시지 id 보다 작으면 미독으로 본다.
+	 */
+	private int countUnreadMembers(List<ChatRoomMember> members, ChatMessage message) {
+		Long messageId = message.getId();
+		String senderId = message.getSenderId();
+		return (int) members.stream()
+			.filter(member -> !member.getUserId().equals(senderId))
+			.filter(member -> member.getLastReadMessageId() == null
+				|| member.getLastReadMessageId() < messageId)
+			.count();
 	}
 
 	/**
