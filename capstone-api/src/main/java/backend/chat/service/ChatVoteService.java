@@ -29,6 +29,7 @@ import backend.chat.repository.ChatVoteOptionRepository;
 import backend.chat.repository.ChatVoteRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +50,8 @@ public class ChatVoteService {
 	private final ChatVoteOptionRepository chatVoteOptionRepository;
 	private final ChatVoteAnswerRepository chatVoteAnswerRepository;
 	private final ChatEventPublisher eventPublisher;
+	private final NotificationService notificationService;
+	private final ChatService chatService;
 
 	// ─────────────────────────────────────────────
 	// 조회
@@ -95,6 +98,9 @@ public class ChatVoteService {
 
 		ChatVoteResponse response = buildResponse(vote, savedOptions, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteCreated(response));
+		chatService.getNotifiableUserIds(roomId).stream()
+			.filter(uid -> !uid.equals(currentUserId))
+			.forEach(uid -> notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 시작됐어요"));
 		return response;
 	}
 
@@ -223,6 +229,9 @@ public class ChatVoteService {
 		vote.close();
 		ChatVoteResponse response = buildResponse(vote, currentUserId);
 		eventPublisher.publishRoom(roomId, ChatSseEvent.voteClosed(response));
+		chatService.getNotifiableUserIds(roomId).stream()
+			.filter(uid -> !uid.equals(currentUserId))
+			.forEach(uid -> notificationService.sendAfterCommit(uid, "'" + vote.getQuestion() + "' 투표가 마감됐어요"));
 		return response;
 	}
 
@@ -304,6 +313,10 @@ public class ChatVoteService {
 				vote.close();
 				ChatVoteResponse response = buildResponse(vote, null);
 				eventPublisher.publishRoom(vote.getChatRoomId(), ChatSseEvent.voteClosed(response));
+				// 수동 마감과 동일하게, 알림을 켜둔(음소거하지 않은) 멤버에게만 push
+				chatService.getNotifiableUserIds(vote.getChatRoomId())
+					.forEach(uid -> notificationService.sendAfterCommit(uid,
+						"'" + vote.getQuestion() + "' 투표가 마감됐어요"));
 			} catch (Exception e) {
 				log.error("[VoteScheduler] auto-close failed voteId={}", vote.getId(), e);
 			}

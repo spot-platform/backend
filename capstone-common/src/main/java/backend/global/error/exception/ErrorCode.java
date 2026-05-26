@@ -31,8 +31,15 @@ public enum ErrorCode {
 	CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "S007", "Checklist item not found"),
 	CHECKLIST_ASSIGNEE_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "S012", "Assignee must be a spot participant"),
 	NOT_SPOT_PARTICIPANT(HttpStatus.FORBIDDEN, "S013", "Only spot participants can perform this action"),
+	NOT_SPOT_AUTHOR(HttpStatus.FORBIDDEN, "S019", "Only the spot author can perform this action"),
 	SPOT_RESOURCE_MISMATCH(HttpStatus.BAD_REQUEST, "S008", "Resource does not belong to this spot"),
 	FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S009", "File not found"),
+	SPOT_NOT_CLOSED(HttpStatus.BAD_REQUEST, "S014", "Spot must be closed for this action"),
+	REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "S015", "Review already submitted for this target"),
+	REVIEW_TARGET_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "S018", "Review target must be a spot participant"),
+	SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "S016", "Settlement not found"),
+	SETTLEMENT_NOT_PENDING(HttpStatus.BAD_REQUEST, "S017", "Settlement is not in a pending state"),
+	SETTLEMENT_ALREADY_PENDING(HttpStatus.CONFLICT, "S020", "A pending settlement already exists for this spot"),
 
 	// Simulation
 	SIMULATION_RUN_NOT_FOUND(HttpStatus.NOT_FOUND, "SIM001", "Simulation run not found"),
@@ -70,7 +77,12 @@ public enum ErrorCode {
 	INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "Password does not match"),
 	PASSWORD_CONFIRM_MISMATCH(HttpStatus.BAD_REQUEST, "U004", "New password and confirm password do not match"),
 	SOCIAL_USER_CANNOT_CHANGE_PASSWORD(HttpStatus.FORBIDDEN, "U005", "Social login users cannot change password"),
-	USER_ALREADY_DELETED(HttpStatus.GONE, "U006", "User account has been deleted");
+	USER_ALREADY_DELETED(HttpStatus.GONE, "U006", "User account has been deleted"),
+
+	// Pay
+	INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "PAY001", "Charge amount must be at least 1000"),
+	// 출금/사용 API용 (현재 미사용, 후속 작업에서 사용 예정)
+	INSUFFICIENT_POINT_BALANCE(HttpStatus.BAD_REQUEST, "PAY002", "Insufficient point balance");
 
 	private final HttpStatus status;
 	private final String code;

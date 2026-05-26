@@ -1,5 +1,8 @@
 package backend.auth.controller;
 
+import java.io.IOException;
+import java.util.Set;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,23 +82,27 @@ public class AuthController {
 		throw new UnsupportedOperationException("Handled by LogoutFilter");
 	}
 
-	/**
-	 * [Swagger 문서용 stub]
-	 * 실제 처리는 Spring Security OAuth2가 담당.
-	 * 이 메서드는 절대 실행되지 않음.
-	 */
+	private static final Set<String> ALLOWED_PROVIDERS = Set.of("naver", "google");
+
 	@Operation(
 		summary = "소셜 로그인 시작",
-		description = "OAuth2 소셜 로그인을 시작합니다. provider는 naver 또는 google. Spring Security OAuth2가 실제 처리."
+		description = "OAuth2 소셜 로그인을 시작합니다. provider는 naver 또는 google."
 	)
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "200", description = "소셜 로그인 페이지로 리다이렉트"
+			responseCode = "302", description = "소셜 로그인 페이지로 리다이렉트"
 		)
 	})
 	@GetMapping("/oauth/{provider}/start")
-	public void oauthStart(@PathVariable String provider) {
-		throw new UnsupportedOperationException("Handled by Spring Security OAuth2");
+	public void oauthStart(
+		@PathVariable String provider,
+		HttpServletResponse response
+	) throws IOException {
+		if (!ALLOWED_PROVIDERS.contains(provider)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported provider: " + provider);
+			return;
+		}
+		response.sendRedirect("/api/v1/auth/oauth/" + provider);
 	}
 
 	@Operation(

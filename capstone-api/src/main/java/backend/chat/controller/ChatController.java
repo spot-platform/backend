@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +25,7 @@ import backend.chat.dto.ChatBlockResponse;
 import backend.chat.dto.ChatMemberResponse;
 import backend.chat.dto.ChatMessageListResponse;
 import backend.chat.dto.ChatMessageResponse;
+import backend.chat.dto.ChatNotificationSettingResponse;
 import backend.chat.dto.ChatRoomResponse;
 import backend.chat.dto.ChatVoteResponse;
 import backend.chat.dto.CreateChatBlockRequest;
@@ -32,6 +34,7 @@ import backend.chat.dto.CreateChatVoteRequest;
 import backend.chat.dto.CreatePersonalChatRoomRequest;
 import backend.chat.dto.SendMessageRequest;
 import backend.chat.dto.SubmitChatVoteAnswersRequest;
+import backend.chat.dto.UpdateChatNotificationRequest;
 import backend.chat.entity.ChatRoomType;
 import backend.chat.service.ChatService;
 import backend.chat.service.ChatVoteService;
@@ -162,6 +165,28 @@ public class ChatController {
 		return ResponseEntity.ok(ApiResponse.success(chatService.getMembers(roomId, currentUserId(userDetails))));
 	}
 
+	@Operation(summary = "채팅방 사진 모아보기", description = "방에 공유된 IMAGE 타입 메시지를 최신순으로 반환합니다.")
+	@GetMapping("/rooms/{roomId}/photos")
+	public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getPhotos(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(chatService.getPhotos(roomId, currentUserId(userDetails))));
+	}
+
+	@Operation(summary = "채팅방 메시지 검색", description = "방 안에서 내용에 q가 포함된 메시지를 최신순으로 반환합니다. SYSTEM 메시지 제외.")
+	@GetMapping("/rooms/{roomId}/messages/search")
+	public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> searchMessages(
+		@PathVariable Long roomId,
+		@RequestParam("q") String query,
+		@RequestParam(defaultValue = "30") int size,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.searchMessages(roomId, query, size, currentUserId(userDetails))
+		));
+	}
+
 	// ─── 메시지 (Message) ─────────────────────────
 
 	@Operation(
@@ -254,6 +279,31 @@ public class ChatController {
 	) {
 		chatService.leaveRoom(roomId, currentUserId(userDetails));
 		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	// ─── 방 알림 설정 (Notification mute) ──────────
+
+	@Operation(summary = "채팅방 알림 설정 조회", description = "현재 사용자의 이 방에 대한 알림 수신 여부를 반환합니다.")
+	@GetMapping("/rooms/{roomId}/notification")
+	public ResponseEntity<ApiResponse<ChatNotificationSettingResponse>> getRoomNotification(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.getRoomNotification(roomId, currentUserId(userDetails))
+		));
+	}
+
+	@Operation(summary = "채팅방 알림 끄기/켜기", description = "현재 사용자의 이 방에 대한 알림 수신 여부를 변경합니다. (enabled=false 음소거)")
+	@PatchMapping("/rooms/{roomId}/notification")
+	public ResponseEntity<ApiResponse<ChatNotificationSettingResponse>> updateRoomNotification(
+		@PathVariable Long roomId,
+		@Valid @RequestBody UpdateChatNotificationRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			chatService.updateRoomNotification(roomId, currentUserId(userDetails), request.getEnabled())
+		));
 	}
 
 	// ─── 투표 (Vote) ──────────────────────────────
