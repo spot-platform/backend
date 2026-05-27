@@ -24,8 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import backend.global.error.JwtAccessDeniedHandler;
 import backend.global.error.JwtAuthenticationEntryPoint;
 import backend.global.filter.JWTFilter;
@@ -40,7 +38,6 @@ public class SecurityConfig {
 	private final String frontendBaseUrl;
 
 	private final JWTUtil jwtUtil;
-	private final ObjectMapper objectMapper;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
 	private final AuthenticationSuccessHandler socialSuccessHandler;
 	private final LogoutHandler refreshTokenLogoutHandler;
@@ -50,7 +47,6 @@ public class SecurityConfig {
 	public SecurityConfig(
 		@Value("${frontend.base-url}") String frontendBaseUrl,
 		JWTUtil jwtUtil,
-		ObjectMapper objectMapper,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
 		AuthenticationSuccessHandler socialSuccessHandler,
 		LogoutHandler refreshTokenLogoutHandler,
@@ -59,7 +55,6 @@ public class SecurityConfig {
 	) {
 		this.frontendBaseUrl = frontendBaseUrl;
 		this.jwtUtil = jwtUtil;
-		this.objectMapper = objectMapper;
 		this.oAuth2UserService = oAuth2UserService;
 		this.socialSuccessHandler = socialSuccessHandler;
 		this.refreshTokenLogoutHandler = refreshTokenLogoutHandler;
@@ -103,7 +98,7 @@ public class SecurityConfig {
 	public JWTFilter jwtFilter(
 		org.springframework.security.core.userdetails.UserDetailsService userDetailsService
 	) {
-		return new JWTFilter(jwtUtil, userDetailsService, objectMapper);
+		return new JWTFilter(jwtUtil, userDetailsService);
 	}
 
 	@Bean
