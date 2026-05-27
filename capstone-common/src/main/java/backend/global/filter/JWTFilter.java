@@ -2,7 +2,6 @@ package backend.global.filter;
 
 import java.io.IOException;
 
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,9 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import backend.global.common.response.ApiResponse;
 import backend.global.error.exception.ErrorCode;
 import backend.global.util.JWTUtil;
 import io.jsonwebtoken.Claims;
@@ -43,7 +39,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
 	private final JWTUtil jwtUtil;
 	private final UserDetailsService userDetailsService;
-	private final ObjectMapper objectMapper;
 
 	@Override
 	protected void doFilterInternal(
@@ -61,6 +56,7 @@ public class JWTFilter extends OncePerRequestFilter {
 		try {
 			claims = parseAndValidate(token);
 		} catch (AuthenticationRejected rejected) {
+			log.debug("Token validation failed ({}), continuing as anonymous", rejected.errorCode);
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -69,7 +65,8 @@ public class JWTFilter extends OncePerRequestFilter {
 		try {
 			userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
 		} catch (UsernameNotFoundException notFound) {
-			writeError(response, ErrorCode.INVALID_TOKEN);
+			log.debug("User not found for token subject: {}, continuing as anonymous", claims.getSubject());
+			filterChain.doFilter(request, response);
 			return;
 		}
 
@@ -110,13 +107,6 @@ public class JWTFilter extends OncePerRequestFilter {
 			throw new AuthenticationRejected(ErrorCode.INVALID_TOKEN);
 		}
 		return claims;
-	}
-
-	private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
-		response.setStatus(errorCode.getStatus().value());
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
-		ApiResponse<Void> body = ApiResponse.error(errorCode.getStatus().value(), errorCode.getMessage());
-		response.getWriter().write(objectMapper.writeValueAsString(body));
 	}
 
 	/** doFilterInternal 내부 분기를 평탄화하기 위한 짧은 unchecked 시그널. */
