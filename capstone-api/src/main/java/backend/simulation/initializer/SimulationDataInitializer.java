@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SimulationDataInitializer implements CommandLineRunner {
 
-	private static final String RUN_ID = "sim_run_peer_v1";
+	private static final String RUN_ID = "demo_run_001";
 	private static final String BASE_PATH = "simulation/";
 
 	private final SimulationRunRepository runRepository;
