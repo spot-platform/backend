@@ -61,7 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
 		try {
 			claims = parseAndValidate(token);
 		} catch (AuthenticationRejected rejected) {
-			writeError(response, rejected.errorCode);
+			filterChain.doFilter(request, response);
 			return;
 		}
 
