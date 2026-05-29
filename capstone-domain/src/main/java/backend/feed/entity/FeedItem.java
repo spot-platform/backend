@@ -165,6 +165,10 @@ public class FeedItem {
 	private String photoUrlsJson;
 
 	@Builder.Default
+	@Column(nullable = false, columnDefinition = "boolean NOT NULL DEFAULT false")
+	private boolean earlyStartRequested = false;
+
+	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
 	private boolean deleted = false;
 
@@ -196,10 +200,27 @@ public class FeedItem {
 		this.confirmedPartnerCount = (this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0) + 1;
 	}
 
-	/** Spot 전환 조건: 서포터 1명 이상 + 파트너 1명 이상 수락 완료. */
+	/**
+	 * 자동 Spot 전환 조건: 서포터 1명 + 파트너 수락 수 >= maxParticipants.
+	 * maxParticipants 미설정 시 자동 전환 없음 — 작성자가 수동 진행 요청해야 함.
+	 */
 	public boolean isReadyToMatch() {
+		if (this.maxParticipants == null) {
+			return false;
+		}
 		int supporters = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
 		int partners = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
-		return supporters >= 1 && partners >= 1;
+		return supporters >= 1 && partners >= this.maxParticipants;
+	}
+
+	/** 조기 시작 요청 가능 조건: 서포터 1명 + 파트너 1명 이상 (필수 조건). */
+	public boolean canRequestEarlyStart() {
+		int supporters = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
+		int partners = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+		return supporters >= 1 && partners >= 1 && !this.earlyStartRequested;
+	}
+
+	public void requestEarlyStart() {
+		this.earlyStartRequested = true;
 	}
 }

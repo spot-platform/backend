@@ -324,13 +324,7 @@ public class FeedItemService {
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
 
 		if (feedItem.isReadyToMatch()) {
-			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
-			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
-			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
-			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
-			// Spot 전환은 시스템 자동 처리 — 작성자 포함 모든 참여자에게 알림
-			participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
-					"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
+			convertFeedToSpot(feedItem);
 		}
 
 		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
@@ -375,6 +369,54 @@ public class FeedItemService {
 				.stream()
 				.map(FeedApplicationResponse::from)
 				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void requestEarlyStart(Long feedId, String requesterId) {
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+		if (!feedItem.getAuthorId().equals(requesterId)) {
+			throw new IllegalStateException("게시글 작성자만 조기 시작을 요청할 수 있습니다.");
+		}
+		if (!feedItem.canRequestEarlyStart()) {
+			throw new IllegalStateException("조기 시작 요청 불가: 서포터 1명 + 파트너 1명 이상 수락 후 요청하거나, 이미 요청 중입니다.");
+		}
+		feedItem.requestEarlyStart();
+		List<FeedApplication> accepted = feedApplicationRepository
+				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED);
+		accepted.forEach(app -> notificationService.sendAfterCommit(app.getUserId(),
+				"'" + feedItem.getTitle() + "' 조기 시작 요청이 왔어요. 동의하면 Spot이 시작됩니다."));
+	}
+
+	@Transactional
+	public void consentEarlyStart(Long feedId, String currentUserId) {
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+		if (!feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("조기 시작 요청이 없는 피드입니다.");
+		}
+		List<FeedApplication> allAccepted = feedApplicationRepository
+				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED);
+		FeedApplication myApplication = allAccepted.stream()
+				.filter(app -> currentUserId.equals(app.getUserId()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("수락된 신청 내역이 없습니다."));
+		myApplication.consentEarlyStart();
+		boolean allConsented = allAccepted.stream()
+				.allMatch(app -> Boolean.TRUE.equals(app.getEarlyStartConsented()));
+		if (allConsented) {
+			convertFeedToSpot(feedItem);
+		}
+	}
+
+	private void convertFeedToSpot(FeedItem feedItem) {
+		Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
+		feedItem.softDelete();
+		Set<String> participantIds = registerSpotParticipants(spot, feedItem);
+		chatService.linkGroupRoomToSpot(
+				String.valueOf(feedItem.getId()), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
+		participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
+				"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
 	}
 
 	private Set<String> registerSpotParticipants(Spot spot, FeedItem feedItem) {

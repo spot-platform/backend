@@ -59,6 +59,9 @@ public class FeedApplication {
 	@Column(nullable = false)
 	private FeedApplicationStatus status = FeedApplicationStatus.APPLIED;
 
+	@Column
+	private Boolean earlyStartConsented;
+
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -82,5 +85,9 @@ public class FeedApplication {
 			throw new IllegalStateException("신청 상태인 경우만 취소할 수 있습니다.");
 		}
 		this.status = FeedApplicationStatus.CANCELLED;
+	}
+
+	public void consentEarlyStart() {
+		this.earlyStartConsented = true;
 	}
 }

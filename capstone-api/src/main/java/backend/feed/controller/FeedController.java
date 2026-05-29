@@ -154,6 +154,26 @@ public class FeedController {
 		return ApiResponse.success(response);
 	}
 
+	@Operation(summary = "조기 시작 요청 (작성자 전용) — 인원 미달 시 참여자 동의 수집 시작")
+	@PostMapping("/{feedId}/early-start")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<Void> requestEarlyStart(
+			@PathVariable Long feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.requestEarlyStart(feedId, requireAuth(userDetails));
+		return ApiResponse.success(null);
+	}
+
+	@Operation(summary = "조기 시작 동의 (수락된 참여자 전용) — 모두 동의 시 Spot 전환")
+	@PostMapping("/{feedId}/early-start/consent")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<Void> consentEarlyStart(
+			@PathVariable Long feedId,
+			@AuthenticationPrincipal CustomUserDetails userDetails) {
+		feedItemService.consentEarlyStart(feedId, requireAuth(userDetails));
+		return ApiResponse.success(null);
+	}
+
 	private String requireAuth(CustomUserDetails userDetails) {
 		if (userDetails == null || userDetails.getUserId() == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
