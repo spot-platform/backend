@@ -42,6 +42,7 @@ import backend.feed.dto.PriceBreakdown;
 import backend.feed.dto.ResolvedPlace;
 import backend.feed.entity.Bookmark;
 import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.feed.repository.BookmarkRepository;
@@ -304,20 +305,25 @@ public class FeedItemService {
 			throw new IllegalStateException("게시글 작성자만 신청을 수락할 수 있습니다.");
 		}
 
-		if (!feedItem.canAcceptMore()) {
-			throw new IllegalStateException("이미 서포터 모집이 완료된 피드입니다.");
-		}
-
 		FeedApplication application = feedApplicationRepository
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
+		FeedApplicationRole role = application.getAppliedRole();
+		if (role == FeedApplicationRole.SUPPORTER) {
+			if (!feedItem.canAcceptMoreSupporters()) {
+				throw new IllegalStateException("이미 서포터가 수락된 피드입니다.");
+			}
+			feedItem.recordSupporterAccepted();
+		} else {
+			feedItem.recordPartnerAccepted();
+		}
+
 		application.accept();
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
-		feedItem.accumulateFunding(feedItem.getPrice());
 
-		if (feedItem.isFundingGoalMet()) {
+		if (feedItem.isReadyToMatch()) {
 			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
 			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);

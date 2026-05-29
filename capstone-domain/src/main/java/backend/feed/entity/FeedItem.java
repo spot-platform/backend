@@ -83,6 +83,10 @@ public class FeedItem {
 	private Integer confirmedPartnerCount = 0;
 
 	@Builder.Default
+	@Column(nullable = false, columnDefinition = "integer NOT NULL DEFAULT 0")
+	private Integer confirmedSupporterCount = 0;
+
+	@Builder.Default
 	@Column(nullable = false)
 	private Integer views = 0;
 
@@ -176,32 +180,26 @@ public class FeedItem {
 		this.deleted = true;
 	}
 
-	/**
-	 * 피드 당 수락 가능한 서포터 최대 인원.
-	 * OFFER/REQUEST 모두 서포터는 1명으로 고정하는 것이 현재 서비스 정책이다.
-	 * {@code maxParticipants} 필드는 프론트 UI 표시용(모집 정원 안내)이며,
-	 * 수락 상한 판단에는 사용하지 않는다.
-	 */
 	private static final int MAX_SUPPORTERS_PER_FEED = 1;
 
-	/**
-	 * 추가 서포터를 수락할 수 있는지 확인한다.
-	 * 수락 상한은 {@link #MAX_SUPPORTERS_PER_FEED}(현재 1명)으로 고정된다.
-	 */
-	public boolean canAcceptMore() {
-		int confirmed = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+	/** 서포터 추가 수락 가능 여부. 서포터는 1명으로 고정. */
+	public boolean canAcceptMoreSupporters() {
+		int confirmed = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
 		return confirmed < MAX_SUPPORTERS_PER_FEED;
 	}
 
-	public void accumulateFunding(int amount) {
-		this.fundedAmount = (this.fundedAmount != null ? this.fundedAmount : 0) + amount;
+	public void recordSupporterAccepted() {
+		this.confirmedSupporterCount = (this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0) + 1;
+	}
+
+	public void recordPartnerAccepted() {
 		this.confirmedPartnerCount = (this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0) + 1;
 	}
 
-	public boolean isFundingGoalMet() {
-		if (this.fundingGoal == null || this.fundingGoal <= 0) {
-			return false;
-		}
-		return this.fundedAmount >= this.fundingGoal;
+	/** Spot 전환 조건: 서포터 1명 이상 + 파트너 1명 이상 수락 완료. */
+	public boolean isReadyToMatch() {
+		int supporters = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
+		int partners = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+		return supporters >= 1 && partners >= 1;
 	}
 }
