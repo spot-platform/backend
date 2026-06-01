@@ -317,9 +317,11 @@ public class FeedItemService {
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
 		feedItem.accumulateFunding(feedItem.getPrice());
 
+		Long convertedSpotId = null;
 		if (feedItem.isFundingGoalMet()) {
 			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
-			feedItem.softDelete(); // 피드는 소프트 딜리트 (스팟으로 전환됨)
+			convertedSpotId = spot.getId();
+			feedItem.convertToSpot(convertedSpotId); // 피드는 소프트 딜리트 (스팟으로 전환됨)
 			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
 			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
 			// Spot 전환은 시스템 자동 처리 — 작성자 포함 모든 참여자에게 알림
@@ -333,7 +335,7 @@ public class FeedItemService {
 					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
 		}
 
-		return FeedApplicationResponse.from(application);
+		return FeedApplicationResponse.from(application, convertedSpotId);
 	}
 
 	@Transactional
@@ -392,6 +394,7 @@ public class FeedItemService {
 					.spotId(spot.getId())
 					.userId(uid)
 					.role(ParticipantRole.PARTICIPANT)
+					.applicationRole(app.getAppliedRole())
 					.state(ParticipantState.ACTIVE)
 					.build());
 			}

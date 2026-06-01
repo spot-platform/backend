@@ -3,6 +3,7 @@ package backend.chat.service;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,9 +38,17 @@ import backend.chat.repository.ChatBlockRepository;
 import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatRoomRepository;
+import backend.feed.entity.FeedApplicationStatus;
+import backend.feed.entity.FeedItem;
+import backend.feed.repository.FeedApplicationRepository;
+import backend.feed.repository.FeedItemRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.Spot;
+import backend.spot.entity.SpotMemberRole;
+import backend.spot.entity.SpotParticipant;
+import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
@@ -56,6 +65,9 @@ public class ChatService {
 	private final ChatBlockRepository chatBlockRepository;
 	private final SseEmitterService sseEmitterService;
 	private final SpotRepository spotRepository;
+	private final SpotParticipantRepository spotParticipantRepository;
+	private final FeedItemRepository feedItemRepository;
+	private final FeedApplicationRepository feedApplicationRepository;
 	private final UserRepository userRepository;
 
 	// ─────────────────────────────────────────────
@@ -227,14 +239,69 @@ public class ChatService {
 
 	@Transactional(readOnly = true)
 	public List<ChatMemberResponse> getMembers(Long roomId, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
 		List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(roomId);
 		List<String> userIds = members.stream().map(ChatRoomMember::getUserId).toList();
 		Map<String, UserEntity> usersById = userRepository.findAllById(userIds).stream()
 			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		Map<String, SpotMemberRole> rolesByUserId = resolveRoomMemberRoles(room);
 		return members.stream()
-			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId())))
+			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId()), rolesByUserId.get(m.getUserId())))
 			.toList();
+	}
+
+	private Map<String, SpotMemberRole> resolveRoomMemberRoles(ChatRoom room) {
+		if (room.getType() != ChatRoomType.GROUP) {
+			return Map.of();
+		}
+		Long spotId = parseLongOrNull(room.getSpotId());
+		if (spotId != null) {
+			Map<String, SpotMemberRole> roles = new HashMap<>();
+			spotParticipantRepository.findBySpotId(spotId)
+				.forEach(participant -> {
+					SpotMemberRole role = resolveSpotMemberRole(participant);
+					if (role != null) {
+						roles.put(participant.getUserId(), role);
+					}
+				});
+			return roles;
+		}
+		Long feedId = parseLongOrNull(room.getPostId());
+		if (feedId == null) {
+			return Map.of();
+		}
+		Map<String, SpotMemberRole> roles = new HashMap<>();
+		feedItemRepository.findById(feedId)
+			.map(FeedItem::getAuthorId)
+			.ifPresent(authorId -> roles.put(authorId, SpotMemberRole.OWNER));
+		feedApplicationRepository.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED)
+			.stream()
+			.filter(application -> application.getAppliedRole() != null)
+			.forEach(application -> roles.put(
+				application.getUserId(), SpotMemberRole.valueOf(application.getAppliedRole().name())));
+		return roles;
+	}
+
+	private SpotMemberRole resolveSpotMemberRole(SpotParticipant participant) {
+		if (participant.getRole() == ParticipantRole.AUTHOR) {
+			return SpotMemberRole.OWNER;
+		}
+		if (participant.getApplicationRole() == null) {
+			return null;
+		}
+		return SpotMemberRole.valueOf(participant.getApplicationRole().name());
+	}
+
+	private Long parseLongOrNull(String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		try {
+			return Long.valueOf(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	// ─────────────────────────────────────────────

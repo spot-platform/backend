@@ -27,9 +27,15 @@ public class FeedApplicationResponse {
 	private FeedApplicationStatus status;
 	private FeedApplicationRole appliedRole;
 	private Integer deposit;
+	private boolean spotConverted;
+	private Long spotId;
 	private LocalDateTime createdAt;
 
 	public static FeedApplicationResponse from(FeedApplication application) {
+		return from(application, null);
+	}
+
+	public static FeedApplicationResponse from(FeedApplication application, Long spotId) {
 		return FeedApplicationResponse.builder()
 				.id(application.getId())
 				.feedId(application.getFeedItemId())
@@ -39,6 +45,8 @@ public class FeedApplicationResponse {
 				.status(application.getStatus())
 				.appliedRole(application.getAppliedRole())
 				.deposit(application.getDeposit())
+				.spotConverted(spotId != null)
+				.spotId(spotId)
 				.createdAt(application.getCreatedAt())
 				.build();
 	}

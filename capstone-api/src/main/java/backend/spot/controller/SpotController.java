@@ -296,6 +296,17 @@ public class SpotController {
 		));
 	}
 
+	@Operation(summary = "스팟 정산 조회", description = "최근 정산 요청 상태를 조회합니다. 정산 요청이 없으면 data=null 입니다.")
+	@GetMapping("/{spotId}/settlement")
+	public ResponseEntity<ApiResponse<SpotSettlementResponse>> getSettlement(
+		@PathVariable Long spotId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return ResponseEntity.ok(ApiResponse.success(
+			spotService.getSettlement(spotId, requireAuth(userDetails))
+		));
+	}
+
 	@Operation(summary = "스팟 정산 승인", description = "승인 대기 중인 정산을 참여자가 승인 처리합니다.")
 	@PostMapping("/{spotId}/settlement/approve")
 	public ResponseEntity<ApiResponse<SpotSettlementResponse>> approveSettlement(

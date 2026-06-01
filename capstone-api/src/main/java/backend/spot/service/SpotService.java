@@ -250,8 +250,11 @@ public class SpotService {
 	public SpotDetailResponse getSpot(Long spotId, String currentUserId) {
 		Spot spot = findSpotOrThrow(spotId);
 		long participantCount = spotParticipantRepository.countBySpotIdAndState(spotId, ParticipantState.ACTIVE);
+		SpotSettlementResponse settlement = spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
+			.map(this::buildSettlementResponse)
+			.orElse(null);
 		return SpotDetailResponse.of(
-			spot, Math.toIntExact(participantCount), isOwner(spotId, currentUserId), loadTimeline(spotId));
+			spot, Math.toIntExact(participantCount), isOwner(spotId, currentUserId), loadTimeline(spotId), settlement);
 	}
 
 	private List<TimelineEventResponse> loadTimeline(Long spotId) {
@@ -797,6 +800,14 @@ public class SpotService {
 		recordTimeline(spotId, TimelineEventKind.SETTLEMENT_APPROVED, currentUserId, settlement.getSummary());
 
 		return buildSettlementResponse(settlement);
+	}
+
+	@Transactional(readOnly = true)
+	public SpotSettlementResponse getSettlement(Long spotId, String currentUserId) {
+		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
+		return spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
+			.map(this::buildSettlementResponse)
+			.orElse(null);
 	}
 
 	private SpotSettlementResponse buildSettlementResponse(SpotSettlement settlement) {

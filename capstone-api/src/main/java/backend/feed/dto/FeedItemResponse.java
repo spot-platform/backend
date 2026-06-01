@@ -69,6 +69,18 @@ public class FeedItemResponse {
 	@Schema(description = "펀딩 진행률(OFFER 전용)", example = "80")
 	private Integer progressPercent;
 
+	@Schema(description = "펀딩 목표 금액(OFFER/REQUEST)", example = "25000")
+	private Integer fundingGoal;
+
+	@Schema(description = "현재 확정/적립 금액(OFFER/REQUEST)", example = "20000")
+	private Integer fundedAmount;
+
+	@Schema(description = "스팟 전환까지 남은 금액", example = "5000")
+	private Integer remainingAmount;
+
+	@Schema(description = "현재 1인 가격 기준 스팟 전환까지 추가로 필요한 인원 수", example = "1")
+	private Integer remainingParticipantCount;
+
 	@Schema(description = "신청자 수(REQUEST 전용)", example = "3")
 	private Long applicantCount;
 
@@ -155,6 +167,10 @@ public class FeedItemResponse {
 				.deadline(feedItem.getDeadline())
 				.partnerCount(feedItem.getType() == FeedType.OFFER ? feedItem.getConfirmedPartnerCount() : null)
 				.progressPercent(feedItem.getType() == FeedType.OFFER ? calculateProgressPercent(feedItem) : null)
+				.fundingGoal(feedItem.getFundingGoal())
+				.fundedAmount(feedItem.getFundedAmount())
+				.remainingAmount(calculateRemainingAmount(feedItem))
+				.remainingParticipantCount(calculateRemainingParticipantCount(feedItem))
 				.applicantCount(feedItem.getType() == FeedType.REQUEST ? applicantCount : null)
 				.isBookmarked(isBookmarked)
 				.myApplicationStatus(myApplication != null ? myApplication.getStatus() : null)
@@ -209,6 +225,24 @@ public class FeedItemResponse {
 		}
 		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
 		return (int) ((long) fundedAmount * 100L / fundingGoal);
+	}
+
+	private static Integer calculateRemainingAmount(FeedItem feedItem) {
+		Integer fundingGoal = feedItem.getFundingGoal();
+		if (fundingGoal == null || fundingGoal <= 0) {
+			return null;
+		}
+		Integer fundedAmount = feedItem.getFundedAmount() == null ? 0 : feedItem.getFundedAmount();
+		return Math.max(fundingGoal - fundedAmount, 0);
+	}
+
+	private static Integer calculateRemainingParticipantCount(FeedItem feedItem) {
+		Integer remainingAmount = calculateRemainingAmount(feedItem);
+		Integer price = feedItem.getPrice();
+		if (remainingAmount == null || price == null || price <= 0) {
+			return null;
+		}
+		return (remainingAmount + price - 1) / price;
 	}
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

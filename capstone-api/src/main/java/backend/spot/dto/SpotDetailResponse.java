@@ -65,8 +65,12 @@ public class SpotDetailResponse {
 	@Schema(description = "스팟 활동 타임라인 (오래된 순)")
 	private List<TimelineEventResponse> timeline;
 
+	@Schema(description = "최근 정산 요청 상태", nullable = true)
+	private SpotSettlementResponse settlement;
+
 	public static SpotDetailResponse of(
-		Spot spot, int participantCount, boolean isOwner, List<TimelineEventResponse> timeline
+		Spot spot, int participantCount, boolean isOwner, List<TimelineEventResponse> timeline,
+		SpotSettlementResponse settlement
 	) {
 		return SpotDetailResponse.builder()
 			.id(spot.getId())
@@ -84,6 +88,7 @@ public class SpotDetailResponse {
 			.updatedAt(spot.getUpdatedAt())
 			.isOwner(isOwner)
 			.timeline(timeline)
+			.settlement(settlement)
 			.build();
 	}
 }
