@@ -1,5 +1,7 @@
 package backend.spot.entity;
 
+import backend.feed.entity.FeedApplicationRole;
+
 /**
  * 프론트에서 표시하는 스팟 구성원 역할.
  *
@@ -10,5 +12,22 @@ package backend.spot.entity;
 public enum SpotMemberRole {
 	OWNER,
 	SUPPORTER,
-	PARTNER
+	PARTNER;
+
+	public static SpotMemberRole fromApplicationRole(FeedApplicationRole applicationRole) {
+		if (applicationRole == null) {
+			return null;
+		}
+		return switch (applicationRole) {
+			case SUPPORTER -> SUPPORTER;
+			case PARTNER -> PARTNER;
+		};
+	}
+
+	public static SpotMemberRole fromParticipant(SpotParticipant participant) {
+		if (participant.getRole() == ParticipantRole.AUTHOR) {
+			return OWNER;
+		}
+		return fromApplicationRole(participant.getApplicationRole());
+	}
 }

@@ -242,7 +242,10 @@ public class FeedItemResponse {
 		if (remainingAmount == null || price == null || price <= 0) {
 			return null;
 		}
-		return (remainingAmount + price - 1) / price;
+		long remaining = remainingAmount;
+		long unitPrice = price;
+		long participantCount = (remaining + unitPrice - 1) / unitPrice;
+		return participantCount > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) participantCount;
 	}
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

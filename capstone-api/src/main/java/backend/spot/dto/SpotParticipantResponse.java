@@ -47,7 +47,7 @@ public class SpotParticipantResponse {
 			.userId(participant.getUserId())
 			.nickname(null)
 			.role(participant.getRole())
-			.memberRole(resolveMemberRole(participant))
+			.memberRole(SpotMemberRole.fromParticipant(participant))
 			.state(participant.getState())
 			.joinedAt(participant.getJoinedAt())
 			.build();
@@ -59,19 +59,9 @@ public class SpotParticipantResponse {
 			.userId(participant.getUserId())
 			.nickname(nickname)
 			.role(participant.getRole())
-			.memberRole(resolveMemberRole(participant))
+			.memberRole(SpotMemberRole.fromParticipant(participant))
 			.state(participant.getState())
 			.joinedAt(participant.getJoinedAt())
 			.build();
-	}
-
-	private static SpotMemberRole resolveMemberRole(SpotParticipant participant) {
-		if (participant.getRole() == ParticipantRole.AUTHOR) {
-			return SpotMemberRole.OWNER;
-		}
-		if (participant.getApplicationRole() == null) {
-			return null;
-		}
-		return SpotMemberRole.valueOf(participant.getApplicationRole().name());
 	}
 }

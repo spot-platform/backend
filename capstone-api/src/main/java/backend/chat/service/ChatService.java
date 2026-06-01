@@ -44,10 +44,8 @@ import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
-import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.Spot;
 import backend.spot.entity.SpotMemberRole;
-import backend.spot.entity.SpotParticipant;
 import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
@@ -255,19 +253,19 @@ public class ChatService {
 		if (room.getType() != ChatRoomType.GROUP) {
 			return Map.of();
 		}
-		Long spotId = parseLongOrNull(room.getSpotId());
+		Long spotId = parseSpotId(room.getSpotId());
 		if (spotId != null) {
 			Map<String, SpotMemberRole> roles = new HashMap<>();
 			spotParticipantRepository.findBySpotId(spotId)
 				.forEach(participant -> {
-					SpotMemberRole role = resolveSpotMemberRole(participant);
+					SpotMemberRole role = SpotMemberRole.fromParticipant(participant);
 					if (role != null) {
 						roles.put(participant.getUserId(), role);
 					}
 				});
 			return roles;
 		}
-		Long feedId = parseLongOrNull(room.getPostId());
+		Long feedId = parseSpotId(room.getPostId());
 		if (feedId == null) {
 			return Map.of();
 		}
@@ -279,29 +277,8 @@ public class ChatService {
 			.stream()
 			.filter(application -> application.getAppliedRole() != null)
 			.forEach(application -> roles.put(
-				application.getUserId(), SpotMemberRole.valueOf(application.getAppliedRole().name())));
+				application.getUserId(), SpotMemberRole.fromApplicationRole(application.getAppliedRole())));
 		return roles;
-	}
-
-	private SpotMemberRole resolveSpotMemberRole(SpotParticipant participant) {
-		if (participant.getRole() == ParticipantRole.AUTHOR) {
-			return SpotMemberRole.OWNER;
-		}
-		if (participant.getApplicationRole() == null) {
-			return null;
-		}
-		return SpotMemberRole.valueOf(participant.getApplicationRole().name());
-	}
-
-	private Long parseLongOrNull(String value) {
-		if (value == null || value.isBlank()) {
-			return null;
-		}
-		try {
-			return Long.valueOf(value);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 
 	// ─────────────────────────────────────────────
