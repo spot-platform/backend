@@ -192,11 +192,12 @@ class FeedItemServiceTest {
 	// ─────────────────────────────────────────────
 
 	@Test
-	@DisplayName("성공: 수락 후 펀딩 목표 달성이면 Spot이 저장되고 피드 정보가 복사된다.")
+	@DisplayName("성공: 수락 후 매칭 조건 충족이면 Spot이 저장되고 피드 정보가 복사된다.")
 	void acceptApplication_Success_SpotConversion() {
-		// 목표 25000, 현재 20000 → 수락 1건(5000) 후 25000 = 달성
-		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 20000);
-		FeedApplication application = appliedApplication("app-001", 1L);
+		// authorRole=SUPPORTER 인 OFFER 피드: 작성자가 SUPPORTER 슬롯 1개 차지.
+		// maxParticipants=1, 신청자가 PARTNER로 수락되면 partners=1=maxParticipants 충족 → 자동 매칭.
+		FeedItem feedItem = matchableFeedItem(1L, "author-id");
+		FeedApplication application = partnerApplication("app-001", 1L);
 
 		given(feedItemRepository.findByIdAndDeletedFalseForUpdate(1L)).willReturn(Optional.of(feedItem));
 		given(feedApplicationRepository.findByIdAndFeedItemId("app-001", 1L))
@@ -293,6 +294,38 @@ class FeedItemServiceTest {
 				.userId("user-001")
 				.userNickname("테스터")
 				.proposal("신청합니다.")
+				.build();
+	}
+
+	/**
+	 * 단일 PARTNER 수락만으로 매칭 조건을 충족하도록 셋업된 피드.
+	 * authorRole=SUPPORTER → 작성자가 SUPPORTER 슬롯 차지, maxParticipants=1.
+	 */
+	private FeedItem matchableFeedItem(Long id, String authorId) {
+		return FeedItem.builder()
+				.id(id)
+				.authorId(authorId)
+				.title("테스트 피드")
+				.location("서울")
+				.authorNickname("테스터")
+				.price(5000)
+				.type(FeedType.OFFER)
+				.status(FeedItemStatus.OPEN)
+				.authorRole(backend.global.enums.FeedAuthorRole.SUPPORTER)
+				.maxParticipants(1)
+				.fundingGoal(5000)
+				.fundedAmount(0)
+				.build();
+	}
+
+	private FeedApplication partnerApplication(String id, Long feedItemId) {
+		return FeedApplication.builder()
+				.id(id)
+				.feedItemId(feedItemId)
+				.userId("user-001")
+				.userNickname("테스터")
+				.proposal("신청합니다.")
+				.appliedRole(FeedApplicationRole.PARTNER)
 				.build();
 	}
 }
