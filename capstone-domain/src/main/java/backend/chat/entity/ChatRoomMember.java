@@ -73,7 +73,7 @@ public class ChatRoomMember {
 	 * 룸 스코프 알림(예: 투표 시작/마감)이 muted 멤버에게는 전송되지 않는다.
 	 */
 	@Builder.Default
-	@Column(name = "notification_enabled", nullable = false)
+	@Column(name = "notification_enabled", nullable = false, columnDefinition = "boolean NOT NULL DEFAULT true")
 	private boolean notificationEnabled = true;
 
 	/** 방 알림 on/off 설정. */
