@@ -186,37 +186,61 @@ public class FeedItem {
 
 	private static final int MAX_SUPPORTERS_PER_FEED = 1;
 
-	/** 서포터 추가 수락 가능 여부. 서포터는 1명으로 고정. */
+	/** 작성자가 SUPPORTER 역할이면 1, 아니면 0. 외부 SUPPORTER 슬롯 카운트에 합산. */
+	private int authorSupporterSlot() {
+		return this.authorRole == FeedAuthorRole.SUPPORTER ? 1 : 0;
+	}
+
+	/** 작성자가 PARTNER 역할이면 1, 아니면 0. 외부 PARTNER 카운트에 합산. */
+	private int authorPartnerSlot() {
+		return this.authorRole == FeedAuthorRole.PARTNER ? 1 : 0;
+	}
+
+	private int safeConfirmedSupporterCount() {
+		return this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
+	}
+
+	private int safeConfirmedPartnerCount() {
+		return this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+	}
+
+	/**
+	 * 서포터 추가 수락 가능 여부. 서포터는 1명으로 고정이며,
+	 * 작성자 본인이 SUPPORTER 역할이면 이미 한 슬롯을 차지한 것으로 계산한다.
+	 */
 	public boolean canAcceptMoreSupporters() {
-		int confirmed = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
-		return confirmed < MAX_SUPPORTERS_PER_FEED;
+		return (safeConfirmedSupporterCount() + authorSupporterSlot()) < MAX_SUPPORTERS_PER_FEED;
 	}
 
 	public void recordSupporterAccepted() {
-		this.confirmedSupporterCount = (this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0) + 1;
+		this.confirmedSupporterCount = safeConfirmedSupporterCount() + 1;
 	}
 
 	public void recordPartnerAccepted() {
-		this.confirmedPartnerCount = (this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0) + 1;
+		this.confirmedPartnerCount = safeConfirmedPartnerCount() + 1;
 	}
 
 	/**
 	 * 자동 Spot 전환 조건: 서포터 1명 + 파트너 수락 수 >= maxParticipants.
+	 * 작성자 본인이 SUPPORTER/PARTNER 역할이면 해당 슬롯에 합산해서 계산한다.
 	 * maxParticipants 미설정 시 자동 전환 없음 — 작성자가 수동 진행 요청해야 함.
 	 */
 	public boolean isReadyToMatch() {
 		if (this.maxParticipants == null) {
 			return false;
 		}
-		int supporters = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
-		int partners = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+		int supporters = safeConfirmedSupporterCount() + authorSupporterSlot();
+		int partners = safeConfirmedPartnerCount() + authorPartnerSlot();
 		return supporters >= 1 && partners >= this.maxParticipants;
 	}
 
-	/** 조기 시작 요청 가능 조건: 서포터 1명 + 파트너 1명 이상 (필수 조건). */
+	/**
+	 * 조기 시작 요청 가능 조건: 서포터 1명 + 파트너 1명 이상.
+	 * 작성자 본인 역할도 슬롯에 합산한다.
+	 */
 	public boolean canRequestEarlyStart() {
-		int supporters = this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
-		int partners = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+		int supporters = safeConfirmedSupporterCount() + authorSupporterSlot();
+		int partners = safeConfirmedPartnerCount() + authorPartnerSlot();
 		return supporters >= 1 && partners >= 1 && !this.earlyStartRequested;
 	}
 
