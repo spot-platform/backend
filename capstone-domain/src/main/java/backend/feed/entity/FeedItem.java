@@ -94,7 +94,7 @@ public class FeedItem {
 	private String deadline;
 
 	@Builder.Default
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "boolean NOT NULL DEFAULT false")
 	private boolean deadlineNotifySent = false;
 
 	@Column(length = 2048)
@@ -217,5 +217,14 @@ public class FeedItem {
 
 	public void markDeadlineNotifySent() {
 		this.deadlineNotifySent = true;
+	}
+
+	/**
+	 * 마감일이 변경될 때 알림 플래그를 초기화한다.
+	 * TODO: deadline 변경 API가 추가되면 해당 Service 로직에서 이 메서드를 호출해야 함.
+	 *       그렇지 않으면 변경된 새 마감일에 알림이 발송되지 않는다.
+	 */
+	public void resetDeadlineNotifySent() {
+		this.deadlineNotifySent = false;
 	}
 }

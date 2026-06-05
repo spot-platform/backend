@@ -677,11 +677,12 @@ public class ChatService {
 			public void afterCommit() {
 				sseEmitterService.broadcast(roomId, response);
 				// 배지 갱신 + SSE-only 채팅 알림 (DB 저장 없음 — 알림 목록 오염 방지)
+				// TODO: 그룹방 멤버 수가 많아지면 직렬 송신으로 latency 증가 가능 — async/batch 처리 검토
 				String preview = buildMessagePreview(authorName, type, request.getContent());
 				for (String uid : memberUserIds) {
 					if (!Objects.equals(uid, currentUserId)) {
 						sseEmitterService.broadcastBadgeUpdate(uid, roomId, -1L);
-						notificationSseService.pushOnly(uid, preview);
+						notificationSseService.pushOnly(uid, roomId, preview);
 					}
 				}
 			}

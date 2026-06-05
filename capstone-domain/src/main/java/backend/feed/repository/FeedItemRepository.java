@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import backend.feed.entity.FeedItem;
@@ -40,7 +41,7 @@ public interface FeedItemRepository extends JpaRepository<FeedItem, Long>,
 	 */
 	@Query("SELECT f FROM FeedItem f WHERE f.status = :status AND f.deadline = :deadline AND f.deadlineNotifySent = false AND f.deleted = false")
 	List<FeedItem> findDeadlineApproachingFeeds(
-		@org.springframework.data.repository.query.Param("status") FeedItemStatus status,
-		@org.springframework.data.repository.query.Param("deadline") String deadline
+		@Param("status") FeedItemStatus status,
+		@Param("deadline") String deadline
 	);
 }
