@@ -15,6 +15,8 @@ public interface SpotParticipantRepository extends JpaRepository<SpotParticipant
 
 	List<SpotParticipant> findBySpotId(Long spotId);
 
+	List<SpotParticipant> findBySpotIdAndState(Long spotId, ParticipantState state);
+
 	List<SpotParticipant> findByUserId(String userId);
 
 	List<SpotParticipant> findByUserIdOrderByJoinedAtDesc(String userId);

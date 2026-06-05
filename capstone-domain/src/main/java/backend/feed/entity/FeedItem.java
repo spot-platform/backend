@@ -184,6 +184,18 @@ public class FeedItem {
 		this.deleted = true;
 	}
 
+	public void convertToSpot(Long spotId) {
+		this.spotId = spotId;
+		this.status = FeedItemStatus.MATCHED;
+		this.deleted = true;
+	}
+
+	/**
+	 * 피드 당 수락 가능한 서포터 최대 인원.
+	 * OFFER/REQUEST 모두 서포터는 1명으로 고정하는 것이 현재 서비스 정책이다.
+	 * {@code maxParticipants} 필드는 프론트 UI 표시용(모집 정원 안내)이며,
+	 * 수락 상한 판단에는 사용하지 않는다.
+	 */
 	private static final int MAX_SUPPORTERS_PER_FEED = 1;
 
 	/** 작성자가 SUPPORTER 역할이면 1, 아니면 0. 외부 SUPPORTER 슬롯 카운트에 합산. */

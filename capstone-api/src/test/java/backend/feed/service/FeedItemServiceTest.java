@@ -23,6 +23,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import backend.chat.service.ChatService;
 import backend.feed.dto.FeedApplicationResponse;
@@ -38,6 +39,7 @@ import backend.global.enums.FeedItemStatus;
 import backend.global.enums.FeedType;
 import backend.notification.service.NotificationService;
 import backend.spot.entity.Spot;
+import backend.spot.entity.SpotParticipant;
 import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 
@@ -70,6 +72,9 @@ class FeedItemServiceTest {
 
 	@Captor
 	private ArgumentCaptor<FeedApplication> feedApplicationCaptor;
+
+	@Captor
+	private ArgumentCaptor<List<SpotParticipant>> spotParticipantsCaptor;
 
 	// ─────────────────────────────────────────────
 	// getFeedItem
@@ -204,9 +209,13 @@ class FeedItemServiceTest {
 				.willReturn(Optional.of(application));
 		given(feedApplicationRepository.findAllByFeedItemIdAndStatus(1L, FeedApplicationStatus.ACCEPTED))
 				.willReturn(List.of(application));
-		given(spotRepository.save(any(Spot.class))).willAnswer(inv -> inv.getArgument(0));
+		given(spotRepository.save(any(Spot.class))).willAnswer(inv -> {
+			Spot spot = inv.getArgument(0);
+			ReflectionTestUtils.setField(spot, "id", 77L);
+			return spot;
+		});
 
-		feedItemService.acceptApplication(1L, "app-001", "author-id");
+		FeedApplicationResponse response = feedItemService.acceptApplication(1L, "app-001", "author-id");
 
 		// Spot 저장 확인 + 피드 필드가 Spot에 정확히 복사되었는지 검증
 		verify(spotRepository, times(1)).save(spotCaptor.capture());
@@ -217,6 +226,10 @@ class FeedItemServiceTest {
 
 		// 피드 소프트 딜리트 확인
 		assertTrue(feedItem.isDeleted());
+		assertEquals(FeedItemStatus.MATCHED, feedItem.getStatus());
+		assertEquals(77L, feedItem.getSpotId());
+		assertTrue(response.isSpotConverted());
+		assertEquals(77L, response.getSpotId());
 
 		// 알림 발송 확인 (PR #99에서 send → sendAfterCommit 으로 전환됨)
 		verify(notificationService, times(1)).sendAfterCommit(eq("author-id"), anyString());
@@ -225,6 +238,13 @@ class FeedItemServiceTest {
 		// spot.getId()가 테스트 환경에서 null이므로 두 번째 인자는 anyString()으로 검증
 		// 4번째 인자(allMemberIds: Collection)까지 시그니처에 맞춰 검증
 		verify(chatService, times(1)).linkGroupRoomToSpot(eq("1"), anyString(), any(), any());
+
+		verify(spotParticipantRepository, times(1)).saveAll(spotParticipantsCaptor.capture());
+		SpotParticipant participant = spotParticipantsCaptor.getValue().stream()
+				.filter(saved -> "user-001".equals(saved.getUserId()))
+				.findFirst()
+				.orElseThrow();
+		assertEquals(FeedApplicationRole.PARTNER, participant.getApplicationRole());
 	}
 
 	@Test
@@ -294,6 +314,7 @@ class FeedItemServiceTest {
 				.userId("user-001")
 				.userNickname("테스터")
 				.proposal("신청합니다.")
+				.appliedRole(FeedApplicationRole.SUPPORTER)
 				.build();
 	}
 

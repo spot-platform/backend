@@ -323,8 +323,10 @@ public class FeedItemService {
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
 
+		// 자동 Spot 전환: 매칭 조건(서포터·파트너 슬롯 충족 + maxParticipants 도달) 검사
+		Long convertedSpotId = null;
 		if (feedItem.isReadyToMatch()) {
-			convertFeedToSpot(feedItem);
+			convertedSpotId = convertFeedToSpot(feedItem);
 		}
 
 		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
@@ -333,7 +335,7 @@ public class FeedItemService {
 					"'" + feedItem.getTitle() + "' 신청이 수락됐어요");
 		}
 
-		return FeedApplicationResponse.from(application);
+		return FeedApplicationResponse.from(application, convertedSpotId);
 	}
 
 	@Transactional
@@ -409,14 +411,19 @@ public class FeedItemService {
 		}
 	}
 
-	private void convertFeedToSpot(FeedItem feedItem) {
+	/**
+	 * 피드를 Spot으로 전환하고 부수 작업(참여자 등록, 채팅방 링크, 알림)을 수행한다.
+	 * @return 생성된 spotId — acceptApplication 응답에서 spotConverted/spotId 노출용
+	 */
+	private Long convertFeedToSpot(FeedItem feedItem) {
 		Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
-		feedItem.softDelete();
+		feedItem.convertToSpot(spot.getId()); // 피드는 소프트 딜리트 + spotId 보존 (PR #123)
 		Set<String> participantIds = registerSpotParticipants(spot, feedItem);
 		chatService.linkGroupRoomToSpot(
 				String.valueOf(feedItem.getId()), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
 		participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
 				"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
+		return spot.getId();
 	}
 
 	private Set<String> registerSpotParticipants(Spot spot, FeedItem feedItem) {
@@ -440,6 +447,7 @@ public class FeedItemService {
 					.spotId(spot.getId())
 					.userId(uid)
 					.role(ParticipantRole.PARTICIPANT)
+					.applicationRole(app.getAppliedRole())
 					.state(ParticipantState.ACTIVE)
 					.build());
 			}

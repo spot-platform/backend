@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import backend.spot.entity.ParticipantRole;
 import backend.spot.entity.ParticipantState;
+import backend.spot.entity.SpotMemberRole;
 import backend.spot.entity.SpotParticipant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -31,6 +32,9 @@ public class SpotParticipantResponse {
 	@Schema(description = "역할 (AUTHOR: 작성자, PARTICIPANT: 참여자)", example = "PARTICIPANT")
 	private ParticipantRole role;
 
+	@Schema(description = "표시용 구성원 역할 (OWNER / SUPPORTER / PARTNER)", nullable = true, example = "PARTNER")
+	private SpotMemberRole memberRole;
+
 	@Schema(description = "참여 상태 (ACTIVE / LEFT / EXPELLED)", example = "ACTIVE")
 	private ParticipantState state;
 
@@ -43,6 +47,7 @@ public class SpotParticipantResponse {
 			.userId(participant.getUserId())
 			.nickname(null)
 			.role(participant.getRole())
+			.memberRole(SpotMemberRole.fromParticipant(participant))
 			.state(participant.getState())
 			.joinedAt(participant.getJoinedAt())
 			.build();
@@ -54,6 +59,7 @@ public class SpotParticipantResponse {
 			.userId(participant.getUserId())
 			.nickname(nickname)
 			.role(participant.getRole())
+			.memberRole(SpotMemberRole.fromParticipant(participant))
 			.state(participant.getState())
 			.joinedAt(participant.getJoinedAt())
 			.build();

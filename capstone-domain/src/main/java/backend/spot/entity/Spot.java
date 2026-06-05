@@ -125,8 +125,7 @@ public class Spot {
 	/**
 	 * FeedItem 데이터를 기반으로 Spot을 생성하는 정적 팩토리 메서드.
 	 * 펀딩 목표 달성(신청 수락) 시 피드를 스팟으로 전환할 때 호출.
-	 * FeedItem.spotId는 AI 피드 전용이므로 일반 전환 시 역참조를 저장하지 않는다.
-	 * 전환 완료 후 원본 FeedItem은 소프트 딜리트 처리된다.
+	 * 전환 완료 후 원본 FeedItem은 전환된 spotId를 보존하고 소프트 딜리트 처리된다.
 	 */
 	public static Spot fromFeedItem(FeedItem feedItem) {
 		return Spot.builder()
