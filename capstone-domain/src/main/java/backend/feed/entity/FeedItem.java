@@ -233,7 +233,15 @@ public class FeedItem {
 	}
 
 	/**
-	 * 자동 Spot 전환 조건: 서포터 1명 + 파트너 수락 수 >= maxParticipants.
+	 * 자동 Spot 전환 조건: 서포터 ≥ 1 + 파트너 ≥ {@code maxParticipants}.
+	 *
+	 * <p>{@code maxParticipants} 의미 (hoTan35 리뷰 반영):
+	 * <b>작성자 본인 PARTNER 슬롯을 포함한 "총 파트너 수"</b>. 즉
+	 * <ul>
+	 *   <li>authorRole=SUPPORTER 인 피드: 외부 파트너 수가 maxParticipants 도달 시 충족</li>
+	 *   <li>authorRole=PARTNER 인 피드: 외부 파트너 수 + 1(작성자) 가 maxParticipants 도달 시 충족</li>
+	 * </ul>
+	 * 두 케이스 모두 "확정된 파트너 헤드카운트가 maxParticipants 와 같거나 크다"로 일관.
 	 * 작성자 본인이 SUPPORTER/PARTNER 역할이면 해당 슬롯에 합산해서 계산한다.
 	 * maxParticipants 미설정 시 자동 전환 없음 — 작성자가 수동 진행 요청해야 함.
 	 */

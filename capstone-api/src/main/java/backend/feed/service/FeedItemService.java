@@ -309,14 +309,20 @@ public class FeedItemService {
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
+		// 역할별 슬롯 카운트 — null/미지정 신청은 명시적으로 거부 (CodeRabbit 리뷰 반영)
 		FeedApplicationRole role = application.getAppliedRole();
+		if (role == null) {
+			throw new IllegalStateException("지원 역할이 없는 신청은 수락할 수 없습니다.");
+		}
 		if (role == FeedApplicationRole.SUPPORTER) {
 			if (!feedItem.canAcceptMoreSupporters()) {
 				throw new IllegalStateException("이미 서포터가 수락된 피드입니다.");
 			}
 			feedItem.recordSupporterAccepted();
-		} else {
+		} else if (role == FeedApplicationRole.PARTNER) {
 			feedItem.recordPartnerAccepted();
+		} else {
+			throw new IllegalStateException("알 수 없는 지원 역할입니다: " + role);
 		}
 
 		application.accept();
@@ -392,8 +398,12 @@ public class FeedItemService {
 
 	@Transactional
 	public void consentEarlyStart(Long feedId, String currentUserId) {
+		// FOR UPDATE 락으로 동시 동의 요청을 직렬화한다 — 두 사용자가 동시에 동의 시
+		// 두 번째 트랜잭션은 첫 번째 commit 후 진입하며, 이미 전환된 피드는 deleted=true 이므로
+		// findByIdAndDeletedFalseForUpdate가 못 찾아 아래 예외로 막힌다 (hoTan35 리뷰 반영).
 		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
-				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+				.orElseThrow(() -> new IllegalArgumentException(
+						"피드를 찾을 수 없거나 이미 Spot으로 전환되었습니다. id=" + feedId));
 		if (!feedItem.isEarlyStartRequested()) {
 			throw new IllegalStateException("조기 시작 요청이 없는 피드입니다.");
 		}

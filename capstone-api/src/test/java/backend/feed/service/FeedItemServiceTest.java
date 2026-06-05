@@ -248,6 +248,27 @@ class FeedItemServiceTest {
 	}
 
 	@Test
+	@DisplayName("실패: appliedRole이 null인 신청은 수락 거부.")
+	void acceptApplication_Fail_NullRole() {
+		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 0);
+		FeedApplication application = FeedApplication.builder()
+				.id("app-001")
+				.feedItemId(1L)
+				.userId("user-001")
+				.userNickname("테스터")
+				.proposal("신청")
+				.build(); // appliedRole 미설정 — legacy/malformed row 시뮬레이션
+
+		given(feedItemRepository.findByIdAndDeletedFalseForUpdate(1L)).willReturn(Optional.of(feedItem));
+		given(feedApplicationRepository.findByIdAndFeedItemId("app-001", 1L))
+				.willReturn(Optional.of(application));
+
+		IllegalStateException ex = assertThrows(IllegalStateException.class,
+				() -> feedItemService.acceptApplication(1L, "app-001", "author-id"));
+		assertTrue(ex.getMessage().contains("지원 역할"));
+	}
+
+	@Test
 	@DisplayName("실패: 작성자가 아닌 사람이 수락 시 예외 발생.")
 	void acceptApplication_Fail_NotAuthor() {
 		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 0);
