@@ -259,13 +259,16 @@ public class FeedItem {
 	}
 
 	/**
-	 * 조기 시작 요청 가능 조건: 서포터 1명 + 파트너 1명 이상.
+	 * 조기 시작 요청 가능한 인원 조건: 서포터 1명 + 파트너 1명 이상.
 	 * 작성자 본인 역할도 슬롯에 합산한다.
+	 *
+	 * <p>"이미 요청 중" 검사는 호출 측에서 {@link #isEarlyStartRequested()}로 별도 확인한다.
+	 * (ca5tlechan 리뷰 반영 — 인원 미달 vs 이미 요청 중 케이스를 분리해 프론트가 상태별로 처리 가능하게 함)
 	 */
 	public boolean canRequestEarlyStart() {
 		int supporters = safeConfirmedSupporterCount() + authorSupporterSlot();
 		int partners = safeConfirmedPartnerCount() + authorPartnerSlot();
-		return supporters >= 1 && partners >= 1 && !this.earlyStartRequested;
+		return supporters >= 1 && partners >= 1;
 	}
 
 	public void requestEarlyStart() {

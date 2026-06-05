@@ -411,8 +411,12 @@ public class FeedItemService {
 		if (!feedItem.getAuthorId().equals(requesterId)) {
 			throw new IllegalStateException("게시글 작성자만 조기 시작을 요청할 수 있습니다.");
 		}
+		// 두 케이스를 별도 메시지로 분리 — 프론트가 상태별로 처리 가능 (ca5tlechan 리뷰 반영)
+		if (feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("이미 조기 시작 요청 중입니다.");
+		}
 		if (!feedItem.canRequestEarlyStart()) {
-			throw new IllegalStateException("조기 시작 요청 불가: 서포터 1명 + 파트너 1명 이상 수락 후 요청하거나, 이미 요청 중입니다.");
+			throw new IllegalStateException("서포터 1명 + 파트너 1명 이상 수락 후 요청 가능합니다.");
 		}
 		feedItem.requestEarlyStart();
 		List<FeedApplication> accepted = feedApplicationRepository
