@@ -286,8 +286,10 @@ class FeedItemServiceTest {
 	@Test
 	@DisplayName("성공: APPLIED 상태 신청을 취소하면 CANCELLED로 변경된다.")
 	void cancelApplication_Success() {
+		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 0);
 		FeedApplication application = appliedApplication("app-001", 1L);
 
+		given(feedItemRepository.findByIdAndDeletedFalse(1L)).willReturn(Optional.of(feedItem));
 		given(feedApplicationRepository.findByFeedItemIdAndUserIdAndStatus(
 				1L, "user-001", FeedApplicationStatus.APPLIED))
 				.willReturn(Optional.of(application));
@@ -300,6 +302,8 @@ class FeedItemServiceTest {
 	@Test
 	@DisplayName("실패: 취소할 신청이 없으면 예외 발생.")
 	void cancelApplication_Fail_NotFound() {
+		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 0);
+		given(feedItemRepository.findByIdAndDeletedFalse(1L)).willReturn(Optional.of(feedItem));
 		given(feedApplicationRepository.findByFeedItemIdAndUserIdAndStatus(
 				1L, "user-001", FeedApplicationStatus.APPLIED))
 				.willReturn(Optional.empty());

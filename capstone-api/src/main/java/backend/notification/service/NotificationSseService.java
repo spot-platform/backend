@@ -54,6 +54,31 @@ public class NotificationSseService {
 		send(event.userId(), event.notification());
 	}
 
+	/**
+	 * DB 저장 없이 SSE만 전송. 채팅 메시지처럼 알림 목록을 오염시키지 않아야 하는 실시간 이벤트에 사용.
+	 * "notification" 이벤트와 스키마 혼용을 방지하기 위해 "chat-notification" 이벤트 name으로 분리 전송.
+	 * payload: {"roomId": ..., "message": "..."}
+	 * 프론트에서 roomId 기반으로 "현재 그 방을 보고 있으면 팝업 무시" 분기 처리 가능.
+	 */
+	public void pushOnly(String userId, Long roomId, String message) {
+		List<SseEmitter> emitters = userEmitters.getOrDefault(userId, List.of());
+		if (emitters.isEmpty()) {
+			return;
+		}
+		SseEmitter.SseEventBuilder event = SseEmitter.event()
+			.name("chat-notification")
+			.data(java.util.Map.of("roomId", roomId, "message", message));
+		for (SseEmitter emitter : emitters) {
+			try {
+				emitter.send(event);
+			} catch (IOException e) {
+				log.debug("[SSE] chat-notification 전송 실패 - userId={}", userId, e);
+				removeEmitter(userId, emitter);
+				emitter.completeWithError(e);
+			}
+		}
+	}
+
 	private void send(String userId, Object data) {
 		List<SseEmitter> emitters = userEmitters.getOrDefault(userId, List.of());
 
