@@ -250,8 +250,10 @@ public class SpotService {
 	public SpotDetailResponse getSpot(Long spotId, String currentUserId) {
 		Spot spot = findSpotOrThrow(spotId);
 		long participantCount = spotParticipantRepository.countBySpotIdAndState(spotId, ParticipantState.ACTIVE);
+		boolean activeParticipant = isActiveParticipant(spotId, currentUserId);
+		SpotSettlementResponse settlement = activeParticipant ? loadLatestSettlement(spotId) : null;
 		return SpotDetailResponse.of(
-			spot, Math.toIntExact(participantCount), isOwner(spotId, currentUserId), loadTimeline(spotId));
+			spot, Math.toIntExact(participantCount), activeParticipant, loadTimeline(spotId), settlement);
 	}
 
 	private List<TimelineEventResponse> loadTimeline(Long spotId) {
@@ -799,6 +801,19 @@ public class SpotService {
 		return buildSettlementResponse(settlement);
 	}
 
+	@Transactional(readOnly = true)
+	public SpotSettlementResponse getSettlement(Long spotId, String currentUserId) {
+		validateSpotExists(spotId);
+		validateParticipant(spotId, currentUserId, ErrorCode.NOT_SPOT_PARTICIPANT);
+		return loadLatestSettlement(spotId);
+	}
+
+	private SpotSettlementResponse loadLatestSettlement(Long spotId) {
+		return spotSettlementRepository.findFirstBySpotIdOrderByCreatedAtDescIdDesc(spotId)
+			.map(this::buildSettlementResponse)
+			.orElse(null);
+	}
+
 	private SpotSettlementResponse buildSettlementResponse(SpotSettlement settlement) {
 		List<SettlementLineItemDto> lineItems = spotSettlementLineItemRepository
 			.findBySettlementId(settlement.getId()).stream()
@@ -824,10 +839,10 @@ public class SpotService {
 	}
 
 	/**
-	 * 현재 사용자가 권한자(작성자 또는 참여자)인지 — 참여자 레코드 존재로 판정.
+	 * 현재 사용자가 권한자(작성자 또는 참여자)인지 — ACTIVE 참여자 레코드 존재로 판정.
 	 * (작성자는 AUTHOR 참여자, 매칭된 파트너/서포터는 PARTICIPANT 참여자)
 	 */
-	private boolean isOwner(Long spotId, String currentUserId) {
+	private boolean isActiveParticipant(Long spotId, String currentUserId) {
 		return currentUserId != null
 			&& spotParticipantRepository.existsBySpotIdAndUserIdAndState(
 				spotId, currentUserId, ParticipantState.ACTIVE);

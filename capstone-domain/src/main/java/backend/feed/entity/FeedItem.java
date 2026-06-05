@@ -176,6 +176,12 @@ public class FeedItem {
 		this.deleted = true;
 	}
 
+	public void convertToSpot(Long spotId) {
+		this.spotId = spotId;
+		this.status = FeedItemStatus.MATCHED;
+		this.deleted = true;
+	}
+
 	/**
 	 * 피드 당 수락 가능한 서포터 최대 인원.
 	 * OFFER/REQUEST 모두 서포터는 1명으로 고정하는 것이 현재 서비스 정책이다.

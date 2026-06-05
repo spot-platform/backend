@@ -3,6 +3,7 @@ package backend.chat.service;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,9 +38,16 @@ import backend.chat.repository.ChatBlockRepository;
 import backend.chat.repository.ChatMessageRepository;
 import backend.chat.repository.ChatRoomMemberRepository;
 import backend.chat.repository.ChatRoomRepository;
+import backend.feed.entity.FeedApplicationStatus;
+import backend.feed.entity.FeedItem;
+import backend.feed.repository.FeedApplicationRepository;
+import backend.feed.repository.FeedItemRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
+import backend.spot.entity.SpotMemberRole;
+import backend.spot.repository.SpotParticipantRepository;
 import backend.spot.repository.SpotRepository;
 import backend.user.entity.UserEntity;
 import backend.user.repository.UserRepository;
@@ -56,6 +64,9 @@ public class ChatService {
 	private final ChatBlockRepository chatBlockRepository;
 	private final SseEmitterService sseEmitterService;
 	private final SpotRepository spotRepository;
+	private final SpotParticipantRepository spotParticipantRepository;
+	private final FeedItemRepository feedItemRepository;
+	private final FeedApplicationRepository feedApplicationRepository;
 	private final UserRepository userRepository;
 
 	// ─────────────────────────────────────────────
@@ -107,7 +118,7 @@ public class ChatService {
 			throw new BusinessException(ErrorCode.GROUP_CHAT_REQUIRES_SPOT);
 		}
 		if (request.getType() == ChatRoomType.GROUP
-				&& !spotRepository.existsById(parseSpotId(request.getSpotId()))) {
+				&& !spotRepository.existsById(parseLongIdOrNull(request.getSpotId()))) {
 			throw new BusinessException(ErrorCode.SPOT_NOT_FOUND);
 		}
 
@@ -227,14 +238,48 @@ public class ChatService {
 
 	@Transactional(readOnly = true)
 	public List<ChatMemberResponse> getMembers(Long roomId, String currentUserId) {
+		ChatRoom room = findRoomOrThrow(roomId);
 		assertMembership(roomId, currentUserId);
 		List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(roomId);
 		List<String> userIds = members.stream().map(ChatRoomMember::getUserId).toList();
 		Map<String, UserEntity> usersById = userRepository.findAllById(userIds).stream()
 			.collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+		Map<String, SpotMemberRole> rolesByUserId = resolveRoomMemberRoles(room);
 		return members.stream()
-			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId())))
+			.map(m -> ChatMemberResponse.from(m, usersById.get(m.getUserId()), rolesByUserId.get(m.getUserId())))
 			.toList();
+	}
+
+	private Map<String, SpotMemberRole> resolveRoomMemberRoles(ChatRoom room) {
+		if (room.getType() != ChatRoomType.GROUP) {
+			return Map.of();
+		}
+		Long spotId = parseLongIdOrNull(room.getSpotId());
+		if (spotId != null) {
+			Map<String, SpotMemberRole> roles = new HashMap<>();
+			spotParticipantRepository.findBySpotIdAndState(spotId, ParticipantState.ACTIVE)
+				.forEach(participant -> {
+					SpotMemberRole role = SpotMemberRole.fromParticipant(participant);
+					if (role != null) {
+						roles.put(participant.getUserId(), role);
+					}
+				});
+			return roles;
+		}
+		Long feedId = parseLongIdOrNull(room.getPostId());
+		if (feedId == null) {
+			return Map.of();
+		}
+		Map<String, SpotMemberRole> roles = new HashMap<>();
+		feedItemRepository.findById(feedId)
+			.map(FeedItem::getAuthorId)
+			.ifPresent(authorId -> roles.put(authorId, SpotMemberRole.OWNER));
+		feedApplicationRepository.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED)
+			.stream()
+			.filter(application -> application.getAppliedRole() != null)
+			.forEach(application -> roles.put(
+				application.getUserId(), SpotMemberRole.fromApplicationRole(application.getAppliedRole())));
+		return roles;
 	}
 
 	// ─────────────────────────────────────────────
@@ -826,7 +871,7 @@ public class ChatService {
 				.collect(Collectors.toMap(ChatMessage::getChatRoomId, Function.identity()));
 
 		Set<Long> spotIds = rooms.stream()
-			.map(room -> parseSpotId(room.getSpotId()))
+			.map(room -> parseLongIdOrNull(room.getSpotId()))
 			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
 
@@ -842,7 +887,7 @@ public class ChatService {
 			.collect(Collectors.toMap(
 				ChatRoom::getId,
 				room -> {
-					Long parsedSpotId = parseSpotId(room.getSpotId());
+					Long parsedSpotId = parseLongIdOrNull(room.getSpotId());
 					return ChatRoomEnrichment.builder()
 						.lastMessage(lastMessagesByRoomId.get(room.getId()))
 						.spot(parsedSpotId != null ? spotsById.get(parsedSpotId) : null)
@@ -913,13 +958,13 @@ public class ChatService {
 			.orElse("알 수 없는 사용자");
 	}
 
-	/** String spotId → Long 안전 파싱. UUID 형태의 레거시 값이나 null 이면 null 반환. */
-	private Long parseSpotId(String spotId) {
-		if (spotId == null || spotId.isBlank()) {
+	/** String id → Long 안전 파싱. UUID 형태의 레거시 값이나 null 이면 null 반환. */
+	private Long parseLongIdOrNull(String id) {
+		if (id == null || id.isBlank()) {
 			return null;
 		}
 		try {
-			return Long.parseLong(spotId);
+			return Long.parseLong(id);
 		} catch (NumberFormatException e) {
 			return null;
 		}
