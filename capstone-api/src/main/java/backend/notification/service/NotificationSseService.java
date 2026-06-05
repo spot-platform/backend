@@ -54,6 +54,13 @@ public class NotificationSseService {
 		send(event.userId(), event.notification());
 	}
 
+	/**
+	 * DB 저장 없이 SSE만 전송. 채팅 메시지처럼 알림 목록을 오염시키지 않아야 하는 실시간 이벤트에 사용.
+	 */
+	public void pushOnly(String userId, String message) {
+		send(userId, message);
+	}
+
 	private void send(String userId, Object data) {
 		List<SseEmitter> emitters = userEmitters.getOrDefault(userId, List.of());
 

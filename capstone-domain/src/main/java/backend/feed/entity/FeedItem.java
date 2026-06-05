@@ -93,6 +93,10 @@ public class FeedItem {
 	@Column
 	private String deadline;
 
+	@Builder.Default
+	@Column(nullable = false)
+	private boolean deadlineNotifySent = false;
+
 	@Column(length = 2048)
 	private String imageUrl;
 
@@ -209,5 +213,9 @@ public class FeedItem {
 			return false;
 		}
 		return this.fundedAmount >= this.fundingGoal;
+	}
+
+	public void markDeadlineNotifySent() {
+		this.deadlineNotifySent = true;
 	}
 }
