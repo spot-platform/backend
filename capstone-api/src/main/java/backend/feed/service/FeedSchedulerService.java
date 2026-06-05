@@ -37,6 +37,9 @@ public class FeedSchedulerService {
 	private final FeedApplicationRepository feedApplicationRepository;
 	private final NotificationService notificationService;
 
+	// NOTE: 현재 단일 인스턴스 환경을 가정한다.
+	// 다중 인스턴스 배포 시 같은 피드에 대한 중복 알림이 발생할 수 있으므로,
+	// 그 경우 ShedLock 또는 atomic claim 패턴 도입을 검토해야 한다.
 	@Scheduled(fixedRate = 3_600_000) // 매 1시간
 	@Transactional
 	public void notifyDeadlineApproachingFeeds() {
