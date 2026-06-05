@@ -183,11 +183,18 @@ public class FeedItemService {
 
 	@Transactional
 	public void cancelApplication(Long feedId, String userId) {
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalse(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
 		FeedApplication application = feedApplicationRepository
 				.findByFeedItemIdAndUserIdAndStatus(feedId, userId, FeedApplicationStatus.APPLIED)
 				.orElseThrow(() -> new IllegalArgumentException("취소할 신청 내역이 없습니다."));
 
 		application.cancel();
+		// 작성자에게 신청 취소 알림 (자기 피드 신청 취소 케이스 제외)
+		if (!userId.equals(feedItem.getAuthorId())) {
+			notificationService.sendAfterCommit(feedItem.getAuthorId(),
+					application.getUserNickname() + "님이 '" + feedItem.getTitle() + "' 신청을 취소했어요");
+		}
 	}
 
 	@Transactional
@@ -312,10 +319,28 @@ public class FeedItemService {
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
+		// 기존 수락된 참여자 목록 (신규 합류 알림 대상 — 수락 처리 전에 수집)
+		List<String> existingParticipantIds = feedApplicationRepository
+				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED)
+				.stream()
+				.map(FeedApplication::getUserId)
+				.filter(uid -> !uid.equals(requesterId))
+				.collect(Collectors.toList());
+
 		application.accept();
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
 		feedItem.accumulateFunding(feedItem.getPrice());
+
+		// 그룹 채팅방 초대 알림 → 수락된 신청자에게
+		if (!requesterId.equals(application.getUserId())) {
+			notificationService.sendAfterCommit(application.getUserId(),
+					"'" + feedItem.getTitle() + "' 그룹 채팅방에 참여됐어요");
+		}
+		// 새 참여자 합류 알림 → 기존 참여자들에게
+		existingParticipantIds.forEach(uid ->
+				notificationService.sendAfterCommit(uid,
+						application.getUserNickname() + "님이 '" + feedItem.getTitle() + "'에 합류했어요"));
 
 		Long convertedSpotId = null;
 		if (feedItem.isFundingGoalMet()) {

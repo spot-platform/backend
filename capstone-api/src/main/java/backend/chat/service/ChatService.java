@@ -44,6 +44,8 @@ import backend.feed.repository.FeedApplicationRepository;
 import backend.feed.repository.FeedItemRepository;
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
+import backend.notification.service.NotificationService;
+import backend.notification.service.NotificationSseService;
 import backend.spot.entity.ParticipantState;
 import backend.spot.entity.Spot;
 import backend.spot.entity.SpotMemberRole;
@@ -68,6 +70,8 @@ public class ChatService {
 	private final FeedItemRepository feedItemRepository;
 	private final FeedApplicationRepository feedApplicationRepository;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
+	private final NotificationSseService notificationSseService;
 
 	// ─────────────────────────────────────────────
 	// 채팅방 (Room)
@@ -159,6 +163,7 @@ public class ChatService {
 
 		String canonicalPair = ChatRoom.buildCanonicalPair(me.getId(), partner.getId());
 
+		boolean[] isNewRoom = {false};
 		ChatRoom room = chatRoomRepository
 			.findFirstByCanonicalPairAndTypeAndIsDeletedFalse(canonicalPair, ChatRoomType.PERSONAL)
 			.orElseGet(() -> {
@@ -172,6 +177,7 @@ public class ChatService {
 					);
 					ensureMember(created.getId(), me.getId());
 					ensureMember(created.getId(), partner.getId());
+					isNewRoom[0] = true;
 					return created;
 				} catch (DataIntegrityViolationException race) {
 					// canonical_pair partial unique index 충돌 — 다른 트랜잭션이 먼저 생성.
@@ -184,6 +190,12 @@ public class ChatService {
 		// 기존 방 반환 경우에도 멤버십 보장 (멱등 upsert)
 		ensureMember(room.getId(), me.getId());
 		ensureMember(room.getId(), partner.getId());
+
+		// 신규 1:1 채팅방 개설 시 상대방에게 알림
+		if (isNewRoom[0]) {
+			notificationService.sendAfterCommit(partner.getId(),
+				me.getNickname() + "님이 채팅을 시작했어요");
+		}
 
 		return ChatRoomResponse.from(room, buildEnrichment(room, me));
 	}
@@ -664,11 +676,13 @@ public class ChatService {
 			@Override
 			public void afterCommit() {
 				sseEmitterService.broadcast(roomId, response);
-				// 배지 갱신: 방 멤버 전원에게 unread count 재계산 없이 +1 이벤트 전달
-				// (정확한 count 는 DB 쿼리 비용 발생 → 클라이언트가 증분 처리)
+				// 배지 갱신 + SSE-only 채팅 알림 (DB 저장 없음 — 알림 목록 오염 방지)
+				// TODO: 그룹방 멤버 수가 많아지면 직렬 송신으로 latency 증가 가능 — async/batch 처리 검토
+				String preview = buildMessagePreview(authorName, type, request.getContent());
 				for (String uid : memberUserIds) {
 					if (!Objects.equals(uid, currentUserId)) {
 						sseEmitterService.broadcastBadgeUpdate(uid, roomId, -1L);
+						notificationSseService.pushOnly(uid, roomId, preview);
 					}
 				}
 			}
@@ -968,5 +982,17 @@ public class ChatService {
 		} catch (NumberFormatException e) {
 			return null;
 		}
+	}
+
+	private String buildMessagePreview(String senderName, ChatMessageType type, String content) {
+		String prefix = senderName != null ? senderName + ": " : "";
+		if (type == ChatMessageType.IMAGE) {
+			return prefix + "[이미지]";
+		}
+		if (type == ChatMessageType.FILE) {
+			return prefix + "[파일]";
+		}
+		String text = content != null ? content : "";
+		return prefix + (text.length() > 30 ? text.substring(0, 30) + "…" : text);
 	}
 }
