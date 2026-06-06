@@ -269,6 +269,32 @@ class FeedItemServiceTest {
 	}
 
 	@Test
+	@DisplayName("실패: earlyStartRequested=true 상태에서는 추가 신청 수락 불가 (cohort 봉인).")
+	void acceptApplication_Fail_EarlyStartLocked() {
+		// authorRole=SUPPORTER + maxParticipants=2 → 매칭 미충족(자동 전환 안됨) 상태로
+		// earlyStartRequested=true 만 켜진 케이스 시뮬레이션
+		FeedItem feedItem = FeedItem.builder()
+				.id(1L)
+				.authorId("author-id")
+				.title("테스트 피드")
+				.location("서울")
+				.authorNickname("테스터")
+				.price(5000)
+				.type(FeedType.OFFER)
+				.status(FeedItemStatus.OPEN)
+				.authorRole(backend.global.enums.FeedAuthorRole.SUPPORTER)
+				.maxParticipants(2)
+				.earlyStartRequested(true)
+				.build();
+
+		given(feedItemRepository.findByIdAndDeletedFalseForUpdate(1L)).willReturn(Optional.of(feedItem));
+
+		IllegalStateException ex = assertThrows(IllegalStateException.class,
+				() -> feedItemService.acceptApplication(1L, "app-001", "author-id"));
+		assertTrue(ex.getMessage().contains("조기 시작"));
+	}
+
+	@Test
 	@DisplayName("실패: 작성자가 아닌 사람이 수락 시 예외 발생.")
 	void acceptApplication_Fail_NotAuthor() {
 		FeedItem feedItem = feedItem(1L, "author-id", FeedItemStatus.OPEN, 5000, 25000, 0);

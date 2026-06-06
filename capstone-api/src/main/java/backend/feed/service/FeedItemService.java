@@ -311,6 +311,11 @@ public class FeedItemService {
 		if (!feedItem.getAuthorId().equals(requesterId)) {
 			throw new IllegalStateException("게시글 작성자만 신청을 수락할 수 있습니다.");
 		}
+		// earlyStart 동의 수집 중에는 추가 수락 차단 — 나중에 수락된 사람은 알림을 못 받아
+		// consentEarlyStart의 allConsented가 영구 false가 되어 Spot 전환이 stall 됨 (ca5tlechan 리뷰 반영)
+		if (feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("조기 시작 동의 수집 중에는 추가 신청을 수락할 수 없습니다.");
+		}
 
 		FeedApplication application = feedApplicationRepository
 				.findByIdAndFeedItemId(applicationId, feedId)
