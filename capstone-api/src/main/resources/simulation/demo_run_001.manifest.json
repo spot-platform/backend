@@ -3,7 +3,7 @@
     "dataset_version":  "peer_v1",
     "approved_spot_count":  60,
     "filter_kind":  "published_only",
-    "total_ticks":  257,
+    "total_ticks":  176,
     "tick_duration_ms_default":  1000,
     "chunk_size_ticks":  24,
     "agents":  [
@@ -3701,5 +3701,8 @@
             "intent":  "offer",
             "title":  "스마트폰 사진 모임 - 매탄1동"
         }
-    ]
+     ],
+    "loop_period_ticks":  176,
+    "projection_tail_ticks":  45,
+    "max_projected_tick":  220
 }

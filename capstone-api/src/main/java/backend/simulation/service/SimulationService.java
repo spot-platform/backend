@@ -35,6 +35,20 @@ public class SimulationService {
 
 	private static final int MAX_TICK_WINDOW = 1000;
 
+	private int loopPeriodTicks(SimulationRun run) {
+		return run.getLoopPeriodTicks() != null ? run.getLoopPeriodTicks() : run.getTotalTicks();
+	}
+
+	private int projectionTailTicks(SimulationRun run) {
+		return run.getProjectionTailTicks() != null ? run.getProjectionTailTicks() : 0;
+	}
+
+	private int maxProjectedTick(SimulationRun run) {
+		return run.getMaxProjectedTick() != null
+			? run.getMaxProjectedTick()
+			: loopPeriodTicks(run) - 1;
+	}
+
 	private void validateTickWindow(int fromTick, int toTick) {
 		if (fromTick < 0 || toTick <= fromTick || (toTick - fromTick) > MAX_TICK_WINDOW) {
 			throw new BusinessException(ErrorCode.INVALID_TICK_WINDOW);
@@ -80,6 +94,9 @@ public class SimulationService {
 			.totalTicks(run.getTotalTicks())
 			.tickDurationMsDefault(run.getTickDurationMsDefault())
 			.chunkSizeTicks(run.getChunkSizeTicks())
+			.loopPeriodTicks(loopPeriodTicks(run))
+			.projectionTailTicks(projectionTailTicks(run))
+			.maxProjectedTick(maxProjectedTick(run))
 			.agents(agents)
 			.places(places)
 			.build();

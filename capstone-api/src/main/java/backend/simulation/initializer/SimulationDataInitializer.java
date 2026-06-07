@@ -68,7 +68,14 @@ public class SimulationDataInitializer implements CommandLineRunner {
 			.totalTicks(manifest.get("total_ticks").asInt())
 			.tickDurationMsDefault(manifest.get("tick_duration_ms_default").asInt())
 			.chunkSizeTicks(manifest.get("chunk_size_ticks").asInt())
+			.loopPeriodTicks(optionalInt(manifest, "loop_period_ticks"))
+			.projectionTailTicks(optionalInt(manifest, "projection_tail_ticks"))
+			.maxProjectedTick(optionalInt(manifest, "max_projected_tick"))
 			.build());
+	}
+
+	private Integer optionalInt(JsonNode node, String fieldName) {
+		return node.hasNonNull(fieldName) ? node.get(fieldName).asInt() : null;
 	}
 
 	private void seedAgents(JsonNode manifest, String runId) {

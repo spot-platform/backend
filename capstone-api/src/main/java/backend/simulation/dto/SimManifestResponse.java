@@ -32,6 +32,15 @@ public class SimManifestResponse {
 	@JsonProperty("chunk_size_ticks")
 	private int chunkSizeTicks;
 
+	@JsonProperty("loop_period_ticks")
+	private int loopPeriodTicks;
+
+	@JsonProperty("projection_tail_ticks")
+	private int projectionTailTicks;
+
+	@JsonProperty("max_projected_tick")
+	private int maxProjectedTick;
+
 	private List<SimAgentDto> agents;
 
 	private List<SimPlaceDto> places;
