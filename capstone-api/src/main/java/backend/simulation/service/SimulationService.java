@@ -2,11 +2,11 @@ package backend.simulation.service;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
@@ -24,7 +24,9 @@ import backend.simulation.repository.SimulationMovementRepository;
 import backend.simulation.repository.SimulationPlaceRepository;
 import backend.simulation.repository.SimulationRunRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -113,7 +115,11 @@ public class SimulationService {
 		}
 
 		List<MovementDto> movements = movementRepository
-			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(runId, fromTick, toTick)
+			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(
+				runId,
+				fromTick,
+				toTick
+			)
 			.stream()
 			.map(m -> MovementDto.builder()
 				.agentId(m.getAgentId())
@@ -134,13 +140,14 @@ public class SimulationService {
 			.build();
 	}
 
-	private JsonNode readJsonNode(String json) {
+	private JsonNode readJsonNode(String fieldName, String json) {
 		if (json == null || json.isBlank()) {
 			return null;
 		}
 		try {
 			return objectMapper.readTree(json);
 		} catch (Exception e) {
+			log.warn("[Simulation] Failed to parse lifecycle {} JSON", fieldName, e);
 			return null;
 		}
 	}
@@ -159,13 +166,13 @@ public class SimulationService {
 				.eventType(e.getEventType())
 				.spotId(e.getSpotId())
 				.agentId(e.getAgentId())
-				.payload(readJsonNode(e.getPayloadJson()))
+				.payload(readJsonNode("payload", e.getPayloadJson()))
 				.scheduledTick(e.getScheduledTick())
 				.scheduleLeadTicks(e.getScheduleLeadTicks())
 				.durationTicks(e.getDurationTicks())
 				.expectedClosedAtTick(e.getExpectedClosedAtTick())
-				.mapAnchor(readJsonNode(e.getMapAnchorJson()))
-				.hotspotSignal(readJsonNode(e.getHotspotSignalJson()))
+				.mapAnchor(readJsonNode("map_anchor", e.getMapAnchorJson()))
+				.hotspotSignal(readJsonNode("hotspot_signal", e.getHotspotSignalJson()))
 				.build())
 			.toList();
 

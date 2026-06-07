@@ -2,9 +2,8 @@ package backend.simulation.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Builder;
 import lombok.Getter;
