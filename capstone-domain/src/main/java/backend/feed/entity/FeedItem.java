@@ -83,6 +83,10 @@ public class FeedItem {
 	private Integer confirmedPartnerCount = 0;
 
 	@Builder.Default
+	@Column(nullable = false, columnDefinition = "integer NOT NULL DEFAULT 0")
+	private Integer confirmedSupporterCount = 0;
+
+	@Builder.Default
 	@Column(nullable = false)
 	private Integer views = 0;
 
@@ -165,6 +169,10 @@ public class FeedItem {
 	private String photoUrlsJson;
 
 	@Builder.Default
+	@Column(nullable = false, columnDefinition = "boolean NOT NULL DEFAULT false")
+	private boolean earlyStartRequested = false;
+
+	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
 	private boolean deleted = false;
 
@@ -194,25 +202,77 @@ public class FeedItem {
 	 */
 	private static final int MAX_SUPPORTERS_PER_FEED = 1;
 
+	/** 작성자가 SUPPORTER 역할이면 1, 아니면 0. 외부 SUPPORTER 슬롯 카운트에 합산. */
+	private int authorSupporterSlot() {
+		return this.authorRole == FeedAuthorRole.SUPPORTER ? 1 : 0;
+	}
+
+	/** 작성자가 PARTNER 역할이면 1, 아니면 0. 외부 PARTNER 카운트에 합산. */
+	private int authorPartnerSlot() {
+		return this.authorRole == FeedAuthorRole.PARTNER ? 1 : 0;
+	}
+
+	private int safeConfirmedSupporterCount() {
+		return this.confirmedSupporterCount != null ? this.confirmedSupporterCount : 0;
+	}
+
+	private int safeConfirmedPartnerCount() {
+		return this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
+	}
+
 	/**
-	 * 추가 서포터를 수락할 수 있는지 확인한다.
-	 * 수락 상한은 {@link #MAX_SUPPORTERS_PER_FEED}(현재 1명)으로 고정된다.
+	 * 서포터 추가 수락 가능 여부. 서포터는 1명으로 고정이며,
+	 * 작성자 본인이 SUPPORTER 역할이면 이미 한 슬롯을 차지한 것으로 계산한다.
 	 */
-	public boolean canAcceptMore() {
-		int confirmed = this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0;
-		return confirmed < MAX_SUPPORTERS_PER_FEED;
+	public boolean canAcceptMoreSupporters() {
+		return (safeConfirmedSupporterCount() + authorSupporterSlot()) < MAX_SUPPORTERS_PER_FEED;
 	}
 
-	public void accumulateFunding(int amount) {
-		this.fundedAmount = (this.fundedAmount != null ? this.fundedAmount : 0) + amount;
-		this.confirmedPartnerCount = (this.confirmedPartnerCount != null ? this.confirmedPartnerCount : 0) + 1;
+	public void recordSupporterAccepted() {
+		this.confirmedSupporterCount = safeConfirmedSupporterCount() + 1;
 	}
 
-	public boolean isFundingGoalMet() {
-		if (this.fundingGoal == null || this.fundingGoal <= 0) {
+	public void recordPartnerAccepted() {
+		this.confirmedPartnerCount = safeConfirmedPartnerCount() + 1;
+	}
+
+	/**
+	 * 자동 Spot 전환 조건: 서포터 ≥ 1 + 파트너 ≥ {@code maxParticipants}.
+	 *
+	 * <p>{@code maxParticipants} 의미 (hoTan35 리뷰 반영):
+	 * <b>작성자 본인 PARTNER 슬롯을 포함한 "총 파트너 수"</b>. 즉
+	 * <ul>
+	 *   <li>authorRole=SUPPORTER 인 피드: 외부 파트너 수가 maxParticipants 도달 시 충족</li>
+	 *   <li>authorRole=PARTNER 인 피드: 외부 파트너 수 + 1(작성자) 가 maxParticipants 도달 시 충족</li>
+	 * </ul>
+	 * 두 케이스 모두 "확정된 파트너 헤드카운트가 maxParticipants 와 같거나 크다"로 일관.
+	 * 작성자 본인이 SUPPORTER/PARTNER 역할이면 해당 슬롯에 합산해서 계산한다.
+	 * maxParticipants 미설정 시 자동 전환 없음 — 작성자가 수동 진행 요청해야 함.
+	 */
+	public boolean isReadyToMatch() {
+		if (this.maxParticipants == null) {
 			return false;
 		}
-		return this.fundedAmount >= this.fundingGoal;
+		int supporters = safeConfirmedSupporterCount() + authorSupporterSlot();
+		int partners = safeConfirmedPartnerCount() + authorPartnerSlot();
+		return supporters >= 1 && partners >= this.maxParticipants;
+	}
+
+	/**
+	 * 조기 시작 요청 가능한 인원 조건: 서포터 1명 + 파트너 1명 이상.
+	 * 작성자 본인 역할도 슬롯에 합산한다.
+	 *
+	 * <p>"이미 요청 중" 검사는 호출 측에서 {@link #isEarlyStartRequested()}로 별도 확인한다.
+	 * (ca5tlechan 리뷰 반영 — 인원 미달 vs 이미 요청 중 케이스를 분리해 프론트가 상태별로 처리 가능하게 함)
+	 */
+	public boolean canRequestEarlyStart() {
+		int supporters = safeConfirmedSupporterCount() + authorSupporterSlot();
+		int partners = safeConfirmedPartnerCount() + authorPartnerSlot();
+		return supporters >= 1 && partners >= 1;
+	}
+
+	public void requestEarlyStart() {
+		this.earlyStartRequested = true;
 	}
 
 	public void markDeadlineNotifySent() {

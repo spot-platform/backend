@@ -42,6 +42,7 @@ import backend.feed.dto.PriceBreakdown;
 import backend.feed.dto.ResolvedPlace;
 import backend.feed.entity.Bookmark;
 import backend.feed.entity.FeedApplication;
+import backend.feed.entity.FeedApplicationRole;
 import backend.feed.entity.FeedApplicationStatus;
 import backend.feed.entity.FeedItem;
 import backend.feed.repository.BookmarkRepository;
@@ -310,16 +311,33 @@ public class FeedItemService {
 		if (!feedItem.getAuthorId().equals(requesterId)) {
 			throw new IllegalStateException("게시글 작성자만 신청을 수락할 수 있습니다.");
 		}
-
-		if (!feedItem.canAcceptMore()) {
-			throw new IllegalStateException("이미 서포터 모집이 완료된 피드입니다.");
+		// earlyStart 동의 수집 중에는 추가 수락 차단 — 나중에 수락된 사람은 알림을 못 받아
+		// consentEarlyStart의 allConsented가 영구 false가 되어 Spot 전환이 stall 됨 (ca5tlechan 리뷰 반영)
+		if (feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("조기 시작 동의 수집 중에는 추가 신청을 수락할 수 없습니다.");
 		}
 
 		FeedApplication application = feedApplicationRepository
 				.findByIdAndFeedItemId(applicationId, feedId)
 				.orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
-		// 기존 수락된 참여자 목록 (신규 합류 알림 대상 — 수락 처리 전에 수집)
+		// 역할별 슬롯 카운트 — null/미지정 신청은 명시적으로 거부 (CodeRabbit 리뷰 반영)
+		FeedApplicationRole role = application.getAppliedRole();
+		if (role == null) {
+			throw new IllegalStateException("지원 역할이 없는 신청은 수락할 수 없습니다.");
+		}
+		if (role == FeedApplicationRole.SUPPORTER) {
+			if (!feedItem.canAcceptMoreSupporters()) {
+				throw new IllegalStateException("이미 서포터가 수락된 피드입니다.");
+			}
+			feedItem.recordSupporterAccepted();
+		} else if (role == FeedApplicationRole.PARTNER) {
+			feedItem.recordPartnerAccepted();
+		} else {
+			throw new IllegalStateException("알 수 없는 지원 역할입니다: " + role);
+		}
+
+		// 기존 수락된 참여자 목록 (신규 합류 알림 대상 — 수락 처리 전에 수집, PR #125)
 		List<String> existingParticipantIds = feedApplicationRepository
 				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED)
 				.stream()
@@ -330,28 +348,21 @@ public class FeedItemService {
 		application.accept();
 		// 수락 즉시 채팅방 참여 — Spot 전환 전에도 작성자와 소통 가능하도록
 		chatService.ensureGroupRoomForPost(String.valueOf(feedId), feedItem.getTitle(), Set.of(application.getUserId()));
-		feedItem.accumulateFunding(feedItem.getPrice());
 
-		// 그룹 채팅방 초대 알림 → 수락된 신청자에게
+		// 그룹 채팅방 초대 알림 → 수락된 신청자에게 (PR #125)
 		if (!requesterId.equals(application.getUserId())) {
 			notificationService.sendAfterCommit(application.getUserId(),
 					"'" + feedItem.getTitle() + "' 그룹 채팅방에 참여됐어요");
 		}
-		// 새 참여자 합류 알림 → 기존 참여자들에게
+		// 새 참여자 합류 알림 → 기존 참여자들에게 (PR #125)
 		existingParticipantIds.forEach(uid ->
 				notificationService.sendAfterCommit(uid,
 						application.getUserNickname() + "님이 '" + feedItem.getTitle() + "'에 합류했어요"));
 
+		// 자동 Spot 전환: 매칭 조건(서포터·파트너 슬롯 충족 + maxParticipants 도달) 검사 (PR #121)
 		Long convertedSpotId = null;
-		if (feedItem.isFundingGoalMet()) {
-			Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
-			convertedSpotId = spot.getId();
-			feedItem.convertToSpot(convertedSpotId); // 피드는 소프트 딜리트 (스팟으로 전환됨)
-			Set<String> participantIds = registerSpotParticipants(spot, feedItem);
-			chatService.linkGroupRoomToSpot(String.valueOf(feedId), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
-			// Spot 전환은 시스템 자동 처리 — 작성자 포함 모든 참여자에게 알림
-			participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
-					"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
+		if (feedItem.isReadyToMatch()) {
+			convertedSpotId = convertFeedToSpot(feedItem);
 		}
 
 		// 모든 후속 처리 완료 후 수락 알림 전송 (self-action 제외)
@@ -396,6 +407,67 @@ public class FeedItemService {
 				.stream()
 				.map(FeedApplicationResponse::from)
 				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void requestEarlyStart(Long feedId, String requesterId) {
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
+				.orElseThrow(() -> new IllegalArgumentException("피드를 찾을 수 없습니다. id=" + feedId));
+		if (!feedItem.getAuthorId().equals(requesterId)) {
+			throw new IllegalStateException("게시글 작성자만 조기 시작을 요청할 수 있습니다.");
+		}
+		// 두 케이스를 별도 메시지로 분리 — 프론트가 상태별로 처리 가능 (ca5tlechan 리뷰 반영)
+		if (feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("이미 조기 시작 요청 중입니다.");
+		}
+		if (!feedItem.canRequestEarlyStart()) {
+			throw new IllegalStateException("서포터 1명 + 파트너 1명 이상 수락 후 요청 가능합니다.");
+		}
+		feedItem.requestEarlyStart();
+		List<FeedApplication> accepted = feedApplicationRepository
+				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED);
+		accepted.forEach(app -> notificationService.sendAfterCommit(app.getUserId(),
+				"'" + feedItem.getTitle() + "' 조기 시작 요청이 왔어요. 동의하면 Spot이 시작됩니다."));
+	}
+
+	@Transactional
+	public void consentEarlyStart(Long feedId, String currentUserId) {
+		// FOR UPDATE 락으로 동시 동의 요청을 직렬화한다 — 두 사용자가 동시에 동의 시
+		// 두 번째 트랜잭션은 첫 번째 commit 후 진입하며, 이미 전환된 피드는 deleted=true 이므로
+		// findByIdAndDeletedFalseForUpdate가 못 찾아 아래 예외로 막힌다 (hoTan35 리뷰 반영).
+		FeedItem feedItem = feedItemRepository.findByIdAndDeletedFalseForUpdate(feedId)
+				.orElseThrow(() -> new IllegalArgumentException(
+						"피드를 찾을 수 없거나 이미 Spot으로 전환되었습니다. id=" + feedId));
+		if (!feedItem.isEarlyStartRequested()) {
+			throw new IllegalStateException("조기 시작 요청이 없는 피드입니다.");
+		}
+		List<FeedApplication> allAccepted = feedApplicationRepository
+				.findAllByFeedItemIdAndStatus(feedId, FeedApplicationStatus.ACCEPTED);
+		FeedApplication myApplication = allAccepted.stream()
+				.filter(app -> currentUserId.equals(app.getUserId()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("수락된 신청 내역이 없습니다."));
+		myApplication.consentEarlyStart();
+		boolean allConsented = allAccepted.stream()
+				.allMatch(app -> Boolean.TRUE.equals(app.getEarlyStartConsented()));
+		if (allConsented) {
+			convertFeedToSpot(feedItem);
+		}
+	}
+
+	/**
+	 * 피드를 Spot으로 전환하고 부수 작업(참여자 등록, 채팅방 링크, 알림)을 수행한다.
+	 * @return 생성된 spotId — acceptApplication 응답에서 spotConverted/spotId 노출용
+	 */
+	private Long convertFeedToSpot(FeedItem feedItem) {
+		Spot spot = spotRepository.save(Spot.fromFeedItem(feedItem));
+		feedItem.convertToSpot(spot.getId()); // 피드는 소프트 딜리트 + spotId 보존 (PR #123)
+		Set<String> participantIds = registerSpotParticipants(spot, feedItem);
+		chatService.linkGroupRoomToSpot(
+				String.valueOf(feedItem.getId()), String.valueOf(spot.getId()), spot.getTitle(), participantIds);
+		participantIds.forEach(uid -> notificationService.sendAfterCommit(uid,
+				"피드 '" + feedItem.getTitle() + "'이 Spot으로 전환됐어요!"));
+		return spot.getId();
 	}
 
 	private Set<String> registerSpotParticipants(Spot spot, FeedItem feedItem) {
