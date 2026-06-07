@@ -46,7 +46,7 @@ public class SimulationService {
 	private int maxProjectedTick(SimulationRun run) {
 		return run.getMaxProjectedTick() != null
 			? run.getMaxProjectedTick()
-			: loopPeriodTicks(run) - 1;
+			: loopPeriodTicks(run) + projectionTailTicks(run) - 1;
 	}
 
 	private void validateTickWindow(int fromTick, int toTick) {
