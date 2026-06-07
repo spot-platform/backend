@@ -137,11 +137,12 @@ public class SimulationDataInitializer implements CommandLineRunner {
 		JsonNode root = readJson(BASE_PATH + RUN_ID + ".lifecycle.json");
 		List<SimulationLifecycleEvent> events = new ArrayList<>();
 		for (JsonNode node : root) {
+			String spotId = requiredText(node, "spot_id");
 			events.add(SimulationLifecycleEvent.builder()
 				.runId(runId)
 				.tick(node.get("tick").asInt())
 				.eventType(node.get("event_type").asText())
-				.spotId(textOrNull(node, "spot_id"))
+				.spotId(spotId)
 				.agentId(textOrNull(node, "agent_id"))
 				.payloadJson(jsonOrNull(node, "payload"))
 				.scheduledTick(optionalInt(node, "scheduled_tick"))
@@ -153,6 +154,14 @@ public class SimulationDataInitializer implements CommandLineRunner {
 				.build());
 		}
 		lifecycleEventRepository.saveAll(events);
+	}
+
+	private String requiredText(JsonNode node, String field) {
+		JsonNode value = node.get(field);
+		if (value == null || value.isNull() || value.asText().isBlank()) {
+			throw new IllegalArgumentException("Simulation lifecycle event is missing required field: " + field);
+		}
+		return value.asText();
 	}
 
 	private String textOrNull(JsonNode node, String field) {
