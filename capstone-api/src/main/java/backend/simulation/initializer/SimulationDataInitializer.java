@@ -141,8 +141,15 @@ public class SimulationDataInitializer implements CommandLineRunner {
 				.runId(runId)
 				.tick(node.get("tick").asInt())
 				.eventType(node.get("event_type").asText())
-				.spotId(node.get("spot_id").asText())
+				.spotId(textOrNull(node, "spot_id"))
 				.agentId(textOrNull(node, "agent_id"))
+				.payloadJson(jsonOrNull(node, "payload"))
+				.scheduledTick(optionalInt(node, "scheduled_tick"))
+				.scheduleLeadTicks(optionalInt(node, "schedule_lead_ticks"))
+				.durationTicks(optionalInt(node, "duration_ticks"))
+				.expectedClosedAtTick(optionalInt(node, "expected_closed_at_tick"))
+				.mapAnchorJson(jsonOrNull(node, "map_anchor"))
+				.hotspotSignalJson(jsonOrNull(node, "hotspot_signal"))
 				.build());
 		}
 		lifecycleEventRepository.saveAll(events);
@@ -154,5 +161,13 @@ public class SimulationDataInitializer implements CommandLineRunner {
 			return null;
 		}
 		return value.asText();
+	}
+
+	private String jsonOrNull(JsonNode node, String field) {
+		JsonNode value = node.get(field);
+		if (value == null || value.isNull()) {
+			return null;
+		}
+		return value.toString();
 	}
 }

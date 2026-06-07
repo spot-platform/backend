@@ -2,6 +2,9 @@ package backend.simulation.service;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class SimulationService {
 	private final SimulationPlaceRepository placeRepository;
 	private final SimulationMovementRepository movementRepository;
 	private final SimulationLifecycleEventRepository lifecycleEventRepository;
+	private final ObjectMapper objectMapper;
 
 	private static final int MAX_TICK_WINDOW = 1000;
 
@@ -130,6 +134,17 @@ public class SimulationService {
 			.build();
 	}
 
+	private JsonNode readJsonNode(String json) {
+		if (json == null || json.isBlank()) {
+			return null;
+		}
+		try {
+			return objectMapper.readTree(json);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public LifecycleChunkResponse getLifecycle(String runId, int fromTick, int toTick) {
 		validateTickWindow(fromTick, toTick);
 		if (!runRepository.existsById(runId)) {
@@ -144,6 +159,13 @@ public class SimulationService {
 				.eventType(e.getEventType())
 				.spotId(e.getSpotId())
 				.agentId(e.getAgentId())
+				.payload(readJsonNode(e.getPayloadJson()))
+				.scheduledTick(e.getScheduledTick())
+				.scheduleLeadTicks(e.getScheduleLeadTicks())
+				.durationTicks(e.getDurationTicks())
+				.expectedClosedAtTick(e.getExpectedClosedAtTick())
+				.mapAnchor(readJsonNode(e.getMapAnchorJson()))
+				.hotspotSignal(readJsonNode(e.getHotspotSignalJson()))
 				.build())
 			.toList();
 
