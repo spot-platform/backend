@@ -110,6 +110,7 @@ public class SimulationDataInitializer implements CommandLineRunner {
 				.category(textOrNull(node, "category"))
 				.intent(textOrNull(node, "intent"))
 				.title(textOrNull(node, "title"))
+				.mapAnchorJson(jsonOrNull(node, "map_anchor"))
 				.build());
 		}
 		placeRepository.saveAll(places);

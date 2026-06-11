@@ -3,6 +3,7 @@ package backend.simulation.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -93,5 +94,8 @@ public class SimManifestResponse {
 		private String intent;
 
 		private String title;
+
+		@JsonProperty("map_anchor")
+		private JsonNode mapAnchor;
 	}
 }

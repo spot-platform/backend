@@ -48,4 +48,7 @@ public class SimulationPlace {
 	private String intent;
 
 	private String title;
+
+	@Column(columnDefinition = "TEXT")
+	private String mapAnchorJson;
 }

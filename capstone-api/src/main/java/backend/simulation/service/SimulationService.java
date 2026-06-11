@@ -50,9 +50,16 @@ public class SimulationService {
 	}
 
 	private int maxProjectedTick(SimulationRun run) {
-		return run.getMaxProjectedTick() != null
+		int declaredMax = run.getMaxProjectedTick() != null
 			? run.getMaxProjectedTick()
 			: loopPeriodTicks(run) + projectionTailTicks(run) - 1;
+		int maxLifecycleTick = lifecycleEventRepository.findMaxTickByRunId(run.getRunId()).orElse(declaredMax);
+		int maxMovementTick = movementRepository.findMaxArriveTickByRunId(run.getRunId()).orElse(declaredMax);
+		return Math.max(declaredMax, Math.max(maxLifecycleTick, maxMovementTick));
+	}
+
+	private int projectionTailTicks(SimulationRun run, int maxProjectedTick) {
+		return Math.max(0, maxProjectedTick - loopPeriodTicks(run) + 1);
 	}
 
 	private void validateTickWindow(int fromTick, int toTick) {
@@ -89,8 +96,10 @@ public class SimulationService {
 				.category(p.getCategory())
 				.intent(p.getIntent())
 				.title(p.getTitle())
+				.mapAnchor(readJsonNode("place.map_anchor", p.getMapAnchorJson()))
 				.build())
 			.toList();
+		int maxProjectedTick = maxProjectedTick(run);
 
 		return SimManifestResponse.builder()
 			.runId(run.getRunId())
@@ -101,8 +110,8 @@ public class SimulationService {
 			.tickDurationMsDefault(run.getTickDurationMsDefault())
 			.chunkSizeTicks(run.getChunkSizeTicks())
 			.loopPeriodTicks(loopPeriodTicks(run))
-			.projectionTailTicks(projectionTailTicks(run))
-			.maxProjectedTick(maxProjectedTick(run))
+			.projectionTailTicks(projectionTailTicks(run, maxProjectedTick))
+			.maxProjectedTick(maxProjectedTick)
 			.agents(agents)
 			.places(places)
 			.build();
