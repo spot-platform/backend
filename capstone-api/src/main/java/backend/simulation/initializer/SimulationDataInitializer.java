@@ -68,7 +68,14 @@ public class SimulationDataInitializer implements CommandLineRunner {
 			.totalTicks(manifest.get("total_ticks").asInt())
 			.tickDurationMsDefault(manifest.get("tick_duration_ms_default").asInt())
 			.chunkSizeTicks(manifest.get("chunk_size_ticks").asInt())
+			.loopPeriodTicks(optionalInt(manifest, "loop_period_ticks"))
+			.projectionTailTicks(optionalInt(manifest, "projection_tail_ticks"))
+			.maxProjectedTick(optionalInt(manifest, "max_projected_tick"))
 			.build());
+	}
+
+	private Integer optionalInt(JsonNode node, String fieldName) {
+		return node.hasNonNull(fieldName) ? node.get(fieldName).asInt() : null;
 	}
 
 	private void seedAgents(JsonNode manifest, String runId) {
@@ -130,15 +137,31 @@ public class SimulationDataInitializer implements CommandLineRunner {
 		JsonNode root = readJson(BASE_PATH + RUN_ID + ".lifecycle.json");
 		List<SimulationLifecycleEvent> events = new ArrayList<>();
 		for (JsonNode node : root) {
+			String spotId = requiredText(node, "spot_id");
 			events.add(SimulationLifecycleEvent.builder()
 				.runId(runId)
 				.tick(node.get("tick").asInt())
 				.eventType(node.get("event_type").asText())
-				.spotId(node.get("spot_id").asText())
+				.spotId(spotId)
 				.agentId(textOrNull(node, "agent_id"))
+				.payloadJson(jsonOrNull(node, "payload"))
+				.scheduledTick(optionalInt(node, "scheduled_tick"))
+				.scheduleLeadTicks(optionalInt(node, "schedule_lead_ticks"))
+				.durationTicks(optionalInt(node, "duration_ticks"))
+				.expectedClosedAtTick(optionalInt(node, "expected_closed_at_tick"))
+				.mapAnchorJson(jsonOrNull(node, "map_anchor"))
+				.hotspotSignalJson(jsonOrNull(node, "hotspot_signal"))
 				.build());
 		}
 		lifecycleEventRepository.saveAll(events);
+	}
+
+	private String requiredText(JsonNode node, String field) {
+		JsonNode value = node.get(field);
+		if (value == null || value.isNull() || value.asText().isBlank()) {
+			throw new IllegalArgumentException("Simulation lifecycle event is missing required field: " + field);
+		}
+		return value.asText();
 	}
 
 	private String textOrNull(JsonNode node, String field) {
@@ -147,5 +170,13 @@ public class SimulationDataInitializer implements CommandLineRunner {
 			return null;
 		}
 		return value.asText();
+	}
+
+	private String jsonOrNull(JsonNode node, String field) {
+		JsonNode value = node.get(field);
+		if (value == null || value.isNull()) {
+			return null;
+		}
+		return value.toString();
 	}
 }

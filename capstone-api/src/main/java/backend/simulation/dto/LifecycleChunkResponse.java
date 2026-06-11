@@ -3,6 +3,7 @@ package backend.simulation.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -36,5 +37,25 @@ public class LifecycleChunkResponse {
 
 		@JsonProperty("agent_id")
 		private String agentId;
+
+		private JsonNode payload;
+
+		@JsonProperty("scheduled_tick")
+		private Integer scheduledTick;
+
+		@JsonProperty("schedule_lead_ticks")
+		private Integer scheduleLeadTicks;
+
+		@JsonProperty("duration_ticks")
+		private Integer durationTicks;
+
+		@JsonProperty("expected_closed_at_tick")
+		private Integer expectedClosedAtTick;
+
+		@JsonProperty("map_anchor")
+		private JsonNode mapAnchor;
+
+		@JsonProperty("hotspot_signal")
+		private JsonNode hotspotSignal;
 	}
 }

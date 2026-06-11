@@ -41,4 +41,21 @@ public class SimulationLifecycleEvent {
 	private String spotId;
 
 	private String agentId;
+
+	@Column(columnDefinition = "TEXT")
+	private String payloadJson;
+
+	private Integer scheduledTick;
+
+	private Integer scheduleLeadTicks;
+
+	private Integer durationTicks;
+
+	private Integer expectedClosedAtTick;
+
+	@Column(columnDefinition = "TEXT")
+	private String mapAnchorJson;
+
+	@Column(columnDefinition = "TEXT")
+	private String hotspotSignalJson;
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import backend.global.error.exception.BusinessException;
 import backend.global.error.exception.ErrorCode;
 import backend.simulation.dto.LifecycleChunkResponse;
@@ -21,7 +24,9 @@ import backend.simulation.repository.SimulationMovementRepository;
 import backend.simulation.repository.SimulationPlaceRepository;
 import backend.simulation.repository.SimulationRunRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,8 +37,23 @@ public class SimulationService {
 	private final SimulationPlaceRepository placeRepository;
 	private final SimulationMovementRepository movementRepository;
 	private final SimulationLifecycleEventRepository lifecycleEventRepository;
+	private final ObjectMapper objectMapper;
 
 	private static final int MAX_TICK_WINDOW = 1000;
+
+	private int loopPeriodTicks(SimulationRun run) {
+		return run.getLoopPeriodTicks() != null ? run.getLoopPeriodTicks() : run.getTotalTicks();
+	}
+
+	private int projectionTailTicks(SimulationRun run) {
+		return run.getProjectionTailTicks() != null ? run.getProjectionTailTicks() : 0;
+	}
+
+	private int maxProjectedTick(SimulationRun run) {
+		return run.getMaxProjectedTick() != null
+			? run.getMaxProjectedTick()
+			: loopPeriodTicks(run) + projectionTailTicks(run) - 1;
+	}
 
 	private void validateTickWindow(int fromTick, int toTick) {
 		if (fromTick < 0 || toTick <= fromTick || (toTick - fromTick) > MAX_TICK_WINDOW) {
@@ -80,6 +100,9 @@ public class SimulationService {
 			.totalTicks(run.getTotalTicks())
 			.tickDurationMsDefault(run.getTickDurationMsDefault())
 			.chunkSizeTicks(run.getChunkSizeTicks())
+			.loopPeriodTicks(loopPeriodTicks(run))
+			.projectionTailTicks(projectionTailTicks(run))
+			.maxProjectedTick(maxProjectedTick(run))
 			.agents(agents)
 			.places(places)
 			.build();
@@ -92,7 +115,11 @@ public class SimulationService {
 		}
 
 		List<MovementDto> movements = movementRepository
-			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(runId, fromTick, toTick)
+			.findByRunIdAndDepartTickGreaterThanEqualAndDepartTickLessThanOrderByDepartTickAscIdAsc(
+				runId,
+				fromTick,
+				toTick
+			)
 			.stream()
 			.map(m -> MovementDto.builder()
 				.agentId(m.getAgentId())
@@ -113,6 +140,18 @@ public class SimulationService {
 			.build();
 	}
 
+	private JsonNode readJsonNode(String fieldName, String json) {
+		if (json == null || json.isBlank()) {
+			return null;
+		}
+		try {
+			return objectMapper.readTree(json);
+		} catch (Exception e) {
+			log.warn("[Simulation] Failed to parse lifecycle {} JSON", fieldName, e);
+			return null;
+		}
+	}
+
 	public LifecycleChunkResponse getLifecycle(String runId, int fromTick, int toTick) {
 		validateTickWindow(fromTick, toTick);
 		if (!runRepository.existsById(runId)) {
@@ -127,6 +166,13 @@ public class SimulationService {
 				.eventType(e.getEventType())
 				.spotId(e.getSpotId())
 				.agentId(e.getAgentId())
+				.payload(readJsonNode("payload", e.getPayloadJson()))
+				.scheduledTick(e.getScheduledTick())
+				.scheduleLeadTicks(e.getScheduleLeadTicks())
+				.durationTicks(e.getDurationTicks())
+				.expectedClosedAtTick(e.getExpectedClosedAtTick())
+				.mapAnchor(readJsonNode("map_anchor", e.getMapAnchorJson()))
+				.hotspotSignal(readJsonNode("hotspot_signal", e.getHotspotSignalJson()))
 				.build())
 			.toList();
 

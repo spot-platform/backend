@@ -39,4 +39,10 @@ public class SimulationRun {
 
 	@Column(nullable = false)
 	private int chunkSizeTicks;
+
+	private Integer loopPeriodTicks;
+
+	private Integer projectionTailTicks;
+
+	private Integer maxProjectedTick;
 }
