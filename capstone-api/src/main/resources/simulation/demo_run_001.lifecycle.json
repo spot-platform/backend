@@ -2,7 +2,1688 @@
   {
     "tick": 0,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_0009"
+    "spot_id": "S_0009",
+    "payload": {
+      "capacity": 6,
+      "duration_ticks": 7,
+      "expected_closed_at_tick": 51,
+      "fee": 5742,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5742,
+        "total": 5742,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_83792",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 6,
+        "reason_tags": [
+          "same_region_host",
+          "workshop",
+          "venue:park",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.85,
+          "density_food": 0.78,
+          "density_nature": 0.72,
+          "group_friendliness": 0.8,
+          "night_friendliness": 0.6
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2999528,
+        "lng": 127.0461809,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_gwanggyo",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_gwanggyo",
+      "schedule_lead_ticks": 44,
+      "schedule_reason": "offer:workshop:park",
+      "scheduled_tick": 44,
+      "skill": "가벼운 등산",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 44,
+    "schedule_lead_ticks": 44,
+    "duration_ticks": 7,
+    "expected_closed_at_tick": 51,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2999528,
+      "lng": 127.0461809,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_gwanggyo",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 6,
+      "reason_tags": [
+        "same_region_host",
+        "workshop",
+        "venue:park",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.85,
+        "density_food": 0.78,
+        "density_nature": 0.72,
+        "group_friendliness": 0.8,
+        "night_friendliness": 0.6
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0012",
+    "payload": {
+      "capacity": 6,
+      "duration_ticks": 6,
+      "expected_closed_at_tick": 49,
+      "fee": 5535,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5535,
+        "total": 5535,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_91885",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "senior_active",
+        "participant_target_count": 6,
+        "reason_tags": [
+          "same_region_host",
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.272696,
+        "lng": 127.0417161,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 43,
+      "schedule_reason": "offer:workshop:park",
+      "scheduled_tick": 43,
+      "skill": "가벼운 등산",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 43,
+    "schedule_lead_ticks": 43,
+    "duration_ticks": 6,
+    "expected_closed_at_tick": 49,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.272696,
+      "lng": 127.0417161,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "senior_active",
+      "participant_target_count": 6,
+      "reason_tags": [
+        "same_region_host",
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0014",
+    "payload": {
+      "capacity": 6,
+      "duration_ticks": 5,
+      "expected_closed_at_tick": 33,
+      "fee": 10673,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 5000,
+        "passthrough_total": 5000,
+        "peer_labor_fee": 5673,
+        "total": 10673,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_77952",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "homebody",
+        "participant_target_count": 6,
+        "reason_tags": [
+          "same_region_host",
+          "workshop",
+          "venue:home",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.8,
+          "density_food": 0.75,
+          "density_nature": 0.5,
+          "group_friendliness": 0.78,
+          "night_friendliness": 0.55
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2863956,
+        "lng": 127.0167432,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_sinchon",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_sinchon",
+      "schedule_lead_ticks": 28,
+      "schedule_reason": "offer:workshop:home",
+      "scheduled_tick": 28,
+      "skill": "원예",
+      "teach_mode": "workshop",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 28,
+    "schedule_lead_ticks": 28,
+    "duration_ticks": 5,
+    "expected_closed_at_tick": 33,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2863956,
+      "lng": 127.0167432,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_sinchon",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "homebody",
+      "participant_target_count": 6,
+      "reason_tags": [
+        "same_region_host",
+        "workshop",
+        "venue:home",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.8,
+        "density_food": 0.75,
+        "density_nature": 0.5,
+        "group_friendliness": 0.78,
+        "night_friendliness": 0.55
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0018",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 34,
+      "fee": 11255,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 9255,
+        "total": 11255,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_26011",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "freelancer_daytime",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.75,
+          "density_food": 0.72,
+          "density_nature": 0.45,
+          "group_friendliness": 0.74,
+          "night_friendliness": 0.58
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2579623,
+        "lng": 127.0696665,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeongtong",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeongtong",
+      "schedule_lead_ticks": 32,
+      "schedule_reason": "offer:small_group:cafe",
+      "scheduled_tick": 32,
+      "skill": "코딩 입문",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 32,
+    "schedule_lead_ticks": 32,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 34,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2579623,
+      "lng": 127.0696665,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeongtong",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "freelancer_daytime",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.75,
+        "density_food": 0.72,
+        "density_nature": 0.45,
+        "group_friendliness": 0.74,
+        "night_friendliness": 0.58
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0022",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 5,
+      "expected_closed_at_tick": 21,
+      "fee": 13158,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 5000,
+        "passthrough_total": 5000,
+        "peer_labor_fee": 8158,
+        "total": 13158,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_84000",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "parenting_parent",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.5,
+          "density_food": 0.55,
+          "density_nature": 0.62,
+          "group_friendliness": 0.55,
+          "night_friendliness": 0.4
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2829227,
+        "lng": 126.9934218,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_hwaseo",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_hwaseo",
+      "schedule_lead_ticks": 16,
+      "schedule_reason": "offer:small_group:home",
+      "scheduled_tick": 16,
+      "skill": "원예",
+      "teach_mode": "small_group",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 16,
+    "schedule_lead_ticks": 16,
+    "duration_ticks": 5,
+    "expected_closed_at_tick": 21,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2829227,
+      "lng": 126.9934218,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_hwaseo",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "parenting_parent",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.5,
+        "density_food": 0.55,
+        "density_nature": 0.62,
+        "group_friendliness": 0.55,
+        "night_friendliness": 0.4
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0027",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 4,
+      "expected_closed_at_tick": 24,
+      "fee": 9189,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 7189,
+        "total": 9189,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_17944",
+      "host_skill_level": 2,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.85,
+          "density_food": 0.78,
+          "density_nature": 0.72,
+          "group_friendliness": 0.8,
+          "night_friendliness": 0.6
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2995107,
+        "lng": 127.0463208,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_gwanggyo",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_gwanggyo",
+      "schedule_lead_ticks": 19,
+      "schedule_reason": "request_matched:small_group:cafe",
+      "scheduled_tick": 20,
+      "skill": "영어 프리토킹",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 20,
+    "schedule_lead_ticks": 19,
+    "duration_ticks": 4,
+    "expected_closed_at_tick": 24,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2995107,
+      "lng": 127.0463208,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_gwanggyo",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.85,
+        "density_food": 0.78,
+        "density_nature": 0.72,
+        "group_friendliness": 0.8,
+        "night_friendliness": 0.6
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0032",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 16,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_17944",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2719365,
+        "lng": 127.041358,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 12,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 13,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 13,
+    "schedule_lead_ticks": 12,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 16,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2719365,
+      "lng": 127.041358,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0037",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 4,
+      "expected_closed_at_tick": 28,
+      "fee": 8535,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 3000,
+        "passthrough_total": 3000,
+        "peer_labor_fee": 5535,
+        "total": 8535,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_10053",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "planner",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.5,
+          "density_food": 0.55,
+          "density_nature": 0.62,
+          "group_friendliness": 0.55,
+          "night_friendliness": 0.4
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2845963,
+        "lng": 126.9909616,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_hwaseo",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_hwaseo",
+      "schedule_lead_ticks": 23,
+      "schedule_reason": "request_matched:workshop:home",
+      "scheduled_tick": 24,
+      "skill": "드로잉",
+      "teach_mode": "workshop",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 24,
+    "schedule_lead_ticks": 23,
+    "duration_ticks": 4,
+    "expected_closed_at_tick": 28,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2845963,
+      "lng": 126.9909616,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_hwaseo",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "planner",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.5,
+        "density_food": 0.55,
+        "density_nature": 0.62,
+        "group_friendliness": 0.55,
+        "night_friendliness": 0.4
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0039",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 6,
+      "expected_closed_at_tick": 34,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15229",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2706415,
+        "lng": 127.0402482,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 27,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 28,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 28,
+    "schedule_lead_ticks": 27,
+    "duration_ticks": 6,
+    "expected_closed_at_tick": 34,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2706415,
+      "lng": 127.0402482,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0043",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 36,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15778",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2694278,
+        "lng": 127.0415379,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 32,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 33,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 33,
+    "schedule_lead_ticks": 32,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 36,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2694278,
+      "lng": 127.0415379,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0070",
+    "payload": {
+      "capacity": 6,
+      "duration_ticks": 7,
+      "expected_closed_at_tick": 46,
+      "fee": 8744,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 3500,
+        "passthrough_total": 3500,
+        "peer_labor_fee": 5244,
+        "total": 8744,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_41186",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "parenting_parent",
+        "participant_target_count": 6,
+        "reason_tags": [
+          "same_region_host",
+          "workshop",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.5,
+          "density_food": 0.55,
+          "density_nature": 0.62,
+          "group_friendliness": 0.55,
+          "night_friendliness": 0.4
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2826251,
+        "lng": 126.9931732,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_hwaseo",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_hwaseo",
+      "schedule_lead_ticks": 38,
+      "schedule_reason": "offer:workshop:home",
+      "scheduled_tick": 39,
+      "skill": "홈쿡",
+      "teach_mode": "workshop",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 39,
+    "schedule_lead_ticks": 38,
+    "duration_ticks": 7,
+    "expected_closed_at_tick": 46,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2826251,
+      "lng": 126.9931732,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_hwaseo",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "parenting_parent",
+      "participant_target_count": 6,
+      "reason_tags": [
+        "same_region_host",
+        "workshop",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.5,
+        "density_food": 0.55,
+        "density_nature": 0.62,
+        "group_friendliness": 0.55,
+        "night_friendliness": 0.4
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0072",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 15,
+      "fee": 18152,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 4500,
+        "passthrough_total": 4500,
+        "peer_labor_fee": 13652,
+        "total": 18152,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_25194",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "homebody",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:home",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.8,
+          "density_food": 0.75,
+          "density_nature": 0.5,
+          "group_friendliness": 0.78,
+          "night_friendliness": 0.55
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2854907,
+        "lng": 127.0152756,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_sinchon",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_sinchon",
+      "schedule_lead_ticks": 11,
+      "schedule_reason": "offer:1:1:home",
+      "scheduled_tick": 12,
+      "skill": "홈베이킹",
+      "teach_mode": "1:1",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 12,
+    "schedule_lead_ticks": 11,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 15,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2854907,
+      "lng": 127.0152756,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_sinchon",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "homebody",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:home",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.8,
+        "density_food": 0.75,
+        "density_nature": 0.5,
+        "group_friendliness": 0.78,
+        "night_friendliness": 0.55
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0075",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 4,
+      "expected_closed_at_tick": 48,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_11267",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2695568,
+        "lng": 127.0412421,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 42,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 44,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 44,
+    "schedule_lead_ticks": 42,
+    "duration_ticks": 4,
+    "expected_closed_at_tick": 48,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2695568,
+      "lng": 127.0412421,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0078",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 4,
+      "expected_closed_at_tick": 27,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15778",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.271022,
+        "lng": 127.0413745,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 21,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 23,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 23,
+    "schedule_lead_ticks": 21,
+    "duration_ticks": 4,
+    "expected_closed_at_tick": 27,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.271022,
+      "lng": 127.0413745,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0083",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 28,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15229",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2713232,
+        "lng": 127.0410076,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 23,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 25,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 25,
+    "schedule_lead_ticks": 23,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 28,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2713232,
+      "lng": 127.0410076,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0091",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 31,
+      "fee": 9189,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 7189,
+        "total": 9189,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_17455",
+      "host_skill_level": 2,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.85,
+          "density_food": 0.78,
+          "density_nature": 0.72,
+          "group_friendliness": 0.8,
+          "night_friendliness": 0.6
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2977708,
+        "lng": 127.0467523,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_gwanggyo",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_gwanggyo",
+      "schedule_lead_ticks": 26,
+      "schedule_reason": "request_matched:small_group:cafe",
+      "scheduled_tick": 28,
+      "skill": "영어 프리토킹",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 28,
+    "schedule_lead_ticks": 26,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 31,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2977708,
+      "lng": 127.0467523,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_gwanggyo",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.85,
+        "density_food": 0.78,
+        "density_nature": 0.72,
+        "group_friendliness": 0.8,
+        "night_friendliness": 0.6
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0097",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 29,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_17455",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2719002,
+        "lng": 127.0402556,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 25,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 27,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 27,
+    "schedule_lead_ticks": 25,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 29,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2719002,
+      "lng": 127.0402556,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0106",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 5,
+      "expected_closed_at_tick": 19,
+      "fee": 13540,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 4500,
+        "passthrough_total": 4500,
+        "peer_labor_fee": 9040,
+        "total": 13540,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_90623",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "parenting_parent",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.5,
+          "density_food": 0.55,
+          "density_nature": 0.62,
+          "group_friendliness": 0.55,
+          "night_friendliness": 0.4
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2846052,
+        "lng": 126.9908696,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_hwaseo",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_hwaseo",
+      "schedule_lead_ticks": 12,
+      "schedule_reason": "offer:small_group:home",
+      "scheduled_tick": 14,
+      "skill": "홈베이킹",
+      "teach_mode": "small_group",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 14,
+    "schedule_lead_ticks": 12,
+    "duration_ticks": 5,
+    "expected_closed_at_tick": 19,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2846052,
+      "lng": 126.9908696,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_hwaseo",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "parenting_parent",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.5,
+        "density_food": 0.55,
+        "density_nature": 0.62,
+        "group_friendliness": 0.55,
+        "night_friendliness": 0.4
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 0,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0120",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 42,
+      "fee": 11578,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 9578,
+        "total": 11578,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_74454",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "spontaneous",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region",
+          "night_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.71,
+          "density_food": 0.82,
+          "density_nature": 0.25,
+          "group_friendliness": 0.72,
+          "night_friendliness": 0.8
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2944944,
+        "lng": 127.0259717,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeonmu",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeonmu",
+      "schedule_lead_ticks": 37,
+      "schedule_reason": "offer:small_group:cafe",
+      "scheduled_tick": 39,
+      "skill": "보드게임",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 39,
+    "schedule_lead_ticks": 37,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 42,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2944944,
+      "lng": 127.0259717,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeonmu",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "spontaneous",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region",
+        "night_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.71,
+        "density_food": 0.82,
+        "density_nature": 0.25,
+        "group_friendliness": 0.72,
+        "night_friendliness": 0.8
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
   },
   {
     "tick": 0,
@@ -11,18 +1692,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0012"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0012"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0014"
   },
   {
     "tick": 0,
@@ -31,18 +1702,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0018"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0018"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0022"
   },
   {
     "tick": 0,
@@ -51,18 +1712,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0027"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0027"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0032"
   },
   {
     "tick": 0,
@@ -71,18 +1722,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0037"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0037"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0039"
   },
   {
     "tick": 0,
@@ -91,18 +1732,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0043"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0043"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0070"
   },
   {
     "tick": 0,
@@ -111,18 +1742,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0072"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0072"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0075"
   },
   {
     "tick": 0,
@@ -131,18 +1752,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0078"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0078"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0083"
   },
   {
     "tick": 0,
@@ -151,18 +1762,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0091"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0091"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0097"
   },
   {
     "tick": 0,
@@ -171,18 +1772,8 @@
   },
   {
     "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0106"
-  },
-  {
-    "tick": 0,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0106"
-  },
-  {
-    "tick": 0,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0120"
   },
   {
     "tick": 0,
@@ -192,7 +1783,1254 @@
   {
     "tick": 1,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_0130"
+    "spot_id": "S_0130",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 5,
+      "expected_closed_at_tick": 36,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_11934",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2729569,
+        "lng": 127.0402326,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 28,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 31,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 31,
+    "schedule_lead_ticks": 28,
+    "duration_ticks": 5,
+    "expected_closed_at_tick": 36,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2729569,
+      "lng": 127.0402326,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0131",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 20,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_24322",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2709866,
+        "lng": 127.0389842,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 15,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 18,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 18,
+    "schedule_lead_ticks": 15,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 20,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2709866,
+      "lng": 127.0389842,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0132",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 37,
+      "fee": 9189,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 7189,
+        "total": 9189,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_22097",
+      "host_skill_level": 2,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.85,
+          "density_food": 0.78,
+          "density_nature": 0.72,
+          "group_friendliness": 0.8,
+          "night_friendliness": 0.6
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2975468,
+        "lng": 127.0465977,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_gwanggyo",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_gwanggyo",
+      "schedule_lead_ticks": 32,
+      "schedule_reason": "request_matched:small_group:cafe",
+      "scheduled_tick": 35,
+      "skill": "영어 프리토킹",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 35,
+    "schedule_lead_ticks": 32,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 37,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2975468,
+      "lng": 127.0465977,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_gwanggyo",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.85,
+        "density_food": 0.78,
+        "density_nature": 0.72,
+        "group_friendliness": 0.8,
+        "night_friendliness": 0.6
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0133",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 6,
+      "expected_closed_at_tick": 25,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15229",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2724227,
+        "lng": 127.0395914,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 16,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 19,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 19,
+    "schedule_lead_ticks": 16,
+    "duration_ticks": 6,
+    "expected_closed_at_tick": 25,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2724227,
+      "lng": 127.0395914,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0135",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 5,
+      "expected_closed_at_tick": 26,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_11267",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2716679,
+        "lng": 127.0388226,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 18,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 21,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 21,
+    "schedule_lead_ticks": 18,
+    "duration_ticks": 5,
+    "expected_closed_at_tick": 26,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2716679,
+      "lng": 127.0388226,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0136",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 21,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15778",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2708873,
+        "lng": 127.0423476,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 16,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 19,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 19,
+    "schedule_lead_ticks": 16,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 21,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2708873,
+      "lng": 127.0423476,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0217",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 21,
+      "fee": 16818,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 14818,
+        "total": 16818,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_45509",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "spontaneous",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region",
+          "night_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.71,
+          "density_food": 0.82,
+          "density_nature": 0.25,
+          "group_friendliness": 0.72,
+          "night_friendliness": 0.8
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2942999,
+        "lng": 127.0294855,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeonmu",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeonmu",
+      "schedule_lead_ticks": 15,
+      "schedule_reason": "offer:1:1:cafe",
+      "scheduled_tick": 19,
+      "skill": "우쿨렐레",
+      "teach_mode": "1:1",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 19,
+    "schedule_lead_ticks": 15,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 21,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2942999,
+      "lng": 127.0294855,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeonmu",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "spontaneous",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region",
+        "night_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.71,
+        "density_food": 0.82,
+        "density_nature": 0.25,
+        "group_friendliness": 0.72,
+        "night_friendliness": 0.8
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0240",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 28,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15778",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2702743,
+        "lng": 127.0386147,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 20,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 25,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 25,
+    "schedule_lead_ticks": 20,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 28,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2702743,
+      "lng": 127.0386147,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0251",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 1,
+      "expected_closed_at_tick": 16,
+      "fee": 17867,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 15867,
+        "total": 17867,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_57953",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "freelancer_daytime",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.75,
+          "density_food": 0.72,
+          "density_nature": 0.45,
+          "group_friendliness": 0.74,
+          "night_friendliness": 0.58
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2574661,
+        "lng": 127.0694049,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeongtong",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeongtong",
+      "schedule_lead_ticks": 10,
+      "schedule_reason": "offer:1:1:cafe",
+      "scheduled_tick": 15,
+      "skill": "코딩 입문",
+      "teach_mode": "1:1",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 15,
+    "schedule_lead_ticks": 10,
+    "duration_ticks": 1,
+    "expected_closed_at_tick": 16,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2574661,
+      "lng": 127.0694049,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeongtong",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "freelancer_daytime",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.75,
+        "density_food": 0.72,
+        "density_nature": 0.45,
+        "group_friendliness": 0.74,
+        "night_friendliness": 0.58
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0257",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 4,
+      "expected_closed_at_tick": 32,
+      "fee": 11863,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 2500,
+        "passthrough_total": 2500,
+        "peer_labor_fee": 9363,
+        "total": 11863,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_51347",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "night_social",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:home",
+          "group_friendly_region",
+          "night_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.68,
+          "density_food": 0.85,
+          "density_nature": 0.2,
+          "group_friendliness": 0.7,
+          "night_friendliness": 0.82
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2678702,
+        "lng": 127.0302801,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_ingye",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_ingye",
+      "schedule_lead_ticks": 23,
+      "schedule_reason": "offer:small_group:home",
+      "scheduled_tick": 28,
+      "skill": "핸드드립",
+      "teach_mode": "small_group",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 28,
+    "schedule_lead_ticks": 23,
+    "duration_ticks": 4,
+    "expected_closed_at_tick": 32,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2678702,
+      "lng": 127.0302801,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_ingye",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "night_social",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:home",
+        "group_friendly_region",
+        "night_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.68,
+        "density_food": 0.85,
+        "density_nature": 0.2,
+        "group_friendliness": 0.7,
+        "night_friendliness": 0.82
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0263",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 48,
+      "fee": 10769,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 3000,
+        "passthrough_total": 3000,
+        "peer_labor_fee": 7769,
+        "total": 10769,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_75715",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "senior_active",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2727762,
+        "lng": 127.041038,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_maetan",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 40,
+      "schedule_reason": "offer:small_group:home",
+      "scheduled_tick": 45,
+      "skill": "다도",
+      "teach_mode": "small_group",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 45,
+    "schedule_lead_ticks": 40,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 48,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2727762,
+      "lng": 127.041038,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_maetan",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "senior_active",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0302",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 15,
+      "fee": 16818,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 14818,
+        "total": 16818,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_72616",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "spontaneous",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region",
+          "night_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.71,
+          "density_food": 0.82,
+          "density_nature": 0.25,
+          "group_friendliness": 0.72,
+          "night_friendliness": 0.8
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2951925,
+        "lng": 127.0279903,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeonmu",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeonmu",
+      "schedule_lead_ticks": 7,
+      "schedule_reason": "offer:1:1:cafe",
+      "scheduled_tick": 13,
+      "skill": "우쿨렐레",
+      "teach_mode": "1:1",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 13,
+    "schedule_lead_ticks": 7,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 15,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2951925,
+      "lng": 127.0279903,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeonmu",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "spontaneous",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region",
+        "night_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.71,
+        "density_food": 0.82,
+        "density_nature": 0.25,
+        "group_friendliness": 0.72,
+        "night_friendliness": 0.8
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0305",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 28,
+      "fee": 18551,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 2500,
+        "passthrough_total": 2500,
+        "peer_labor_fee": 16051,
+        "total": 18551,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_55082",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "night_social",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:home",
+          "group_friendly_region",
+          "night_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.68,
+          "density_food": 0.85,
+          "density_nature": 0.2,
+          "group_friendliness": 0.7,
+          "night_friendliness": 0.82
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2683111,
+        "lng": 127.0315904,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_ingye",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_ingye",
+      "schedule_lead_ticks": 20,
+      "schedule_reason": "offer:1:1:home",
+      "scheduled_tick": 26,
+      "skill": "핸드드립",
+      "teach_mode": "1:1",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 26,
+    "schedule_lead_ticks": 20,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 28,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2683111,
+      "lng": 127.0315904,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_ingye",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "night_social",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:home",
+        "group_friendly_region",
+        "night_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.68,
+        "density_food": 0.85,
+        "density_nature": 0.2,
+        "group_friendliness": 0.7,
+        "night_friendliness": 0.82
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 1,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0307",
+    "payload": {
+      "capacity": 4,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 46,
+      "fee": 11255,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 2000,
+        "peer_labor_fee": 9255,
+        "total": 11255,
+        "venue_rental": 2000
+      },
+      "host_persona_id": "A_50492",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "freelancer_daytime",
+        "participant_target_count": 4,
+        "reason_tags": [
+          "same_region_host",
+          "small_group",
+          "venue:cafe",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.75,
+          "density_food": 0.72,
+          "density_nature": 0.45,
+          "group_friendliness": 0.74,
+          "night_friendliness": 0.58
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "cafe",
+        "confidence": 0.55,
+        "lat": 37.2585332,
+        "lng": 127.0701704,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_yeongtong",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeongtong",
+      "schedule_lead_ticks": 37,
+      "schedule_reason": "offer:small_group:cafe",
+      "scheduled_tick": 43,
+      "skill": "코딩 입문",
+      "teach_mode": "small_group",
+      "venue_type": "cafe"
+    },
+    "scheduled_tick": 43,
+    "schedule_lead_ticks": 37,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 46,
+    "map_anchor": {
+      "category": "cafe",
+      "confidence": 0.55,
+      "lat": 37.2585332,
+      "lng": 127.0701704,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_yeongtong",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "freelancer_daytime",
+      "participant_target_count": 4,
+      "reason_tags": [
+        "same_region_host",
+        "small_group",
+        "venue:cafe",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.75,
+        "density_food": 0.72,
+        "density_nature": 0.45,
+        "group_friendliness": 0.74,
+        "night_friendliness": 0.58
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
   },
   {
     "tick": 1,
@@ -201,18 +3039,8 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0131"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0131"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0132"
   },
   {
     "tick": 1,
@@ -221,18 +3049,8 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0133"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0133"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0135"
   },
   {
     "tick": 1,
@@ -241,18 +3059,8 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0136"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0136"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0217"
   },
   {
     "tick": 1,
@@ -261,18 +3069,8 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0240"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0240"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0251"
   },
   {
     "tick": 1,
@@ -281,18 +3079,8 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0257"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0257"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0263"
   },
   {
     "tick": 1,
@@ -301,28 +3089,13 @@
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0302"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0302"
   },
   {
     "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0305"
-  },
-  {
-    "tick": 1,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0305"
-  },
-  {
-    "tick": 1,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0307"
   },
   {
     "tick": 1,
@@ -332,7 +3105,352 @@
   {
     "tick": 2,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_0418"
+    "spot_id": "S_0418",
+    "payload": {
+      "capacity": 1,
+      "duration_ticks": 2,
+      "expected_closed_at_tick": 36,
+      "fee": 16818,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 2500,
+        "passthrough_total": 2500,
+        "peer_labor_fee": 14318,
+        "total": 16818,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_47667",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "freelancer_daytime",
+        "participant_target_count": 1,
+        "reason_tags": [
+          "same_region_host",
+          "1:1",
+          "venue:home",
+          "cafe_dense_region",
+          "group_friendly_region"
+        ],
+        "region_character": {
+          "density_cafe": 0.75,
+          "density_food": 0.72,
+          "density_nature": 0.45,
+          "group_friendliness": 0.74,
+          "night_friendliness": 0.58
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "offer",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2564236,
+        "lng": 127.0698553,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_yeongtong",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "offer",
+      "region_id": "emd_yeongtong",
+      "schedule_lead_ticks": 26,
+      "schedule_reason": "offer:1:1:home",
+      "scheduled_tick": 34,
+      "skill": "핸드드립",
+      "teach_mode": "1:1",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 34,
+    "schedule_lead_ticks": 26,
+    "duration_ticks": 2,
+    "expected_closed_at_tick": 36,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2564236,
+      "lng": 127.0698553,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_yeongtong",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "freelancer_daytime",
+      "participant_target_count": 1,
+      "reason_tags": [
+        "same_region_host",
+        "1:1",
+        "venue:home",
+        "cafe_dense_region",
+        "group_friendly_region"
+      ],
+      "region_character": {
+        "density_cafe": 0.75,
+        "density_food": 0.72,
+        "density_nature": 0.45,
+        "group_friendliness": 0.74,
+        "night_friendliness": 0.58
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0421",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 48,
+      "fee": 8061,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 8061,
+        "total": 8061,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_11267",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "small_group",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2716823,
+        "lng": 127.0397434,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 36,
+      "schedule_reason": "request_matched:small_group:park",
+      "scheduled_tick": 45,
+      "skill": "스마트폰 사진",
+      "teach_mode": "small_group",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 45,
+    "schedule_lead_ticks": 36,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 48,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2716823,
+      "lng": 127.0397434,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "small_group",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0464",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 50,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_15778",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.269496,
+        "lng": 127.0393117,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 37,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 47,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 47,
+    "schedule_lead_ticks": 37,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 50,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.269496,
+      "lng": 127.0393117,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 2,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_0513",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 3,
+      "expected_closed_at_tick": 40,
+      "fee": 5182,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 0,
+        "passthrough_total": 0,
+        "peer_labor_fee": 5182,
+        "total": 5182,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_17455",
+      "host_skill_level": 3,
+      "hotspot_signal": {
+        "host_persona_type": "weekend_explorer",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:park"
+        ],
+        "region_character": {
+          "density_cafe": 0.58,
+          "density_food": 0.6,
+          "density_nature": 0.38,
+          "group_friendliness": 0.6,
+          "night_friendliness": 0.5
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "park",
+        "confidence": 0.55,
+        "lat": 37.2702522,
+        "lng": 127.0416687,
+        "match_reason": "region_center_public_jitter",
+        "region_id": "emd_maetan",
+        "type": "region_public_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_maetan",
+      "schedule_lead_ticks": 26,
+      "schedule_reason": "request_matched:workshop:park",
+      "scheduled_tick": 37,
+      "skill": "스마트폰 사진",
+      "teach_mode": "workshop",
+      "venue_type": "park"
+    },
+    "scheduled_tick": 37,
+    "schedule_lead_ticks": 26,
+    "duration_ticks": 3,
+    "expected_closed_at_tick": 40,
+    "map_anchor": {
+      "category": "park",
+      "confidence": 0.55,
+      "lat": 37.2702522,
+      "lng": 127.0416687,
+      "match_reason": "region_center_public_jitter",
+      "region_id": "emd_maetan",
+      "type": "region_public_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "weekend_explorer",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:park"
+      ],
+      "region_character": {
+        "density_cafe": 0.58,
+        "density_food": 0.6,
+        "density_nature": 0.38,
+        "group_friendliness": 0.6,
+        "night_friendliness": 0.5
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
   },
   {
     "tick": 2,
@@ -341,28 +3459,13 @@
   },
   {
     "tick": 2,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0421"
-  },
-  {
-    "tick": 2,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0421"
   },
   {
     "tick": 2,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0464"
-  },
-  {
-    "tick": 2,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0464"
-  },
-  {
-    "tick": 2,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_0513"
   },
   {
     "tick": 2,
@@ -436,59 +3539,105 @@
   },
   {
     "tick": 5,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_1030",
+    "payload": {
+      "capacity": 3,
+      "duration_ticks": 6,
+      "expected_closed_at_tick": 48,
+      "fee": 8535,
+      "fee_breakdown": {
+        "equipment_rental": 0,
+        "material_cost": 3000,
+        "passthrough_total": 3000,
+        "peer_labor_fee": 5535,
+        "total": 8535,
+        "venue_rental": 0
+      },
+      "host_persona_id": "A_10053",
+      "host_skill_level": 4,
+      "hotspot_signal": {
+        "host_persona_type": "planner",
+        "participant_target_count": 3,
+        "reason_tags": [
+          "workshop",
+          "venue:home"
+        ],
+        "region_character": {
+          "density_cafe": 0.5,
+          "density_food": 0.55,
+          "density_nature": 0.62,
+          "group_friendliness": 0.55,
+          "night_friendliness": 0.4
+        },
+        "signal_type": "teach_spot",
+        "state": "forming"
+      },
+      "intent": "request",
+      "map_anchor": {
+        "category": "public_meetup_proxy",
+        "confidence": 0.45,
+        "lat": 37.2836561,
+        "lng": 126.9917807,
+        "match_reason": "home_venue_public_proxy",
+        "region_id": "emd_hwaseo",
+        "type": "home_public_proxy_jitter"
+      },
+      "origination_mode": "request_matched",
+      "region_id": "emd_hwaseo",
+      "schedule_lead_ticks": 17,
+      "schedule_reason": "request_matched:workshop:home",
+      "scheduled_tick": 42,
+      "skill": "드로잉",
+      "teach_mode": "workshop",
+      "venue_type": "home"
+    },
+    "scheduled_tick": 42,
+    "schedule_lead_ticks": 17,
+    "duration_ticks": 6,
+    "expected_closed_at_tick": 48,
+    "map_anchor": {
+      "category": "public_meetup_proxy",
+      "confidence": 0.45,
+      "lat": 37.2836561,
+      "lng": 126.9917807,
+      "match_reason": "home_venue_public_proxy",
+      "region_id": "emd_hwaseo",
+      "type": "home_public_proxy_jitter"
+    },
+    "hotspot_signal": {
+      "host_persona_type": "planner",
+      "participant_target_count": 3,
+      "reason_tags": [
+        "workshop",
+        "venue:home"
+      ],
+      "region_character": {
+        "density_cafe": 0.5,
+        "density_food": 0.55,
+        "density_nature": 0.62,
+        "group_friendliness": 0.55,
+        "night_friendliness": 0.4
+      },
+      "signal_type": "teach_spot",
+      "state": "forming"
+    }
+  },
+  {
+    "tick": 5,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_0421"
   },
   {
     "tick": 5,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_1030"
-  },
-  {
-    "tick": 5,
     "event_type": "SPOT_MATCHED",
     "spot_id": "S_1030"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0014"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_0018"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0039"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0070"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0078"
   },
   {
     "tick": 6,
     "event_type": "NO_SHOW",
     "spot_id": "S_0078",
     "agent_id": "A_90213"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0083"
-  },
-  {
-    "tick": 6,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0106"
   },
   {
     "tick": 6,
@@ -499,6 +3648,11 @@
   {
     "tick": 6,
     "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_0120"
   },
   {
@@ -547,6 +3701,42 @@
     "spot_id": "S_0513"
   },
   {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0014"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0039"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0070"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0078"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0083"
+  },
+  {
+    "tick": 6,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0106"
+  },
+  {
+    "tick": 7,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0091",
+    "agent_id": "A_19351"
+  },
+  {
     "tick": 7,
     "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_0009"
@@ -563,39 +3753,8 @@
   },
   {
     "tick": 7,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0027"
-  },
-  {
-    "tick": 7,
     "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_0032"
-  },
-  {
-    "tick": 7,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0043"
-  },
-  {
-    "tick": 7,
-    "event_type": "SPOT_MATCHED",
-    "spot_id": "S_0072"
-  },
-  {
-    "tick": 7,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0075"
-  },
-  {
-    "tick": 7,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0091"
-  },
-  {
-    "tick": 7,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_0091",
-    "agent_id": "A_19351"
   },
   {
     "tick": 7,
@@ -634,6 +3793,31 @@
   },
   {
     "tick": 7,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0027"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0043"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0075"
+  },
+  {
+    "tick": 7,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0091"
+  },
+  {
+    "tick": 7,
     "event_type": "SPOT_STARTED",
     "spot_id": "S_0217"
   },
@@ -649,79 +3833,9 @@
   },
   {
     "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0014"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0018"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0039"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0070"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_0072"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0078"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0083"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0106"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0120"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0240"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0257"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0263"
-  },
-  {
-    "tick": 8,
     "event_type": "NO_SHOW",
     "spot_id": "S_0263",
     "agent_id": "A_20208"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0305"
-  },
-  {
-    "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0307"
   },
   {
     "tick": 8,
@@ -737,14 +3851,102 @@
   },
   {
     "tick": 8,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0418"
+    "event_type": "NO_SHOW",
+    "spot_id": "S_0418",
+    "agent_id": "A_25213"
   },
   {
     "tick": 8,
     "event_type": "NO_SHOW",
-    "spot_id": "S_0418",
-    "agent_id": "A_25213"
+    "spot_id": "S_0513",
+    "agent_id": "A_97821"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0014",
+    "expected_closed_at_tick": 33,
+    "duration_ticks": 5
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0039",
+    "expected_closed_at_tick": 34,
+    "duration_ticks": 6
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0070",
+    "expected_closed_at_tick": 46,
+    "duration_ticks": 7
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0078",
+    "expected_closed_at_tick": 27,
+    "duration_ticks": 4
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0083",
+    "expected_closed_at_tick": 28,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0106",
+    "expected_closed_at_tick": 19,
+    "duration_ticks": 5
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_0072"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0018"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0120"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0240"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0257"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0263"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0305"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0307"
+  },
+  {
+    "tick": 8,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0418"
   },
   {
     "tick": 8,
@@ -760,62 +3962,6 @@
     "tick": 8,
     "event_type": "SPOT_STARTED",
     "spot_id": "S_0513"
-  },
-  {
-    "tick": 8,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_0513",
-    "agent_id": "A_97821"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0009"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0012"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0022"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0027"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0032"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0043"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0072"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0075"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0091"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0097"
   },
   {
     "tick": 9,
@@ -825,29 +3971,9 @@
   },
   {
     "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0130"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0131"
-  },
-  {
-    "tick": 9,
     "event_type": "NO_SHOW",
     "spot_id": "S_0131",
     "agent_id": "A_23173"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0132"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0133"
   },
   {
     "tick": 9,
@@ -857,143 +3983,273 @@
   },
   {
     "tick": 9,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0135"
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0027",
+    "expected_closed_at_tick": 24,
+    "duration_ticks": 4
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0043",
+    "expected_closed_at_tick": 36,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0075",
+    "expected_closed_at_tick": 48,
+    "duration_ticks": 4
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0091",
+    "expected_closed_at_tick": 31,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0217",
+    "expected_closed_at_tick": 21,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0251",
+    "expected_closed_at_tick": 16,
+    "duration_ticks": 1
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0302",
+    "expected_closed_at_tick": 15,
+    "duration_ticks": 2
   },
   {
     "tick": 9,
     "event_type": "SPOT_STARTED",
-    "spot_id": "S_0136"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0217"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0251"
-  },
-  {
-    "tick": 9,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0302"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0018"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0120"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0240"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0257"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0263"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0305"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0307"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0418"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0421"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0464"
-  },
-  {
-    "tick": 10,
-    "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0513"
-  },
-  {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
     "spot_id": "S_0009"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0012"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0022"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0032"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0072"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0097"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0130"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0131"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0132"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0133"
   },
   {
-    "tick": 11,
-    "event_type": "SPOT_COMPLETED",
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
     "spot_id": "S_0135"
+  },
+  {
+    "tick": 9,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0136"
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0018",
+    "expected_closed_at_tick": 34,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0120",
+    "expected_closed_at_tick": 42,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0240",
+    "expected_closed_at_tick": 28,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0257",
+    "expected_closed_at_tick": 32,
+    "duration_ticks": 4
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0263",
+    "expected_closed_at_tick": 48,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0305",
+    "expected_closed_at_tick": 28,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0307",
+    "expected_closed_at_tick": 46,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0418",
+    "expected_closed_at_tick": 36,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0421",
+    "expected_closed_at_tick": 48,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0464",
+    "expected_closed_at_tick": 50,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 10,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0513",
+    "expected_closed_at_tick": 40,
+    "duration_ticks": 3
   },
   {
     "tick": 11,
     "event_type": "SPOT_COMPLETED",
-    "spot_id": "S_0136"
+    "spot_id": "S_0009",
+    "expected_closed_at_tick": 51,
+    "duration_ticks": 7
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0012",
+    "expected_closed_at_tick": 49,
+    "duration_ticks": 6
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0022",
+    "expected_closed_at_tick": 21,
+    "duration_ticks": 5
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0032",
+    "expected_closed_at_tick": 16,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0072",
+    "expected_closed_at_tick": 15,
+    "duration_ticks": 3
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0097",
+    "expected_closed_at_tick": 29,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0130",
+    "expected_closed_at_tick": 36,
+    "duration_ticks": 5
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0131",
+    "expected_closed_at_tick": 20,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0132",
+    "expected_closed_at_tick": 37,
+    "duration_ticks": 2
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0133",
+    "expected_closed_at_tick": 25,
+    "duration_ticks": 6
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0135",
+    "expected_closed_at_tick": 26,
+    "duration_ticks": 5
+  },
+  {
+    "tick": 11,
+    "event_type": "SPOT_COMPLETED",
+    "spot_id": "S_0136",
+    "expected_closed_at_tick": 21,
+    "duration_ticks": 2
   },
   {
     "tick": 13,
@@ -1004,11 +4260,6 @@
     "tick": 13,
     "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_1030"
-  },
-  {
-    "tick": 15,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_0037"
   },
   {
     "tick": 15,
@@ -1024,8 +4275,9 @@
   },
   {
     "tick": 15,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_1030"
+    "event_type": "NO_SHOW",
+    "spot_id": "S_1030",
+    "agent_id": "A_30836"
   },
   {
     "tick": 15,
@@ -1035,9 +4287,2623 @@
   },
   {
     "tick": 15,
-    "event_type": "NO_SHOW",
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_0037"
+  },
+  {
+    "tick": 15,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_1030"
+  },
+  {
+    "tick": 17,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0032",
+    "agent_id": "A_46002",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 17,
+      "persona_id": "A_46002",
+      "reason": "activity_completed",
+      "return_home_tick": 17,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 17,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0032",
+    "agent_id": "A_46002",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_46002",
+      "reason": "activity_completed",
+      "returned_at_tick": 17,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 18,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0032",
+    "agent_id": "A_52568",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 18,
+      "persona_id": "A_52568",
+      "reason": "activity_completed",
+      "return_home_tick": 19,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 19,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0032",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 19,
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "return_home_tick": 20,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 19,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0106",
+    "agent_id": "A_11792",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 19,
+      "persona_id": "A_11792",
+      "reason": "activity_completed",
+      "return_home_tick": 20,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 19,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0032",
+    "agent_id": "A_52568",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_52568",
+      "reason": "activity_completed",
+      "returned_at_tick": 19,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0106",
+    "agent_id": "A_88385",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 20,
+      "persona_id": "A_88385",
+      "reason": "activity_completed",
+      "return_home_tick": 21,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0106",
+    "agent_id": "A_96499",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 20,
+      "persona_id": "A_96499",
+      "reason": "activity_completed",
+      "return_home_tick": 21,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0131",
+    "agent_id": "A_14947",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 20,
+      "persona_id": "A_14947",
+      "reason": "activity_completed",
+      "return_home_tick": 20,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0131",
+    "agent_id": "A_24322",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 20,
+      "persona_id": "A_24322",
+      "reason": "activity_completed",
+      "return_home_tick": 21,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0032",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "returned_at_tick": 20,
+      "spot_id": "S_0032",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0106",
+    "agent_id": "A_11792",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_11792",
+      "reason": "activity_completed",
+      "returned_at_tick": 20,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 20,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0131",
+    "agent_id": "A_14947",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_14947",
+      "reason": "activity_completed",
+      "returned_at_tick": 20,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0022",
+    "agent_id": "A_35928",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 21,
+      "persona_id": "A_35928",
+      "reason": "activity_completed",
+      "return_home_tick": 23,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0022",
+    "agent_id": "A_40539",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 21,
+      "persona_id": "A_40539",
+      "reason": "activity_completed",
+      "return_home_tick": 22,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0022",
+    "agent_id": "A_84000",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 21,
+      "persona_id": "A_84000",
+      "reason": "activity_completed",
+      "return_home_tick": 22,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0106",
+    "agent_id": "A_90623",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 21,
+      "persona_id": "A_90623",
+      "reason": "activity_completed",
+      "return_home_tick": 22,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0136",
+    "agent_id": "A_41133",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 21,
+      "persona_id": "A_41133",
+      "reason": "activity_completed",
+      "return_home_tick": 21,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0106",
+    "agent_id": "A_88385",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_88385",
+      "reason": "activity_completed",
+      "returned_at_tick": 21,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0106",
+    "agent_id": "A_96499",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_96499",
+      "reason": "activity_completed",
+      "returned_at_tick": 21,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0131",
+    "agent_id": "A_24322",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_24322",
+      "reason": "activity_completed",
+      "returned_at_tick": 21,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 21,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0136",
+    "agent_id": "A_41133",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_41133",
+      "reason": "activity_completed",
+      "returned_at_tick": 21,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 22,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0131",
+    "agent_id": "A_54791",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 22,
+      "persona_id": "A_54791",
+      "reason": "activity_completed",
+      "return_home_tick": 23,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 22,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0136",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 22,
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "return_home_tick": 24,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 22,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0022",
+    "agent_id": "A_40539",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_40539",
+      "reason": "activity_completed",
+      "returned_at_tick": 22,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 22,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0022",
+    "agent_id": "A_84000",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_84000",
+      "reason": "activity_completed",
+      "returned_at_tick": 22,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 22,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0106",
+    "agent_id": "A_90623",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_90623",
+      "reason": "activity_completed",
+      "returned_at_tick": 22,
+      "spot_id": "S_0106",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 23,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0136",
+    "agent_id": "A_50662",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 23,
+      "persona_id": "A_50662",
+      "reason": "activity_completed",
+      "return_home_tick": 24,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 23,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0022",
+    "agent_id": "A_35928",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_35928",
+      "reason": "activity_completed",
+      "returned_at_tick": 23,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 23,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0131",
+    "agent_id": "A_54791",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_54791",
+      "reason": "activity_completed",
+      "returned_at_tick": 23,
+      "spot_id": "S_0131",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 24,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0022",
+    "agent_id": "A_45804",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 24,
+      "persona_id": "A_45804",
+      "reason": "activity_completed",
+      "return_home_tick": 24,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 24,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0022",
+    "agent_id": "A_45804",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_45804",
+      "reason": "activity_completed",
+      "returned_at_tick": 24,
+      "spot_id": "S_0022",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 24,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0136",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "returned_at_tick": 24,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 24,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0136",
+    "agent_id": "A_50662",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_50662",
+      "reason": "activity_completed",
+      "returned_at_tick": 24,
+      "spot_id": "S_0136",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 25,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0027",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 25,
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "return_home_tick": 25,
+      "spot_id": "S_0027",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 25,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0133",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 25,
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "return_home_tick": 27,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 25,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0133",
+    "agent_id": "A_15544",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 25,
+      "persona_id": "A_15544",
+      "reason": "activity_completed",
+      "return_home_tick": 25,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 25,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0027",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "returned_at_tick": 25,
+      "spot_id": "S_0027",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 25,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0133",
+    "agent_id": "A_15544",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15544",
+      "reason": "activity_completed",
+      "returned_at_tick": 25,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 26,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0133",
+    "agent_id": "A_68800",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 26,
+      "persona_id": "A_68800",
+      "reason": "activity_completed",
+      "return_home_tick": 28,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 26,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0135",
+    "agent_id": "A_22387",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 26,
+      "persona_id": "A_22387",
+      "reason": "activity_completed",
+      "return_home_tick": 26,
+      "spot_id": "S_0135",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 26,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0135",
+    "agent_id": "A_22387",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_22387",
+      "reason": "activity_completed",
+      "returned_at_tick": 26,
+      "spot_id": "S_0135",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 27,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0027",
+    "agent_id": "A_48680",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 27,
+      "persona_id": "A_48680",
+      "reason": "activity_completed",
+      "return_home_tick": 29,
+      "spot_id": "S_0027",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 27,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0133",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "returned_at_tick": 27,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 28,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0078",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 28,
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "return_home_tick": 30,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 28,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0078",
+    "agent_id": "A_53054",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 28,
+      "persona_id": "A_53054",
+      "reason": "activity_completed",
+      "return_home_tick": 29,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 28,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0133",
+    "agent_id": "A_68800",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_68800",
+      "reason": "activity_completed",
+      "returned_at_tick": 28,
+      "spot_id": "S_0133",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 29,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0037",
+    "agent_id": "A_53713",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 29,
+      "persona_id": "A_53713",
+      "reason": "activity_completed",
+      "return_home_tick": 29,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 29,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0135",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 29,
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "return_home_tick": 30,
+      "spot_id": "S_0135",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 29,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0027",
+    "agent_id": "A_48680",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_48680",
+      "reason": "activity_completed",
+      "returned_at_tick": 29,
+      "spot_id": "S_0027",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 29,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0037",
+    "agent_id": "A_53713",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_53713",
+      "reason": "activity_completed",
+      "returned_at_tick": 29,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 29,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0078",
+    "agent_id": "A_53054",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_53054",
+      "reason": "activity_completed",
+      "returned_at_tick": 29,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0037",
+    "agent_id": "A_10053",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 30,
+      "persona_id": "A_10053",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0037",
+    "agent_id": "A_46585",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 30,
+      "persona_id": "A_46585",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0078",
+    "agent_id": "A_23566",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 30,
+      "persona_id": "A_23566",
+      "reason": "activity_completed",
+      "return_home_tick": 31,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0083",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 30,
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "return_home_tick": 31,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0083",
+    "agent_id": "A_42472",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 30,
+      "persona_id": "A_42472",
+      "reason": "activity_completed",
+      "return_home_tick": 30,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0097",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 30,
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0097",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0078",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "returned_at_tick": 30,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0083",
+    "agent_id": "A_42472",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_42472",
+      "reason": "activity_completed",
+      "returned_at_tick": 30,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 30,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0135",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "returned_at_tick": 30,
+      "spot_id": "S_0135",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0083",
+    "agent_id": "A_76910",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 31,
+      "persona_id": "A_76910",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0091",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 31,
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0091",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 31,
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "return_home_tick": 31,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0091",
+    "agent_id": "A_42850",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 31,
+      "persona_id": "A_42850",
+      "reason": "activity_completed",
+      "return_home_tick": 32,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0097",
+    "agent_id": "A_15376",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 31,
+      "persona_id": "A_15376",
+      "reason": "activity_completed",
+      "return_home_tick": 31,
+      "spot_id": "S_0097",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0078",
+    "agent_id": "A_23566",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_23566",
+      "reason": "activity_completed",
+      "returned_at_tick": 31,
+      "spot_id": "S_0078",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0083",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "returned_at_tick": 31,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0091",
+    "agent_id": "A_17944",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_17944",
+      "reason": "activity_completed",
+      "returned_at_tick": 31,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 31,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0097",
+    "agent_id": "A_15376",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15376",
+      "reason": "activity_completed",
+      "returned_at_tick": 31,
+      "spot_id": "S_0097",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0037",
+    "agent_id": "A_10053",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_10053",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0037",
+    "agent_id": "A_46585",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_46585",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0037",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0083",
+    "agent_id": "A_76910",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_76910",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0083",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0091",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0091",
+    "agent_id": "A_42850",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_42850",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0091",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 32,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0097",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "returned_at_tick": 32,
+      "spot_id": "S_0097",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 33,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0014",
+    "agent_id": "A_14852",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "leave_tick": 33,
+      "persona_id": "A_14852",
+      "reason": "activity_completed",
+      "return_home_tick": 33,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 33,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0014",
+    "agent_id": "A_14852",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "persona_id": "A_14852",
+      "reason": "activity_completed",
+      "returned_at_tick": 33,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 34,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0014",
+    "agent_id": "A_77952",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "leave_tick": 34,
+      "persona_id": "A_77952",
+      "reason": "activity_completed",
+      "return_home_tick": 34,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 34,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0014",
+    "agent_id": "A_77952",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "persona_id": "A_77952",
+      "reason": "activity_completed",
+      "returned_at_tick": 34,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_sinchon"
+    }
+  },
+  {
+    "tick": 35,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0014",
+    "agent_id": "A_90422",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "leave_tick": 35,
+      "persona_id": "A_90422",
+      "reason": "activity_completed",
+      "return_home_tick": 37,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0018",
+    "agent_id": "A_26011",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 36,
+      "persona_id": "A_26011",
+      "reason": "activity_completed",
+      "return_home_tick": 37,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0039",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 36,
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "return_home_tick": 37,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0039",
+    "agent_id": "A_17456",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 36,
+      "persona_id": "A_17456",
+      "reason": "activity_completed",
+      "return_home_tick": 37,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0039",
+    "agent_id": "A_70811",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 36,
+      "persona_id": "A_70811",
+      "reason": "activity_completed",
+      "return_home_tick": 36,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0257",
+    "agent_id": "A_17331",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "leave_tick": 36,
+      "persona_id": "A_17331",
+      "reason": "activity_completed",
+      "return_home_tick": 36,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0039",
+    "agent_id": "A_70811",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_70811",
+      "reason": "activity_completed",
+      "returned_at_tick": 36,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 36,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0257",
+    "agent_id": "A_17331",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "persona_id": "A_17331",
+      "reason": "activity_completed",
+      "returned_at_tick": 36,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0018",
+    "agent_id": "A_15014",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 37,
+      "persona_id": "A_15014",
+      "reason": "activity_completed",
+      "return_home_tick": 39,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0018",
+    "agent_id": "A_45774",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 37,
+      "persona_id": "A_45774",
+      "reason": "activity_completed",
+      "return_home_tick": 38,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0130",
+    "agent_id": "A_11934",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 37,
+      "persona_id": "A_11934",
+      "reason": "activity_completed",
+      "return_home_tick": 38,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0257",
+    "agent_id": "A_51347",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "leave_tick": 37,
+      "persona_id": "A_51347",
+      "reason": "activity_completed",
+      "return_home_tick": 37,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0014",
+    "agent_id": "A_90422",
+    "payload": {
+      "from_region_id": "emd_sinchon",
+      "persona_id": "A_90422",
+      "reason": "activity_completed",
+      "returned_at_tick": 37,
+      "spot_id": "S_0014",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0018",
+    "agent_id": "A_26011",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_26011",
+      "reason": "activity_completed",
+      "returned_at_tick": 37,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0039",
+    "agent_id": "A_15229",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15229",
+      "reason": "activity_completed",
+      "returned_at_tick": 37,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0039",
+    "agent_id": "A_17456",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_17456",
+      "reason": "activity_completed",
+      "returned_at_tick": 37,
+      "spot_id": "S_0039",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 37,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0257",
+    "agent_id": "A_51347",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "persona_id": "A_51347",
+      "reason": "activity_completed",
+      "returned_at_tick": 37,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 38,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0132",
+    "agent_id": "A_22704",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 38,
+      "persona_id": "A_22704",
+      "reason": "activity_completed",
+      "return_home_tick": 39,
+      "spot_id": "S_0132",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 38,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0257",
+    "agent_id": "A_50306",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "leave_tick": 38,
+      "persona_id": "A_50306",
+      "reason": "activity_completed",
+      "return_home_tick": 38,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 38,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0018",
+    "agent_id": "A_45774",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_45774",
+      "reason": "activity_completed",
+      "returned_at_tick": 38,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 38,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0130",
+    "agent_id": "A_11934",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_11934",
+      "reason": "activity_completed",
+      "returned_at_tick": 38,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 38,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0257",
+    "agent_id": "A_50306",
+    "payload": {
+      "from_region_id": "emd_ingye",
+      "persona_id": "A_50306",
+      "reason": "activity_completed",
+      "returned_at_tick": 38,
+      "spot_id": "S_0257",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0043",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 39,
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "return_home_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0043",
+    "agent_id": "A_21104",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 39,
+      "persona_id": "A_21104",
+      "reason": "activity_completed",
+      "return_home_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0043",
+    "agent_id": "A_27601",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 39,
+      "persona_id": "A_27601",
+      "reason": "activity_completed",
+      "return_home_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0130",
+    "agent_id": "A_30036",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 39,
+      "persona_id": "A_30036",
+      "reason": "activity_completed",
+      "return_home_tick": 40,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0130",
+    "agent_id": "A_93130",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 39,
+      "persona_id": "A_93130",
+      "reason": "activity_completed",
+      "return_home_tick": 40,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0018",
+    "agent_id": "A_15014",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_15014",
+      "reason": "activity_completed",
+      "returned_at_tick": 39,
+      "spot_id": "S_0018",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 39,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0132",
+    "agent_id": "A_22704",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_22704",
+      "reason": "activity_completed",
+      "returned_at_tick": 39,
+      "spot_id": "S_0132",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0132",
+    "agent_id": "A_22097",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 40,
+      "persona_id": "A_22097",
+      "reason": "activity_completed",
+      "return_home_tick": 41,
+      "spot_id": "S_0132",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0513",
+    "agent_id": "A_61873",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 40,
+      "persona_id": "A_61873",
+      "reason": "activity_completed",
+      "return_home_tick": 41,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0043",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "returned_at_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0043",
+    "agent_id": "A_21104",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_21104",
+      "reason": "activity_completed",
+      "returned_at_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0043",
+    "agent_id": "A_27601",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_27601",
+      "reason": "activity_completed",
+      "returned_at_tick": 40,
+      "spot_id": "S_0043",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0130",
+    "agent_id": "A_30036",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_30036",
+      "reason": "activity_completed",
+      "returned_at_tick": 40,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 40,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0130",
+    "agent_id": "A_93130",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_93130",
+      "reason": "activity_completed",
+      "returned_at_tick": 40,
+      "spot_id": "S_0130",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 41,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0513",
+    "agent_id": "A_42914",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 41,
+      "persona_id": "A_42914",
+      "reason": "activity_completed",
+      "return_home_tick": 42,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 41,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0132",
+    "agent_id": "A_22097",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_22097",
+      "reason": "activity_completed",
+      "returned_at_tick": 41,
+      "spot_id": "S_0132",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 41,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0513",
+    "agent_id": "A_61873",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_61873",
+      "reason": "activity_completed",
+      "returned_at_tick": 41,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 42,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0513",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 42,
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "return_home_tick": 43,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 42,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0513",
+    "agent_id": "A_42914",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_42914",
+      "reason": "activity_completed",
+      "returned_at_tick": 42,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 43,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0513",
+    "agent_id": "A_17455",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_17455",
+      "reason": "activity_completed",
+      "returned_at_tick": 43,
+      "spot_id": "S_0513",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 44,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0120",
+    "agent_id": "A_74454",
+    "payload": {
+      "from_region_id": "emd_yeonmu",
+      "leave_tick": 44,
+      "persona_id": "A_74454",
+      "reason": "activity_completed",
+      "return_home_tick": 45,
+      "spot_id": "S_0120",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 45,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0120",
+    "agent_id": "A_37659",
+    "payload": {
+      "from_region_id": "emd_yeonmu",
+      "leave_tick": 45,
+      "persona_id": "A_37659",
+      "reason": "activity_completed",
+      "return_home_tick": 45,
+      "spot_id": "S_0120",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 45,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0120",
+    "agent_id": "A_37659",
+    "payload": {
+      "from_region_id": "emd_yeonmu",
+      "persona_id": "A_37659",
+      "reason": "activity_completed",
+      "returned_at_tick": 45,
+      "spot_id": "S_0120",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 45,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0120",
+    "agent_id": "A_74454",
+    "payload": {
+      "from_region_id": "emd_yeonmu",
+      "persona_id": "A_74454",
+      "reason": "activity_completed",
+      "returned_at_tick": 45,
+      "spot_id": "S_0120",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 46,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0070",
+    "agent_id": "A_59308",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 46,
+      "persona_id": "A_59308",
+      "reason": "activity_completed",
+      "return_home_tick": 46,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 46,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0070",
+    "agent_id": "A_59308",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_59308",
+      "reason": "activity_completed",
+      "returned_at_tick": 46,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 47,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0070",
+    "agent_id": "A_41186",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 47,
+      "persona_id": "A_41186",
+      "reason": "activity_completed",
+      "return_home_tick": 48,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 47,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0070",
+    "agent_id": "A_53713",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 47,
+      "persona_id": "A_53713",
+      "reason": "activity_completed",
+      "return_home_tick": 47,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 47,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0307",
+    "agent_id": "A_54396",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 47,
+      "persona_id": "A_54396",
+      "reason": "activity_completed",
+      "return_home_tick": 47,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 47,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0070",
+    "agent_id": "A_53713",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_53713",
+      "reason": "activity_completed",
+      "returned_at_tick": 47,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 47,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0307",
+    "agent_id": "A_54396",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_54396",
+      "reason": "activity_completed",
+      "returned_at_tick": 47,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0070",
+    "agent_id": "A_12260",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 48,
+      "persona_id": "A_12260",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0075",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 48,
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0307",
+    "agent_id": "A_50492",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 48,
+      "persona_id": "A_50492",
+      "reason": "activity_completed",
+      "return_home_tick": 49,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0307",
+    "agent_id": "A_73156",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "leave_tick": 48,
+      "persona_id": "A_73156",
+      "reason": "activity_completed",
+      "return_home_tick": 49,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0421",
+    "agent_id": "A_46002",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 48,
+      "persona_id": "A_46002",
+      "reason": "activity_completed",
+      "return_home_tick": 48,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
     "spot_id": "S_1030",
-    "agent_id": "A_30836"
+    "agent_id": "A_10053",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 48,
+      "persona_id": "A_10053",
+      "reason": "activity_completed",
+      "return_home_tick": 49,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_1030",
+    "agent_id": "A_96363",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 48,
+      "persona_id": "A_96363",
+      "reason": "activity_completed",
+      "return_home_tick": 49,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0070",
+    "agent_id": "A_41186",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_41186",
+      "reason": "activity_completed",
+      "returned_at_tick": 48,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 48,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0421",
+    "agent_id": "A_46002",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_46002",
+      "reason": "activity_completed",
+      "returned_at_tick": 48,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0012",
+    "agent_id": "A_50662",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 49,
+      "persona_id": "A_50662",
+      "reason": "activity_completed",
+      "return_home_tick": 49,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_1030",
+    "agent_id": "A_50499",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 49,
+      "persona_id": "A_50499",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0012",
+    "agent_id": "A_50662",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_50662",
+      "reason": "activity_completed",
+      "returned_at_tick": 49,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0307",
+    "agent_id": "A_50492",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_50492",
+      "reason": "activity_completed",
+      "returned_at_tick": 49,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0307",
+    "agent_id": "A_73156",
+    "payload": {
+      "from_region_id": "emd_yeongtong",
+      "persona_id": "A_73156",
+      "reason": "activity_completed",
+      "returned_at_tick": 49,
+      "spot_id": "S_0307",
+      "to_region_id": "emd_yeongtong"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_1030",
+    "agent_id": "A_10053",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_10053",
+      "reason": "activity_completed",
+      "returned_at_tick": 49,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_jangan"
+    }
+  },
+  {
+    "tick": 49,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_1030",
+    "agent_id": "A_96363",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_96363",
+      "reason": "activity_completed",
+      "returned_at_tick": 49,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0012",
+    "agent_id": "A_91885",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 50,
+      "persona_id": "A_91885",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0075",
+    "agent_id": "A_86064",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 50,
+      "persona_id": "A_86064",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0075",
+    "agent_id": "A_95437",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 50,
+      "persona_id": "A_95437",
+      "reason": "activity_completed",
+      "return_home_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0421",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 50,
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "return_home_tick": 52,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0012",
+    "agent_id": "A_91885",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_91885",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0070",
+    "agent_id": "A_12260",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_12260",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_yeonmu"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0075",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0075",
+    "agent_id": "A_86064",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_86064",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0075",
+    "agent_id": "A_95437",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_95437",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_0075",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 50,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_1030",
+    "agent_id": "A_50499",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_50499",
+      "reason": "activity_completed",
+      "returned_at_tick": 50,
+      "spot_id": "S_1030",
+      "to_region_id": "emd_hwaseo"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0009",
+    "agent_id": "A_68838",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 51,
+      "persona_id": "A_68838",
+      "reason": "activity_completed",
+      "return_home_tick": 52,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0012",
+    "agent_id": "A_54350",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 51,
+      "persona_id": "A_54350",
+      "reason": "activity_completed",
+      "return_home_tick": 52,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0012",
+    "agent_id": "A_84668",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 51,
+      "persona_id": "A_84668",
+      "reason": "activity_completed",
+      "return_home_tick": 52,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0421",
+    "agent_id": "A_41029",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 51,
+      "persona_id": "A_41029",
+      "reason": "activity_completed",
+      "return_home_tick": 53,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0464",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 51,
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "return_home_tick": 52,
+      "spot_id": "S_0464",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0464",
+    "agent_id": "A_21104",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "leave_tick": 51,
+      "persona_id": "A_21104",
+      "reason": "activity_completed",
+      "return_home_tick": 51,
+      "spot_id": "S_0464",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 51,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0464",
+    "agent_id": "A_21104",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_21104",
+      "reason": "activity_completed",
+      "returned_at_tick": 51,
+      "spot_id": "S_0464",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0070",
+    "agent_id": "A_79822",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "leave_tick": 52,
+      "persona_id": "A_79822",
+      "reason": "activity_completed",
+      "return_home_tick": 53,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0009",
+    "agent_id": "A_68838",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_68838",
+      "reason": "activity_completed",
+      "returned_at_tick": 52,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0012",
+    "agent_id": "A_54350",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_54350",
+      "reason": "activity_completed",
+      "returned_at_tick": 52,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0012",
+    "agent_id": "A_84668",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_84668",
+      "reason": "activity_completed",
+      "returned_at_tick": 52,
+      "spot_id": "S_0012",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0421",
+    "agent_id": "A_11267",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_11267",
+      "reason": "activity_completed",
+      "returned_at_tick": 52,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 52,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0464",
+    "agent_id": "A_15778",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_15778",
+      "reason": "activity_completed",
+      "returned_at_tick": 52,
+      "spot_id": "S_0464",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 53,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0070",
+    "agent_id": "A_79822",
+    "payload": {
+      "from_region_id": "emd_hwaseo",
+      "persona_id": "A_79822",
+      "reason": "activity_completed",
+      "returned_at_tick": 53,
+      "spot_id": "S_0070",
+      "to_region_id": "emd_ingye"
+    }
+  },
+  {
+    "tick": 53,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0421",
+    "agent_id": "A_41029",
+    "payload": {
+      "from_region_id": "emd_maetan",
+      "persona_id": "A_41029",
+      "reason": "activity_completed",
+      "returned_at_tick": 53,
+      "spot_id": "S_0421",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 54,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0009",
+    "agent_id": "A_41133",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 54,
+      "persona_id": "A_41133",
+      "reason": "activity_completed",
+      "return_home_tick": 55,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 54,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0009",
+    "agent_id": "A_75909",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 54,
+      "persona_id": "A_75909",
+      "reason": "activity_completed",
+      "return_home_tick": 55,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 54,
+    "event_type": "PERSONA_LEAVE_SPOT",
+    "spot_id": "S_0009",
+    "agent_id": "A_83792",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "leave_tick": 54,
+      "persona_id": "A_83792",
+      "reason": "activity_completed",
+      "return_home_tick": 54,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 54,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0009",
+    "agent_id": "A_83792",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_83792",
+      "reason": "activity_completed",
+      "returned_at_tick": 54,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_gwanggyo"
+    }
+  },
+  {
+    "tick": 55,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0009",
+    "agent_id": "A_41133",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_41133",
+      "reason": "activity_completed",
+      "returned_at_tick": 55,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_maetan"
+    }
+  },
+  {
+    "tick": 55,
+    "event_type": "PERSONA_RETURN_HOME",
+    "spot_id": "S_0009",
+    "agent_id": "A_75909",
+    "payload": {
+      "from_region_id": "emd_gwanggyo",
+      "persona_id": "A_75909",
+      "reason": "activity_completed",
+      "returned_at_tick": 55,
+      "spot_id": "S_0009",
+      "to_region_id": "emd_gwanggyo"
+    }
   },
   {
     "tick": 64,
@@ -1052,17 +6918,17 @@
   {
     "tick": 65,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_8007"
-  },
-  {
-    "tick": 65,
-    "event_type": "SPOT_MATCHED",
     "spot_id": "S_8007"
   },
   {
     "tick": 65,
     "event_type": "SPOT_CREATED",
     "spot_id": "S_8052"
+  },
+  {
+    "tick": 65,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_8007"
   },
   {
     "tick": 65,
@@ -1138,21 +7004,6 @@
     "tick": 86,
     "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_8546"
-  },
-  {
-    "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_7896"
-  },
-  {
-    "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_8007"
-  },
-  {
-    "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_8052"
   },
   {
     "tick": 88,
@@ -1162,24 +7013,9 @@
   },
   {
     "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_8121"
-  },
-  {
-    "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_8211"
-  },
-  {
-    "tick": 88,
     "event_type": "NO_SHOW",
     "spot_id": "S_8211",
     "agent_id": "A_42208"
-  },
-  {
-    "tick": 88,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_8546"
   },
   {
     "tick": 88,
@@ -1194,19 +7030,49 @@
     "agent_id": "A_85483"
   },
   {
-    "tick": 89,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_10568"
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_7896"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8007"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8052"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8121"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8211"
+  },
+  {
+    "tick": 88,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8546"
   },
   {
     "tick": 89,
-    "event_type": "SPOT_MATCHED",
+    "event_type": "SPOT_CREATED",
     "spot_id": "S_10568"
   },
   {
     "tick": 89,
     "event_type": "SPOT_CREATED",
     "spot_id": "S_10578"
+  },
+  {
+    "tick": 89,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_10568"
   },
   {
     "tick": 89,
@@ -1246,11 +7112,6 @@
   {
     "tick": 95,
     "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_8986"
-  },
-  {
-    "tick": 95,
-    "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_10568"
   },
   {
@@ -1259,32 +7120,9 @@
     "spot_id": "S_10578"
   },
   {
-    "tick": 97,
-    "event_type": "SPOT_STARTED",
+    "tick": 95,
+    "event_type": "SPOT_CONFIRMED",
     "spot_id": "S_8986"
-  },
-  {
-    "tick": 97,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_8986",
-    "agent_id": "A_88385"
-  },
-  {
-    "tick": 97,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_8986",
-    "agent_id": "A_36467"
-  },
-  {
-    "tick": 97,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_8986",
-    "agent_id": "A_14250"
-  },
-  {
-    "tick": 97,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_10568"
   },
   {
     "tick": 97,
@@ -1300,11 +7138,6 @@
   },
   {
     "tick": 97,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_10578"
-  },
-  {
-    "tick": 97,
     "event_type": "NO_SHOW",
     "spot_id": "S_10578",
     "agent_id": "A_17456"
@@ -1316,29 +7149,62 @@
     "agent_id": "A_54350"
   },
   {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_14250"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_36467"
+  },
+  {
+    "tick": 97,
+    "event_type": "NO_SHOW",
+    "spot_id": "S_8986",
+    "agent_id": "A_88385"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_10568"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_10578"
+  },
+  {
+    "tick": 97,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_8986"
+  },
+  {
     "tick": 146,
     "event_type": "SPOT_CREATED",
     "spot_id": "S_18190"
   },
   {
     "tick": 146,
-    "event_type": "SPOT_MATCHED",
-    "spot_id": "S_18190"
-  },
-  {
-    "tick": 146,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_18216"
-  },
-  {
-    "tick": 146,
-    "event_type": "SPOT_MATCHED",
     "spot_id": "S_18216"
   },
   {
     "tick": 146,
     "event_type": "SPOT_CREATED",
     "spot_id": "S_18228"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18190"
+  },
+  {
+    "tick": 146,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_18216"
   },
   {
     "tick": 146,
@@ -1388,17 +7254,17 @@
   {
     "tick": 160,
     "event_type": "SPOT_CREATED",
-    "spot_id": "S_20181"
-  },
-  {
-    "tick": 160,
-    "event_type": "SPOT_MATCHED",
     "spot_id": "S_20181"
   },
   {
     "tick": 160,
     "event_type": "SPOT_CREATED",
     "spot_id": "S_20223"
+  },
+  {
+    "tick": 160,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_20181"
   },
   {
     "tick": 160,
@@ -1522,11 +7388,6 @@
   },
   {
     "tick": 179,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_19501"
-  },
-  {
-    "tick": 179,
     "event_type": "NO_SHOW",
     "spot_id": "S_19501",
     "agent_id": "A_46458"
@@ -1536,11 +7397,6 @@
     "event_type": "NO_SHOW",
     "spot_id": "S_19501",
     "agent_id": "A_66981"
-  },
-  {
-    "tick": 179,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_19959"
   },
   {
     "tick": 179,
@@ -1556,11 +7412,6 @@
   },
   {
     "tick": 179,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_20181"
-  },
-  {
-    "tick": 179,
     "event_type": "NO_SHOW",
     "spot_id": "S_20181",
     "agent_id": "A_65460"
@@ -1570,11 +7421,6 @@
     "event_type": "NO_SHOW",
     "spot_id": "S_20181",
     "agent_id": "A_95969"
-  },
-  {
-    "tick": 179,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_20223"
   },
   {
     "tick": 179,
@@ -1590,8 +7436,9 @@
   },
   {
     "tick": 179,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_20288"
+    "event_type": "NO_SHOW",
+    "spot_id": "S_20288",
+    "agent_id": "A_53583"
   },
   {
     "tick": 179,
@@ -1601,59 +7448,73 @@
   },
   {
     "tick": 179,
-    "event_type": "NO_SHOW",
-    "spot_id": "S_20288",
-    "agent_id": "A_53583"
-  },
-  {
-    "tick": 228,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_27780"
-  },
-  {
-    "tick": 228,
-    "event_type": "SPOT_MATCHED",
-    "spot_id": "S_27780"
-  },
-  {
-    "tick": 228,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_27781"
-  },
-  {
-    "tick": 228,
-    "event_type": "SPOT_MATCHED",
-    "spot_id": "S_27781"
-  },
-  {
-    "tick": 234,
-    "event_type": "SPOT_CREATED",
-    "spot_id": "S_28453"
-  },
-  {
-    "tick": 234,
-    "event_type": "SPOT_MATCHED",
-    "spot_id": "S_28453"
-  },
-  {
-    "tick": 250,
-    "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_27780"
-  },
-  {
-    "tick": 250,
-    "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_27781"
-  },
-  {
-    "tick": 250,
-    "event_type": "SPOT_CONFIRMED",
-    "spot_id": "S_28453"
-  },
-  {
-    "tick": 252,
     "event_type": "SPOT_STARTED",
+    "spot_id": "S_19501"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_19959"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20181"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20223"
+  },
+  {
+    "tick": 179,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_20288"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_CREATED",
     "spot_id": "S_27780"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 228,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 234,
+    "event_type": "SPOT_CREATED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 234,
+    "event_type": "SPOT_MATCHED",
+    "spot_id": "S_28453"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_27781"
+  },
+  {
+    "tick": 250,
+    "event_type": "SPOT_CONFIRMED",
+    "spot_id": "S_28453"
   },
   {
     "tick": 252,
@@ -1663,14 +7524,19 @@
   },
   {
     "tick": 252,
-    "event_type": "SPOT_STARTED",
-    "spot_id": "S_27781"
-  },
-  {
-    "tick": 252,
     "event_type": "NO_SHOW",
     "spot_id": "S_27781",
     "agent_id": "A_33819"
+  },
+  {
+    "tick": 252,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_27780"
+  },
+  {
+    "tick": 252,
+    "event_type": "SPOT_STARTED",
+    "spot_id": "S_27781"
   },
   {
     "tick": 252,
